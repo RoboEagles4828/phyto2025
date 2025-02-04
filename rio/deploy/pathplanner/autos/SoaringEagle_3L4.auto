@@ -1,0 +1,43 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "P2to5L"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "5LtoLeft_Source"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left_Sourceto6L"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "6LtoLeft_Source"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left_Sourceto6R"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}
