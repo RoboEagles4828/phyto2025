@@ -65,4 +65,7 @@ class Cannon(Subsystem):
         Returns wether the robot thinks it has a coral in the cannon
         """
         return self.loaded
+    
+    def placeL1(self):
+        return self.run(self.leftMotor.set(TalonSRXControlMode.PercentOutput, 0.2)).alongWith(self.rightMotor.set(TalonSRXControlMode.PercentOutput, 0.2)).until(lambda: self.rightMotor.getSupplyCurrent()>50)
 
