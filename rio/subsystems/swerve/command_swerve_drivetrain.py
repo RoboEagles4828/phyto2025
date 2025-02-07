@@ -8,7 +8,7 @@ from wpilib.sysid import SysIdRoutineLog
 from wpimath.geometry import Rotation2d, Pose2d, Translation2d
 from wpimath.units import degreesToRadians
 from wpimath.kinematics import ChassisSpeeds
-from pathplannerlib.auto import AutoBuilder
+from pathplannerlib.auto import AutoBuilder, PathConstraints, PathPlannerPath
 from auto.auto_constants import AutoConstants
 # from generated.tuner_constants import TunerConstants
 
@@ -310,9 +310,15 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
         self._sim_notifier.startPeriodic(self._SIM_LOOP_PERIOD)
 
     def getPigeonRotation2d(self)->Rotation2d:
+        """
+        Grabs the Rotation 2d from the pigeon
+        """
         return Rotation2d(degreesToRadians(self.pigeon2.get_yaw().value))
     
     def autoBuilderConfigure(self):
+            """
+            Configures the AutoBuilder for the robot
+            """
             AutoBuilder.configure(
                 lambda: self.get_state().pose,
                 self.reset_pose,
@@ -323,8 +329,28 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
                 self.flip,
                 self
             )
+
+    def driveToPoseThenFollowPath(self, path: PathPlannerPath)-> Command:
+
+        """
+        Drives to a starting pose of a pre-generated path, then follows the pre-generated path
+        """
+        constraints = PathConstraints(3.0, 4, degreesToRadians(540), degreesToRadians(720))
+
+        redPath = path
+        bluePath = path.flipPath()
+
+        if (DriverStation.getAlliance() or DriverStation.Alliance.kBlue) == DriverStation.Alliance.kRed:
+            pathfindingCommand = AutoBuilder.pathfindThenFollowPath(redPath, constraints)
+        else:
+            pathfindingCommand = AutoBuilder.pathfindThenFollowPath(bluePath, constraints)
+
+        return pathfindingCommand
     
     def flip(self):
+        """
+        Checks to see wether the robot should flip the path based on its current alliance
+        """
         return (DriverStation.getAlliance() or DriverStation.Alliance.kBlue) == DriverStation.Alliance.kRed
     
     def swerve_output(self, speeds, feedforwards):
