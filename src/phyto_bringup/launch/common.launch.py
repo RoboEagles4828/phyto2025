@@ -113,9 +113,9 @@ def generate_launch_description():
                 "use_sim_time", default_value="true", description="Use sim time or not"
             ),
             node_robot_state_publisher,
-            control_node,
-            control_node_require,
-            joint_state_broadcaster_spawner,
+            # control_node,
+            # control_node_require,
+            # joint_state_broadcaster_spawner,
             # joint_trajectory_controller_spawner,
             # joint_trajectory_teleop,
         ]

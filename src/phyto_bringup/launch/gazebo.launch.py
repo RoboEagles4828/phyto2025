@@ -72,7 +72,7 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
-            common_layer,
+            # common_layer,
             declare_world,
             SetLaunchConfiguration(
                 name="world_file",

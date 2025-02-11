@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <robot name="phyto" xmlns:xacro="http://www.ros.org/wiki/xacro">
-  <xacro:include filename="$(find phyto_description)/urdf/control/drive.xacro" />
+  <!-- <xacro:include filename="$(find phyto_description)/urdf/control/drive.xacro" /> -->
   <xacro:include filename="$(find phyto_description)/urdf/util/macros.xacro" />
   <xacro:include filename="$(find phyto_description)/urdf/util/materials.xacro" />
   <xacro:include filename="$(find phyto_description)/urdf/parts/swerve_chassis.xacro" />
@@ -26,4 +26,17 @@
   <xacro:swerve_axle prefix="back_right" parent="base_link">
     <origin xyz=" -.25 -.25 .05" rpy="0 0 0" />
   </xacro:swerve_axle>
+
+  <gazebo>
+    <plugin
+      filename="gz-sim-joint-controller-system"
+      name="gz::sim::systems::JointController">
+      <joint_name>front_left_wheel_joint</joint_name>
+      <joint_name>front_right_wheel_joint</joint_name>
+      <joint_name>back_left_wheel_joint</joint_name>
+      <joint_name>back_right_wheel_joint</joint_name>
+      <initial_velocity>10.0</initial_velocity>
+    </plugin>
+
+  </gazebo>
 </robot> 
