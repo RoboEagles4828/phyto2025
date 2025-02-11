@@ -10,7 +10,7 @@
 
   <link name="base_link"></link>
 
-  <xacro:square_chassis prefix="d" parent="base_link">
+  <xacro:square_chassis prefix="swerve" parent="base_link">
     <origin xyz="0 0 0" rpy="0 0 0" />
   </xacro:square_chassis>
 
