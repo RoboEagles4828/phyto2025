@@ -23,6 +23,7 @@ from wpilib.shuffleboard import Shuffleboard
 from pathplannerlib.auto import AutoBuilder
 
 from subsystems.swerve.command_swerve_drivetrain import CommandSwerveDrivetrain
+from general_constants.field_constants import FieldConstants
 
 class RobotContainer:
     """
@@ -61,6 +62,8 @@ class RobotContainer:
 
         self.drivetrain = TunerConstants.create_drivetrain()
         # Configure the button bindings
+
+        self.pathFind = self.drivetrain.driveToPose(FieldConstants.reefFaceOneBlue)
 
         self.configureButtonBindings()
 
@@ -108,6 +111,7 @@ class RobotContainer:
         )
         self._joystick.rightBumper().onTrue(self.drivetrain.runOnce(lambda: self.drivetrain.set_operator_perspective_forward(-self.drivetrain.getPigeonRotation2d())))
         self._joystick.leftTrigger().whileTrue(self.drivetrain.run(lambda: self.drivetrain.pigeon2.set_yaw(-55)))
+        self._joystick.rightBumper().whileTrue(self.pathFind)
         # self._joystick.rightBumper().onTrue(InstantCommand(lambda: self.drivetrain.zeroPigeon()))
         # Run SysId routines when holding back/start and X/Y.
         # Note that each routine should be run exactly once in a single log.
