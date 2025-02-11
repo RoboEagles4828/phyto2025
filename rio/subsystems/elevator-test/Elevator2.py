@@ -2,6 +2,7 @@ from commands2 import Subsystem
 from phoenix6.hardware import TalonFX
 from phoenix6.controls import MotionMagicVoltage, DutyCycleOut
 from phoenix6.configs import Slot0Configs, TalonFXConfiguration, CurrentLimitsConfigs
+from phoenix6.configs.config_groups import InvertedValue
 from phoenix6 import StatusCode
 from wpilib import *
 from phoenix6.controls import StrictFollower
@@ -19,7 +20,8 @@ class Elevator(Subsystem):
          cfg = TalonFXConfiguration()
          cfg2 = self.motor_one.configurator
 
-         # Gear Ratio and PID values
+         # Gear Ratio, Direction, and PID values
+         cfg.motor_output.inverted = InvertedValue.CLOCKWISE_POSITIVE
          cfg.feedback.sensor_to_mechanism_ratio = 20.0
          cfg.slot0.k_g = 0
          cfg.slot0.k_s = 0
