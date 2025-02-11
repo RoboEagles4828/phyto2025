@@ -14,8 +14,8 @@ def generate_launch_description():
 
     declare_world = DeclareLaunchArgument(
         'world',
-        default_value='empty',
-        choices=['frc2025', 'empty'],
+        default_value='reefscape',
+        choices=['reefscape', 'empty'],
         description='World to load into Gazebo'
     )
 
@@ -24,7 +24,7 @@ def generate_launch_description():
     gazebo_layer = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(gz_launch_path),
         launch_arguments={
-            'gz_args': ["empty.sdf"],
+            'gz_args': ["gazebo/reefscape.sdf"],
             'on_exit_shutdown': 'True'
         }.items(),
     )
@@ -37,7 +37,7 @@ def generate_launch_description():
         executable='create',
         output='screen',
         parameters=[{
-            'world': 'empty',
+            'world': 'Reefscape',
             'file': PathJoinSubstitution([project_root, 'src/phyto_description/urdf/robot.urdf'])
             # 'file': 'empty.sdf'
         }]

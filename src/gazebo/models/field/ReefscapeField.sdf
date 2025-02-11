@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<sdf version="1.8">
+    <model name="reefscape">
+        <static>true</static>
+        <link name="reefscape_link">
+            <visual name="reefscape_visual">
+                <geometry>
+                    <mesh>
+                        <uri>meshes/rf-visual.dae</uri>
+                    </mesh>
+                </geometry>
+            </visual>
+            <collision name="reefscape_collision">
+                <geometry>
+                    <mesh>
+                        <uri>meshes/rf-collision.glb</uri>
+                    </mesh>
+                </geometry>
+            </collision>
+        </link>
+    </model>
+</sdf>
