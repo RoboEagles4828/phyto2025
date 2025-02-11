@@ -12,6 +12,24 @@ def generate_launch_description():
     pkg_ros_gz_sim = FindPackageShare('ros_gz_sim')
     gz_launch_path = PathJoinSubstitution([pkg_ros_gz_sim, 'launch', 'gz_sim.launch.py'])
 
+    # Generic ROS description publishing nodes
+    use_sim_time_arg = DeclareLaunchArgument(
+        "use_sim_time",
+        default_value="true",
+        description="Use sim time or not"
+    )
+
+
+
+
+
+
+
+
+
+
+    # Gazebo specific nodes that launch gazebo
+
     declare_world = DeclareLaunchArgument(
         'world',
         default_value='reefscape',
@@ -32,7 +50,7 @@ def generate_launch_description():
 
 
 
-    load_nodes = Node(
+    load_robot = Node(
         package='ros_gz_sim',
         executable='create',
         output='screen',
@@ -49,5 +67,5 @@ def generate_launch_description():
         SetLaunchConfiguration(name='world_file', value=[LaunchConfiguration('world'), TextSubstitution(text='.sdf')]),
         SetEnvironmentVariable('GZ_SIM_RESOURCE_PATH', PathJoinSubstitution([project_root, 'src'])),
         gazebo_layer,
-        load_nodes
+        load_robot
     ])

@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<robot name="robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <xacro:macro name="swerve_drive_control" params="plugin">
+
+        <gazebo>
+            <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
+                <parameters>$(find phyto2025_bringup)/config/controllers.yaml</parameters>
+            </plugin>
+        </gazebo>
+
+        <ros2_control name="swerve_drive" type="system">
+            <!-- USING A SINGLE HARDWARE INTERFACE TO REDUCE DDS AND THREAD LOAD ON RIO -->
+            <hardware>
+                <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+                <param name="example_param_hw_start_duration_sec">3.0</param>
+                <param name="example_param_hw_stop_duration_sec">3.0</param>
+            </hardware>
+
+            <!-- DRIVE TRAIN COMPONENTS -->
+            <joint name="front_right_wheel_joint">
+                <command_interface name="velocity" />
+                <state_interface name="position" />
+                <state_interface name="velocity" />
+            </joint>
+            <joint name="rear_left_wheel_joint">
+                <command_interface name="velocity" />
+                <state_interface name="position" />
+                <state_interface name="velocity" />
+            </joint>
+            <joint name="front_left_wheel_joint">
+                <command_interface name="velocity" />
+                <state_interface name="position" />
+                <state_interface name="velocity" />
+            </joint>
+            <joint name="rear_right_wheel_joint">
+                <command_interface name="velocity" />
+                <state_interface name="position" />
+                <state_interface name="velocity" />
+            </joint>
+            <joint name="front_right_axle_joint">
+                <command_interface name="position" />
+                <state_interface name="position" />
+                <state_interface name="velocity" />
+            </joint>
+            <joint name="rear_left_axle_joint">
+                <command_interface name="position" />
+                <state_interface name="position" />
+                <state_interface name="velocity" />
+            </joint>
+            <joint name="front_left_axle_joint">
+                <command_interface name="position" />
+                <state_interface name="position" />
+                <state_interface name="velocity" />
+            </joint>
+            <joint name="rear_right_axle_joint">
+                <command_interface name="position" />
+                <state_interface name="position" />
+                <state_interface name="velocity" />
+            </joint>
+        </ros2_control>
+    </xacro:macro>
+</robot>
