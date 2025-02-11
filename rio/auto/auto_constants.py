@@ -7,7 +7,7 @@ class AutoConstants:
 
     holonomicPathConfig = PPHolonomicDriveController(
         PIDConstants(5,0,0),
-        PIDConstants(5,0,0),
+        PIDConstants(10,0,0),
         0.2
     )
     
