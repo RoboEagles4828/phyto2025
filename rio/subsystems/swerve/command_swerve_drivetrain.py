@@ -348,7 +348,7 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
         """
         Drives to a starting pose of a pre-generated path, then follows the pre-generated path
         """
-        constraints = PathConstraints(3.0, 4, degreesToRadians(540), degreesToRadians(720))
+        constraints = PathConstraints(2.0, 1, degreesToRadians(360), degreesToRadians(720))
 
         redPath = path
         bluePath = path.flipPath()
