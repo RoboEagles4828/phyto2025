@@ -17,6 +17,8 @@ class Elevator_Constants:
     kIntegral = 0.0
     kDerivative = 0.1
 
+    kGearRatio = 20.0
+
     # Current Limits
     kCurrentLimit = 120
     kCurrentLimitEnable = True
@@ -30,16 +32,16 @@ class Elevator_Constants:
 
     kElevatorHeightAboveGround = 8.526
 
-    #mechanism 2d information
-    kthickness = 2.0
-    ksetBack = 9.0
-    kbellyHeight = 1.537
-    kbaseHeight = 13 + kbellyHeight
-    kmaxHeight = 80 + kbellyHeight
-    kcannonHeight = 6.0
+    # Mechanism 2d information
+    kThickness = 2.0
+    kSetBack = 9.0
+    kBellyHeight = 1.537
+    kBaseHeight = 13 + kBellyHeight
+    kMaxHeight = 80 + kBellyHeight
+    kCannonHeight = 6.0
 
 
-    krotationsPerInch = 1.2119 #formula is rotations*gear ratio*diameter*pi
+    kRotationsPerInch = 1.2119 #formula is rotations*gear ratio*diameter*pi
     kElevatorPositionKey = "elevator/position"
     kElevatorStateKey = "elevator/state"
 
