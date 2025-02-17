@@ -12,4 +12,4 @@ class Hopper(Subsystem):
         return self.run(lambda: self.sethopperspeed(0))
     
     def move(self):
-        return self.run(lambda: self.sethopperspeed(10))
+        return self.run(lambda: self.sethopperspeed(0.1))
