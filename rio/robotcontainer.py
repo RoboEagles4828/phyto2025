@@ -23,6 +23,7 @@ from wpilib.shuffleboard import Shuffleboard
 from pathplannerlib.auto import AutoBuilder
 
 from subsystems.swerve.command_swerve_drivetrain import CommandSwerveDrivetrain
+from subsystems.elevator.elevator import Elevator
 from general_constants.field_constants import FieldConstants
 
 class RobotContainer:
@@ -61,8 +62,8 @@ class RobotContainer:
         self._joystick = commands2.button.CommandXboxController(0)
 
         self.drivetrain = TunerConstants.create_drivetrain()
+        self.elevator = Elevator()
         # Configure the button bindings
-
         self.pathFind = self.drivetrain.driveToPose(FieldConstants.reefFaceOneBlue)
 
         self.configureButtonBindings()
@@ -101,14 +102,20 @@ class RobotContainer:
             )
         )
 
-        self._joystick.a().whileTrue(self.drivetrain.apply_request(lambda: self._brake))
-        self._joystick.b().whileTrue(
-            self.drivetrain.apply_request(
-                lambda: self._point.with_module_direction(
-                    Rotation2d(-self._joystick.getLeftY(), -self._joystick.getLeftX())
-                )
-            )
-        )
+        # self._joystick.a().whileTrue(self.drivetrain.apply_request(lambda: self._brake))
+        # self._joystick.b().whileTrue(
+        #     self.drivetrain.apply_request(
+        #         lambda: self._point.with_module_direction(
+        #             Rotation2d(-self._joystick.getLeftY(), -self._joystick.getLeftX())
+        #         )
+        #     )
+        # )
+
+        self._joystick.a().onTrue(self.elevator.runOnce(lambda: self.elevator.setHeight(FieldConstants.ReefPoints.PointAL4.m_elevatorHeight)))
+        self._joystick.y().onTrue(self.elevator.runOnce(lambda: self.elevator.setHeight(FieldConstants.ReefPoints.PointAL3.m_elevatorHeight)))
+        self._joystick.x().onTrue(self.elevator.runOnce(lambda: self.elevator.setHeight(FieldConstants.ReefPoints.PointAL2.m_elevatorHeight)))
+        self._joystick.b().onTrue(self.elevator.runOnce(lambda: self.elevator.zero()))
+
         self._joystick.rightBumper().onTrue(self.drivetrain.runOnce(lambda: self.drivetrain.set_operator_perspective_forward(-self.drivetrain.getPigeonRotation2d())))
         self._joystick.leftTrigger().whileTrue(self.drivetrain.run(lambda: self.drivetrain.pigeon2.set_yaw(-55)))
         self._joystick.rightBumper().whileTrue(self.pathFind)

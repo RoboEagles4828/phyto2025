@@ -25,71 +25,71 @@ class FieldConstants:
     reefFaceSixBlue = Pose2d(Units.inchesToMeters(160.39), Units.inchesToMeters(186.83), Rotation2d(120))
     reefFaceSixRed = Pose2d(Units.inchesToMeters(530.49), Units.inchesToMeters(130.17), Rotation2d(300))
 
-class ReefPoints(Enum):
-    # point = (elevator height, "path name", red tag, blue tag)
-    PointAL1 = (0, 0, 26-Elevator_Constants.kbaseHeight, "pointAPath", 7, 18)  
-    PointAL2 = (1, 1, 34-Elevator_Constants.kbaseHeight, "pointAPath", 7, 18)
-    PointAL3 = (2, 2, 50-Elevator_Constants.kbaseHeight, "pointAPath", 7, 18)
-    PointAL4 = (3, 3, 77-Elevator_Constants.kbaseHeight, "pointAPath", 7, 18) 
+    class ReefPoints(Enum):
+    # point = (elevator height, "path name", red tag, ble tag)
+        PointAL1 = (0, 26-Elevator_Constants.kBaseHeight, "pointAPath", 7, 18)  
+        PointAL2 = (1, 34-Elevator_Constants.kBaseHeight, "pointAPath", 7, 18)
+        PointAL3 = (2, 50-Elevator_Constants.kBaseHeight, "pointAPath", 7, 18)
+        PointAL4 = (3, 85-Elevator_Constants.kBaseHeight, "pointAPath", 7, 18) 
 
-    PointBL1 = (4, 4, 26-Elevator_Constants.kbaseHeight, "pointBPath", 7, 18)
-    PointBL2 = (5, 5, 34-Elevator_Constants.kbaseHeight, "pointBPath", 7, 18)
-    PointBL3 = (6, 6, 50-Elevator_Constants.kbaseHeight, "pointBPath", 7, 18)
-    PointBL4 = (7, 7, 77-Elevator_Constants.kbaseHeight, "pointBPath", 7, 18)
+        PointBL1 = (4, 26-Elevator_Constants.kBaseHeight, "pointBPath", 7, 18)
+        PointBL2 = (5, 34-Elevator_Constants.kBaseHeight, "pointBPath", 7, 18)
+        PointBL3 = (6, 50-Elevator_Constants.kBaseHeight, "pointBPath", 7, 18)
+        PointBL4 = (7, 77-Elevator_Constants.kBaseHeight, "pointBPath", 7, 18)
 
-    PointCL1 = (8, 26-Elevator_Constants.kbaseHeight, "pointCPath", 8, 17)
-    PointCL2 = (9, 34-Elevator_Constants.kbaseHeight, "pointCPath", 8, 17)
-    PointCL3 = (10, 50-Elevator_Constants.kbaseHeight, "pointCPath", 8, 17)
-    PointCL4 = (11, 77-Elevator_Constants.kbaseHeight, "pointCPath", 8, 17)
+        PointCL1 = (8, 26-Elevator_Constants.kBaseHeight, "pointCPath", 8, 17)
+        PointCL2 = (9, 34-Elevator_Constants.kBaseHeight, "pointCPath", 8, 17)
+        PointCL3 = (10, 50-Elevator_Constants.kBaseHeight, "pointCPath", 8, 17)
+        PointCL4 = (11, 77-Elevator_Constants.kBaseHeight, "pointCPath", 8, 17)
 
-    PointDL1 = (12, 26-Elevator_Constants.kbaseHeight, "pointDPath", 8, 17)
-    PointDL2 = (13, 34-Elevator_Constants.kbaseHeight, "pointDPath", 8, 17)
-    PointDL3 = (14, 50-Elevator_Constants.kbaseHeight, "pointDPath", 8, 17)
-    PointDL4 = (15, 77-Elevator_Constants.kbaseHeight, "pointDPath", 8, 17)
+        PointDL1 = (12, 26-Elevator_Constants.kBaseHeight, "pointDPath", 8, 17)
+        PointDL2 = (13, 34-Elevator_Constants.kBaseHeight, "pointDPath", 8, 17)
+        PointDL3 = (14, 50-Elevator_Constants.kBaseHeight, "pointDPath", 8, 17)
+        PointDL4 = (15, 77-Elevator_Constants.kBaseHeight, "pointDPath", 8, 17)
 
-    PointEL1 = (16, 26-Elevator_Constants.kbaseHeight, "pointEPath", 9, 22)
-    PointEL2 = (17, 34-Elevator_Constants.kbaseHeight, "pointEPath", 9, 22)
-    PointEL3 = (18, 50-Elevator_Constants.kbaseHeight, "pointEPath", 9, 22)
-    PointEL4 = (19, 77-Elevator_Constants.kbaseHeight, "pointEPath", 9, 22)
+        PointEL1 = (16, 26-Elevator_Constants.kBaseHeight, "pointEPath", 9, 22)
+        PointEL2 = (17, 34-Elevator_Constants.kBaseHeight, "pointEPath", 9, 22)
+        PointEL3 = (18, 50-Elevator_Constants.kBaseHeight, "pointEPath", 9, 22)
+        PointEL4 = (19, 77-Elevator_Constants.kBaseHeight, "pointEPath", 9, 22)
 
-    PointFL1 = (20, 26-Elevator_Constants.kbaseHeight, "pointFPath", 9, 22)
-    PointFL2 = (21, 34-Elevator_Constants.kbaseHeight, "pointFPath", 9, 22)
-    PointFL3 = (22, 50-Elevator_Constants.kbaseHeight, "pointFPath", 9, 22)
-    PointFL4 = (23, 77-Elevator_Constants.kbaseHeight, "pointFPath", 9, 22)
+        PointFL1 = (20, 26-Elevator_Constants.kBaseHeight, "pointFPath", 9, 22)
+        PointFL2 = (21, 34-Elevator_Constants.kBaseHeight, "pointFPath", 9, 22)
+        PointFL3 = (22, 50-Elevator_Constants.kBaseHeight, "pointFPath", 9, 22)
+        PointFL4 = (23, 77-Elevator_Constants.kBaseHeight, "pointFPath", 9, 22)
 
-    PointGL1 = (24, 26-Elevator_Constants.kbaseHeight, "pointGPath", 10, 21)
-    PointGL2 = (25, 34-Elevator_Constants.kbaseHeight, "pointGPath", 10, 21)
-    PointGL3 = (26, 50-Elevator_Constants.kbaseHeight, "pointGPath", 10, 21)
-    PointGL4 = (27, 77-Elevator_Constants.kbaseHeight, "pointGPath", 10, 21)
+        PointGL1 = (24, 26-Elevator_Constants.kBaseHeight, "pointGPath", 10, 21)
+        PointGL2 = (25, 34-Elevator_Constants.kBaseHeight, "pointGPath", 10, 21)
+        PointGL3 = (26, 50-Elevator_Constants.kBaseHeight, "pointGPath", 10, 21)
+        PointGL4 = (27, 77-Elevator_Constants.kBaseHeight, "pointGPath", 10, 21)
 
-    PointHL1 = (28, 26-Elevator_Constants.kbaseHeight, "pointHPath", 10, 21)
-    PointHL2 = (29, 34-Elevator_Constants.kbaseHeight, "pointHPath", 10, 21)
-    PointHL3 = (30, 50-Elevator_Constants.kbaseHeight, "pointHPath", 10, 21)
-    PointHL4 = (31, 77-Elevator_Constants.kbaseHeight, "pointHPath", 10, 21)
+        PointHL1 = (28, 26-Elevator_Constants.kBaseHeight, "pointHPath", 10, 21)
+        PointHL2 = (29, 34-Elevator_Constants.kBaseHeight, "pointHPath", 10, 21)
+        PointHL3 = (30, 50-Elevator_Constants.kBaseHeight, "pointHPath", 10, 21)
+        PointHL4 = (31, 77-Elevator_Constants.kBaseHeight, "pointHPath", 10, 21)
 
-    PointIL1 = (32, 26-Elevator_Constants.kbaseHeight, "pointIPath", 11, 20)
-    PointIL2 = (33, 34-Elevator_Constants.kbaseHeight, "pointIPath", 11, 20)
-    PointIL3 = (34, 50-Elevator_Constants.kbaseHeight, "pointIPath", 11, 20)
-    PointIL4 = (35, 77-Elevator_Constants.kbaseHeight, "pointIPath", 11, 20)
+        PointIL1 = (32, 26-Elevator_Constants.kBaseHeight, "pointIPath", 11, 20)
+        PointIL2 = (33, 34-Elevator_Constants.kBaseHeight, "pointIPath", 11, 20)
+        PointIL3 = (34, 50-Elevator_Constants.kBaseHeight, "pointIPath", 11, 20)
+        PointIL4 = (35, 77-Elevator_Constants.kBaseHeight, "pointIPath", 11, 20)
 
-    PointJL1 = (36, 26-Elevator_Constants.kbaseHeight, "pointJPath", 11, 20)
-    PointJL2 = (37, 34-Elevator_Constants.kbaseHeight, "pointJPath", 11, 20)
-    PointJL3 = (38, 50-Elevator_Constants.kbaseHeight, "pointJPath", 11, 20)
-    PointJL4 = (39, 77-Elevator_Constants.kbaseHeight, "pointJPath", 11, 20)
+        PointJL1 = (36, 26-Elevator_Constants.kBaseHeight, "pointJPath", 11, 20)
+        PointJL2 = (37, 34-Elevator_Constants.kBaseHeight, "pointJPath", 11, 20)
+        PointJL3 = (38, 50-Elevator_Constants.kBaseHeight, "pointJPath", 11, 20)
+        PointJL4 = (39, 77-Elevator_Constants.kBaseHeight, "pointJPath", 11, 20)
 
-    PointKL1 = (40, 26-Elevator_Constants.kbaseHeight, "pointKPath", 6, 19)
-    PointKL2 = (41, 34-Elevator_Constants.kbaseHeight, "pointKPath", 6, 19)
-    PointKL3 = (42, 50-Elevator_Constants.kbaseHeight, "pointKPath", 6, 19)
-    PointKL4 = (43, 77-Elevator_Constants.kbaseHeight, "pointKPath", 6, 19)
+        PointKL1 = (40, 26-Elevator_Constants.kBaseHeight, "pointKPath", 6, 19)
+        PointKL2 = (41, 34-Elevator_Constants.kBaseHeight, "pointKPath", 6, 19)
+        PointKL3 = (42, 50-Elevator_Constants.kBaseHeight, "pointKPath", 6, 19)
+        PointKL4 = (43, 77-Elevator_Constants.kBaseHeight, "pointKPath", 6, 19)
 
-    PointLL1 = (44, 26-Elevator_Constants.kbaseHeight, "pointLPath", 6, 19)
-    PointLL2 = (45, 34-Elevator_Constants.kbaseHeight, "pointLPath", 6, 19)
-    PointLL3 = (46, 50-Elevator_Constants.kbaseHeight, "pointLPath", 6, 19)
-    PointLL4 = (47, 77-Elevator_Constants.kbaseHeight, "pointLPath", 6, 19)
+        PointLL1 = (44, 26-Elevator_Constants.kBaseHeight, "pointLPath", 6, 19)
+        PointLL2 = (45, 34-Elevator_Constants.kBaseHeight, "pointLPath", 6, 19)
+        PointLL3 = (46, 50-Elevator_Constants.kBaseHeight, "pointLPath", 6, 19)
+        PointLL4 = (47, 77-Elevator_Constants.kBaseHeight, "pointLPath", 6, 19)
 
-    def __init__(self, value, elevatorHeight, pathName, redTag, blueTag):
-        self.m_value = value
-        self.m_elevatorHeight = elevatorHeight
-        self.m_pathName = pathName
-        self.m_redTagID = redTag
-        self.m_blueTagID = blueTag
+        def __init__(self, value, elevatorHeight, pathName, redTag, blueTag):
+            self._value = value
+            self.m_elevatorHeight = elevatorHeight
+            self.m_pathName = pathName
+            self.m_redTagID = redTag
+            self.m_blueTagID = blueTag

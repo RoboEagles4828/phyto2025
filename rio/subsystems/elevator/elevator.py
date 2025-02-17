@@ -1,22 +1,27 @@
-import math
 from commands2 import Subsystem
 from phoenix6.hardware import TalonFX
-from phoenix6.controls import MotionMagicVoltage, DutyCycleOut
-from phoenix6.configs import TalonFXConfiguration, CurrentLimitsConfigs
-from phoenix6.configs.config_groups import InvertedValue
+from phoenix6.controls import MotionMagicVoltage, DutyCycleOut, PositionVoltage
+from phoenix6.configs import Slot0Configs, TalonFXConfiguration, CurrentLimitsConfigs
+from phoenix6 import StatusCode
 from wpilib import *
 from phoenix6.controls import StrictFollower
 from lib.util.units import Units
+
 from subsystems.elevator.elevator_constants import Elevator_Constants
+from general_constants.field_constants import FieldConstants
+
+from wpilib import Mechanism2d, MechanismLigament2d, MechanismRoot2d, Color8Bit
+import math
 
 class Elevator(Subsystem):
 
     motor_one : TalonFX
     motor_two: TalonFX
+    desired_position: float
 
     def __init__(self):
          
-         # Creating Motors and Configurators
+         # Creating Motors and Configurators, change the names of motor1 and two after we get the final robot
          self.motor_one = TalonFX(Elevator_Constants.kMotor1ID)  # CAN ID 1
          self.motor_two = TalonFX(Elevator_Constants.kMotor2ID)  # CAN ID 2
          cfg = TalonFXConfiguration()
@@ -35,7 +40,7 @@ class Elevator(Subsystem):
 
          # Applying Limit Configurations
          limit_configs = CurrentLimitsConfigs()
-         limit_configs.stator_current_limit = Elevator_Constants.kCurrentLimit # Note that this is in AMPERES
+         limit_configs.stator_current_limit = Elevator_Constants.kCurrentLimit   # Note that this is in AMPERES
          limit_configs.stator_current_limit_enable = Elevator_Constants.kCurrentLimitEnable
 
          # Motion Magic Configurations
@@ -52,25 +57,26 @@ class Elevator(Subsystem):
          self.motor_one.stopMotor()
 
          # Misc
-         self.request = MotionMagicVoltage(0).with_slot(0)
+         self.request = MotionMagicVoltage(0).with_slot(0).with_enable_foc(True)
          self.output = DutyCycleOut(0.2)
          self.output2 = DutyCycleOut(-0.2)
 
+
          # Create Mechanism Canvas for SmartDashboard
-         canvasWidth = 21.0
+         canvasWidth = 0.533
          canvasHeight = Units.inchesToMeters(Elevator_Constants.kMaxHeight)
-         canvas = Mechanism2d(canvasWidth, canvasHeight, Color8Bit(Color.kLightGray))
+         canvas = Mechanism2d(canvasWidth, canvasHeight, Color8Bit(Color.kBlack))
          origin = canvas.getRoot("elevator-root", canvasWidth / 2.0, 0.0)
-         offset = origin.appendLigament("elevator-offset", canvasWidth/2.0 - Units.inchesToMeters(Elevator_Constants.kSetBack), 0.0, 1.0, Color8Bit())
-         mechanism = offset.appendLigament("elevator", Units.inchesToMeters(Elevator_Constants.kBaseHeight), 90.0, Units.inchesToMeters(Elevator_Constants.kThickness), Color8Bit(Color.kBrown))
+         offset = origin.appendLigament("elevator-offset", canvasWidth/2.0 - Units.inchesToMeters(Elevator_Constants.kSetBack), 0.0, 4.0, Color8Bit(Color.kYellow))
+         self.mechanism = offset.appendLigament("elevator", Units.inchesToMeters(Elevator_Constants.kBaseHeight), 90.0, 4.0, Color8Bit(Color.kOrange))
 
          SmartDashboard.putData("Elevator/mechanism", canvas)
 
     def zero(self):
-        self.motor_one.set_position(0.0)
+        self.motor_one.set_control(self.request.with_position(0.0))
 
     def goToZero(self):
-        return self.runOnce(self.goToZero())
+        return self.runOnce(self.zero())
     
     def stop(self):
         self.motor_one.stopMotor()
@@ -88,7 +94,7 @@ class Elevator(Subsystem):
 
     def setPosition(self, position: float):
         self.desired_position = position
-        self.motor_one.set_control(MotionMagicVoltage, position)
+        self.motor_one.set_control(self.request.with_position(position))
 
     def setHeight(self, height: float):
         position = (height - Elevator_Constants.kBaseHeight) * Elevator_Constants.kRotationsPerInch
@@ -97,8 +103,16 @@ class Elevator(Subsystem):
     def closeEnough(self, position: float):
         return self.desired_position>=0.0 and math.fabs(self.desired_position-position)
     
-    def getHeight(self, position: float):
-        return position / Elevator_Constants.kRotationsPerInch + Elevator_Constants.kBaseHeight
-    
     def getHeight(self):
-        return self.getHeight(self.motor_one.get_position())
+        return self.motor_one.get_position().value_as_double / Elevator_Constants.kRotationsPerInch + Elevator_Constants.kBaseHeight
+    
+    def getHeightPosition(self):
+        return self.motor_one.get_position().value_as_double
+    
+    def simSetPosition(self, position: float):
+        talon = self.motor_one
+        talon.__sim_rotor_pos = position
+    
+    def periodic(self):
+        SmartDashboard.putNumber("Elevator/Height", self.getHeight())
+        SmartDashboard.putNumber("Elevator/Position", self.motor_one.get_position().value_as_double)

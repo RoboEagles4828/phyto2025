@@ -14,7 +14,7 @@ class GameState:
     m_pathCompleted = False
 
     #default to point 
-    m_nextPlacement = ReefPoints.PointAL1
+    m_nextPlacement = FieldConstants.ReefPoints.PointAL1
 
 
     def setNextPlacement(self, nextPlacement):

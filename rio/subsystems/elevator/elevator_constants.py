@@ -9,13 +9,13 @@ class Elevator_Constants:
     kMotor2ID = 22
 
     # Configurations
-    kGravity = 0.0
+    kGravity = 0.4
     kStatic = 0.0
     kVelocity = 0.0
     kAcceleration = 0.0
-    kPorportional = 0.5
+    kPorportional = 0.8
     kIntegral = 0.0
-    kDerivative = 0.1
+    kDerivative = 0.0
 
     kGearRatio = 20.0
 
@@ -41,7 +41,7 @@ class Elevator_Constants:
     kCannonHeight = 6.0
 
 
-    kRotationsPerInch = 1.2119 #formula is rotations*gear ratio*diameter*pi
+    kRotationsPerInch = 0.605958283236 #formula is rotations*gear ratio*diameter*pi
     kElevatorPositionKey = "elevator/position"
     kElevatorStateKey = "elevator/state"
 
