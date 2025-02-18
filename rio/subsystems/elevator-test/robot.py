@@ -1,6 +1,7 @@
 from wpilib import TimedRobot
 from commands2 import Command
 from commands2 import CommandScheduler
+from commands2.sysid import SysIdRoutine
 from wpimath.geometry import Rotation2d
 from wpilib import XboxController
 from wpilib.shuffleboard import ShuffleboardTab
@@ -38,16 +39,20 @@ class Robot(TimedRobot):
 		# listen to joystick 
 
 		if self.joystick.getAButtonPressed():
-			self.elevator.move_to_l1()
+			# self.elevator.move_to_l1()
+			self.elevator.sys_id_quasistatic(SysIdRoutine.Direction.kForward)
 
 		elif self.joystick.getXButtonPressed():
-			self.elevator.move_to_l2()
+			# self.elevator.move_to_l2()
+			self.elevator.sys_id_quasistatic(SysIdRoutine.Direction.kReverse)
 
 		elif self.joystick.getBButtonPressed():
-			self.elevator.move_to_l3()
+			# self.elevator.move_to_l3()
+			self.elevator.sys_id_dynamic(SysIdRoutine.Direction.kForward)
 
 		elif self.joystick.getYButtonPressed():
-			self.elevator.move_to_l4()
+			# self.elevator.move_to_l4()
+			self.elevator.sys_id_dynamic(SysIdRoutine.Direction.kReverse)
 
 		elif self.joystick.getLeftBumperButton():
 			self.elevator.move_down_gradually()
