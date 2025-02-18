@@ -1,7 +1,6 @@
 from wpimath.geometry import Transform3d, Rotation3d
-from phoenix6.configs.talon_fx_configs import TalonFXConfiguration, CurrentLimitsConfigs
 import math
-
+from wpimath import units
 class Elevator_Constants:
 
     # Motor IDs
@@ -24,9 +23,18 @@ class Elevator_Constants:
     kCurrentLimitEnable = True
 
     # Motion Magic Configurations
-    kCruiseVelocity = 40
-    kMagicAcceleration = 80
-    kMagicJerk = 800
+    _kElevatorStageCount = 3
+    _kElevatorSprocketDiameter = units.inchesToMeters(1.25) # TODO find value
+
+    # TODO check this math. Coming out higher than we discussed. Maybe check at robot.
+    kMetersPerRotation = _kElevatorSprocketDiameter * math.pi * _kElevatorStageCount
+    """ Vertical delta from one rotation of the mechanism shaft coming out of the gearbox. """
+
+    _kCruiseVelocityMPS = 0.5
+
+    kCruiseVelocity = _kCruiseVelocityMPS / kMetersPerRotation
+    kMagicAcceleration = kCruiseVelocity * 2.0
+    kMagicJerk = kMagicAcceleration * 10.0
 
     kMetersPerInch = 0.0254
 
@@ -74,3 +82,15 @@ class Elevator_Constants:
 
     kElevatorManualChange = 0.01
     """.01 meters / (1/50) seconds = 0.5 m/s"""
+
+    kManualUpDutyCycle = 0.2
+    """ Power going up manually"""
+
+    kManualDownDutyCycle = -0.2
+    """ Power going down manually"""
+
+    kManualNoPower = 0
+    """ Turn off motors """
+
+    CARRIAGE_HEIGHT_AT_BOTTOM_M = units.inchesToMeters(8.0) # TODO measure
+    """ Height of the carriage (bottom edge) at elevator bottom. """
