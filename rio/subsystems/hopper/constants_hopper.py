@@ -1,9 +1,14 @@
+from phoenix5 import SupplyCurrentLimitConfiguration
 class ConstantsHopper:
 
-    motorID = 35  # TODO find out what this really is
+    HOPPERMOTOR_ID = 35  # TODO find out what this really is
+    BEAMBREAK_ID = 0 # TODO find out what this really is
 
-    intakeDutyCycle = 0.1  # TODO test and adjust
-    """ Power used durning normal Coral intaking. """
+    # TODO: Run tests to find appropriate values for these
+    CURRENT_LIMIT = 30
+    CURRENT_THRESHOLD= 50
+    CURRENT_THRESHOLD_TIME= 3.0
 
-    agitationDutyCycle = -0.2  # TODO needed? if, what value?
-    """ Coral stuck between agitator and back panel. Force it loose. """
+    SUPPLY_CONFIG = SupplyCurrentLimitConfiguration(CURRENT_LIMIT, CURRENT_THRESHOLD, CURRENT_THRESHOLD_TIME)
+
+

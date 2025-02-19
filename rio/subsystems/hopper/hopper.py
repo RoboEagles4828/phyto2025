@@ -1,22 +1,33 @@
 from commands2 import Command, Subsystem
-from phoenix5 import TalonSRX, TalonSRXControlMode
+from phoenix5 import TalonSRX, TalonSRXControlMode, SupplyCurrentLimitConfiguration
 from subsystems.hopper.constants_hopper import ConstantsHopper
+from wpilib import DigitalInput
 
 
 class Hopper(Subsystem):
     def _init_(self):
-        self.motor = TalonSRX(ConstantsHopper.motorID)
+        self.hopperMotor = TalonSRX(ConstantsHopper.HOPPERMOTOR_ID)
+        self.beamBreak = DigitalInput(ConstantsHopper.BEAMBREAK_ID)
 
-    def sethopperspeed(self, percentOutput):
-        self.motor.set(TalonSRXControlMode.PercentOutput, percentOutput)
+        self.hopperMotor.configSupplyCurrentLimit(ConstantsHopper.SUPPLY_CONFIG)
+        self.hopperMotor.setInverted(False)  #TODO: Check to see if this is correct
+
+        self.coralInHopper = False
+
+    def setHopperSpeed(self, percentOutput):
+        """ Sets the speed of the Hopper Motor"""
+        self.hopperMotor.set(TalonSRXControlMode.PercentOutput, percentOutput)
 
     def stop(self) -> Command:
-        return self.run(lambda: self.sethopperspeed(0))
+        """Stops the hopper motor"""
+        return self.run(lambda: self.setHopperSpeed(0))
 
-    def move(self) -> Command:
-        """Used for normal Coral intaking agitator movement."""
-        return self.run(lambda: self.sethopperspeed(ConstantsHopper.intakeDutyCycle))
+    def intake(self) -> Command:
+        """Runs the hopper motor at max speed"""
+        return self.run(lambda: self.setHopperSpeed(1))
+    
+    def hasCoral(self) -> bool:
+        """Returns whether the hopper has coral"""
+        return not(self.beamBreak.get())  # self.breakBeam.get() returns True if the beam is not broken, so we negate it to return False if the beam is not broken
 
-    def agitate(self) -> Command:
-        """Maybe used for Coral stuck between agitator and back panel."""
-        return self.run(lambda: self.sethopperspeed(ConstantsHopper.agitationDutyCycle))
+    
