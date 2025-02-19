@@ -2,14 +2,12 @@ from commands2 import Subsystem
 from wpilib import DigitalInput
 from phoenix5 import TalonSRX, TalonSRXControlMode
 from constants_cannon import Constants_Cannon
+from commands2.waitcommand import WaitCommand
 
 class Cannon(Subsystem):
     def __init__(self):
         self.leftMotor = TalonSRX(Constants_Cannon.leftMotorID)
         self.rightMotor = TalonSRX(Constants_Cannon.rightMotorID)
-
-        # if the digital input is false, then it can see the coral
-        self.beamBreak = DigitalInput(Constants_Cannon.digitalInputID)
 
         self.leftMotor.configSupplyCurrentLimit(Constants_Cannon.supply_config)
         self.rightMotor.configSupplyCurrentLimit(Constants_Cannon.supply_config)
@@ -20,10 +18,7 @@ class Cannon(Subsystem):
 
         self.leftMotor.follow(self.rightMotor, TalonSRXControlMode.PercentOutput)
 
-        self.loaded = False
-
-    def getBeamBreakState(self):
-        return not(self.beamBreak.get())
+        self.loaded = False #TODO: Move this variable to the robot state for it to handle
         
     def setCannonSpeed(self, percentOutput):
 
@@ -38,15 +33,18 @@ class Cannon(Subsystem):
         """
         This sets the motors to run when the coral is being loaded from the hopper
         """
-        return self.run(lambda: self.setCannonSpeed(1)).until(lambda: self.rightMotor.getSupplyCurrent()>50)
+        loadCommand =  self.run(lambda: self.setCannonSpeed(1)).until(self.rightMotor.getSupplyCurrent()>=40) #TODO: Adjust the current condition
+        self.loaded = True
+        return loadCommand
         
     
-    def placeCoral(self):
+    def scoreCoral(self):
         """
         Outtakes the coral from the cannon
         """ 
+        scoreCoral = self.run(lambda: self.setCannonSpeed(1)).andThen(WaitCommand(2)).andThen(lambda: self.stop()) #TODO: Adjust the time
         self.loaded = False
-        return self.run(lambda: self.setCannonSpeed(1))
+        return scoreCoral
 
     def stop(self):
         """
@@ -60,7 +58,7 @@ class Cannon(Subsystem):
         """
         self.loaded = not(self.loaded)
     
-    def getLoaded(self):
+    def getCannonState(self):
         """
         Returns wether the robot thinks it has a coral in the cannon
         """
