@@ -31,6 +31,6 @@ class Hopper(Subsystem):
         return not(self.beamBreak.get())  # self.breakBeam.get() returns True if the beam is not broken, so we negate it to return False if the beam is not broken
     
     def agitate(self) -> Command:
-        """Agitates the hopper motor"""
+        """Reverses motor incase a coral gets stuck"""
         return self.run(lambda: self.setHopperSpeed(ConstantsHopper.agitation_duty_cycle))
     
