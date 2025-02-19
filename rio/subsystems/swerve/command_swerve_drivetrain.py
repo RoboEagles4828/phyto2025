@@ -17,6 +17,8 @@ from pathplannerlib.path import GoalEndState
 from pathplannerlib.path import Waypoint
 from pathplannerlib.commands import FollowPathCommand
 
+from phoenix6.swerve import requests
+
 # from generated.tuner_constants import TunerConstants
 
 
@@ -343,12 +345,14 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
                 self
             )
 
-    def driveToPoseThenFollowPath(self, path: PathPlannerPath)-> Command:
+    def driveToPoseThenFollowPath(self, path: str)-> Command:
 
         """
         Drives to a starting pose of a pre-generated path, then follows the pre-generated path
         """
         constraints = PathConstraints(2.0, 1, degreesToRadians(360), degreesToRadians(720))
+
+        path = PathPlannerPath.fromPathFile(path)
 
         redPath = path
         bluePath = path.flipPath()
@@ -436,5 +440,36 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
                 self.visionEstimate.rotation().radians(),
             ],
         )
+    
+    def getPose(self):
+        """
+        Gets the pose of the robot
+        """
+        # print(self.get_state().pose)
+        return self.get_state().pose
+    
+    def drive(self, translation: Translation2d, rotation: float, isOpenLoop: bool):
+        """
+        Drives the robot
+        """
+        desiredSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(translation.X(), translation.Y(), rotation, self.get_state().pose.rotation())
+
+        self.driveRobotRelative(desiredSpeeds, isOpenLoop)
+
+    def driveRobotRelative(self, desiredSpeeds: ChassisSpeeds, isOpenLoop: bool):
+        """
+        Drives the robot relative to the robot
+        """
+        ChassisSpeeds.discretize(desiredSpeeds, 0.02)
+
+        self.set_control(requests.RobotCentric().with_velocity_x(desiredSpeeds.vx).with_velocity_y(desiredSpeeds.vy).with_rotational_rate(desiredSpeeds.omega).with_drive_request_type(requests.SwerveModule.DriveRequestType.OPEN_LOOP_VOLTAGE if isOpenLoop else requests.SwerveModule.DriveRequestType.VELOCITY))
+
+    def manualOperatorPerspectiveOverride(self):
+        """
+        Overrides the operator perspective
+        """
+        self._has_applied_operator_perspective = False
+
+
 
         

@@ -10,6 +10,8 @@ import commands2.cmd
 from commands2.sysid import SysIdRoutine
 from commands2.instantcommand import InstantCommand
 from commands2.command import Command
+from commands2.selectcommand import SelectCommand
+from commands2.sequentialcommandgroup import SequentialCommandGroup
 
 from subsystems.swerve.tuner_constants import TunerConstants
 from telemetry import Telemetry
@@ -20,11 +22,19 @@ from wpimath.units import rotationsToRadians
 from wpilib import Joystick, RobotBase, SmartDashboard
 from wpilib.shuffleboard import Shuffleboard
 
-from pathplannerlib.auto import AutoBuilder
+from pathplannerlib.auto import AutoBuilder, PathPlannerPath
 
+from general_constants.field_constants import FieldConstants
+from general_constants.field_constants import ReefFace, ReefPoints
 from subsystems.swerve.command_swerve_drivetrain import CommandSwerveDrivetrain
 from subsystems.elevator.elevator import Elevator
-from general_constants.field_constants import FieldConstants
+from subsystems.pose.pose import Pose
+
+from phoenix6.swerve import requests
+
+from commands.pid_swerve import PID_Swerve
+
+from lib.util.units import Units
 
 class RobotContainer:
     """
@@ -63,14 +73,35 @@ class RobotContainer:
 
         self.drivetrain = TunerConstants.create_drivetrain()
         self.elevator = Elevator()
+        self.pose = Pose(self.drivetrain)
         # Configure the button bindings
-        self.pathFind = self.drivetrain.driveToPose(FieldConstants.reefFaceOneBlue)
+        self.pathFind = self.drivetrain.driveToPoseThenFollowPath("PegA_Alignment")
+
+        print("ab pose" + str(ReefFace.AB.alignLeft))
+
+        self.alignLeftCommands: dict[ReefFace, Command] = {}
+
+        for face in ReefFace:
+            self.populateCommandList(face)
+
+        # self.pid_test = PID_Swerve(self.drivetrain, ReefFace.AB.alignLeft, True)
+
+        print(self.alignLeftCommands)
+
+        # for face in ReefFace:
+
 
         self.configureButtonBindings()
 
         self.autoChooser = AutoBuilder.buildAutoChooser("None")
         SmartDashboard.putData("AutoChooser",self.autoChooser)
 
+    
+    def driveToPose(self)-> Command:
+        return SequentialCommandGroup(PID_Swerve(self.drivetrain, self.pose.neartestFace(self.drivetrain.getPose().translation(), False), False), True).andThen(lambda: self.drivetrain.manualOperatorPerspectiveOverride())
+    
+    def populateCommandList(self, face: ReefFace):
+        self.alignLeftCommands[face] = SequentialCommandGroup(PID_Swerve(self.drivetrain, face.alignLeft, True))
 
     def configureButtonBindings(self) -> None:
         """
@@ -111,14 +142,15 @@ class RobotContainer:
         #     )
         # )
 
-        self._joystick.a().onTrue(self.elevator.runOnce(lambda: self.elevator.setHeight(FieldConstants.ReefPoints.PointAL4.m_elevatorHeight)))
-        self._joystick.y().onTrue(self.elevator.runOnce(lambda: self.elevator.setHeight(FieldConstants.ReefPoints.PointAL3.m_elevatorHeight)))
-        self._joystick.x().onTrue(self.elevator.runOnce(lambda: self.elevator.setHeight(FieldConstants.ReefPoints.PointAL2.m_elevatorHeight)))
+        self._joystick.a().whileTrue((self.pathFind.alongWith(self.elevator.runOnce(lambda: self.elevator.setHeight(ReefPoints.PointAL4.m_elevatorHeight)))).andThen(self.elevator.runOnce(lambda: self.elevator.zero())))
+        # self._joystick.y().onTrue(PID_Swerve(self.drivetrain, lambda: self.pose.getPose(), lambda: self.pose.neartestFace(self.pose.getPose().translation(), False), True))
+        # self._joystick.x().onTrue(PID_Swerve(self.drivetrain, ReefFace.GH.alignLeft, False))
+        self._joystick.x().onTrue(SelectCommand(self.alignLeftCommands, lambda: self.pose.neartestFace(self.pose.pose.translation(), False)))
         self._joystick.b().onTrue(self.elevator.runOnce(lambda: self.elevator.zero()))
 
-        self._joystick.rightBumper().onTrue(self.drivetrain.runOnce(lambda: self.drivetrain.set_operator_perspective_forward(-self.drivetrain.getPigeonRotation2d())))
+        # self._joystick.rightBumper().onTrue(self.drivetrain.runOnce(lambda: self.drivetrain.set_operator_perspective_forward(-self.drivetrain.getPigeonRotation2d())))
         self._joystick.leftTrigger().whileTrue(self.drivetrain.run(lambda: self.drivetrain.pigeon2.set_yaw(-55)))
-        self._joystick.rightBumper().whileTrue(self.pathFind)
+        # self._joystick.rightBumper().whileTrue(self.pid_test)
         # self._joystick.rightBumper().onTrue(InstantCommand(lambda: self.drivetrain.zeroPigeon()))
         # Run SysId routines when holding back/start and X/Y.
         # Note that each routine should be run exactly once in a single log.
@@ -153,5 +185,5 @@ class RobotContainer:
         auto = self.autoChooser.getSelected()
 
         return auto
-        
+    
 

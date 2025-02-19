@@ -99,3 +99,6 @@ def pointInRectangle(
 
 def pointInCircle(p1: Translation2d, c: Translation2d, r: float) -> bool:
     return (p1 - c).norm() <= r
+
+def inputModulus(input: number, min_value: number, max_value: number) -> number:
+    return (input - min_value) % (max_value - min_value) + min_value
