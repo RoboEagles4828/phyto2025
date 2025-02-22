@@ -36,5 +36,5 @@ class Hopper(Subsystem):
         return self.run(lambda: self.setHopperSpeed(ConstantsHopper.agitation_duty_cycle))
     
 
-    def periodic(self):
-        SmartDashboard.putNumber("Hopper/Motor Speed", self.hopperMotor.getMotorOutputPercent())
+    # def periodic(self):
+    #     SmartDashboard.putNumber("Hopper/Motor Speed", self.hopperMotor.getMotorOutputPercent())
