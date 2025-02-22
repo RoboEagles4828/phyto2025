@@ -12,11 +12,13 @@ class Elevator_Constants:
     kStatic = 0.0
     kVelocity = 0.0
     kAcceleration = 0.0
-    kPorportional = 0.5
+    kPorportional = 0.0
     kIntegral = 0.0
-    kDerivative = 0.1
+    kDerivative = 0.0
 
     kGearRatio = 20.0
+
+    MECH_M_PER_ROT = .4
 
     # Current Limits
     kCurrentLimit = 120

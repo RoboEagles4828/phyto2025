@@ -23,6 +23,9 @@ from wpilib.shuffleboard import Shuffleboard
 from pathplannerlib.auto import AutoBuilder
 
 from subsystems.swerve.command_swerve_drivetrain import CommandSwerveDrivetrain
+from subsystems.elevator.elevator import Elevator
+from subsystems.cannon.cannon import Cannon
+from subsystems.hopper.hopper import Hopper
 
 class RobotContainer:
     """
@@ -60,6 +63,10 @@ class RobotContainer:
         self._joystick = commands2.button.CommandXboxController(0)
 
         self.drivetrain = TunerConstants.create_drivetrain()
+        self.elevator = Elevator()
+        self.hopper = Hopper()
+        self.cannon = Cannon()
+
         # Configure the button bindings
 
         self.configureButtonBindings()
@@ -98,6 +105,10 @@ class RobotContainer:
             )
         )
 
+        self.hopper.setDefaultCommand(self.hopper.stop())
+        self.cannon.setDefaultCommand(self.cannon.stop())
+        self.elevator.setDefaultCommand(self.elevator.stop())
+
         self._joystick.a().whileTrue(self.drivetrain.apply_request(lambda: self._brake))
         self._joystick.b().whileTrue(
             self.drivetrain.apply_request(
@@ -106,8 +117,10 @@ class RobotContainer:
                 )
             )
         )
-        self._joystick.rightBumper().onTrue(self.drivetrain.runOnce(lambda: self.drivetrain.set_operator_perspective_forward(-self.drivetrain.getPigeonRotation2d())))
-        self._joystick.leftTrigger().whileTrue(self.drivetrain.run(lambda: self.drivetrain.pigeon2.set_yaw(-55)))
+        self._joystick.rightTrigger().whileTrue(self.hopper.intake().alongWith(self.cannon.loadCoral()))
+        self._joystick.rightBumper().whileTrue(self.elevator.move_up_gradually())
+        self._joystick.leftBumper().whileTrue(self.elevator.move_down_gradually())
+
         # self._joystick.rightBumper().onTrue(InstantCommand(lambda: self.drivetrain.zeroPigeon()))
         # Run SysId routines when holding back/start and X/Y.
         # Note that each routine should be run exactly once in a single log.

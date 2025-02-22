@@ -1,7 +1,8 @@
 from commands2 import Subsystem
 from wpilib import DigitalInput
-from phoenix5 import TalonSRX, TalonSRXControlMode
-from constants_cannon import Constants_Cannon
+from phoenix5 import TalonSRX, TalonSRXControlMode, FollowerType
+from subsystems.cannon.constants_cannon import Constants_Cannon
+from wpilib import SmartDashboard
 
 class Cannon(Subsystem):
     def __init__(self):
@@ -18,7 +19,7 @@ class Cannon(Subsystem):
         self.leftMotor.setInverted(True)
         self.rightMotor.setInverted(False)
 
-        self.leftMotor.follow(self.rightMotor, TalonSRXControlMode.PercentOutput)
+        self.leftMotor.follow(self.rightMotor, FollowerType.PercentOutput)
 
         self.loaded = False
 
@@ -38,7 +39,7 @@ class Cannon(Subsystem):
         """
         This sets the motors to run when the coral is being loaded from the hopper
         """
-        return self.run(lambda: self.setCannonSpeed(1)).until(lambda: self.rightMotor.getSupplyCurrent()>50)
+        return self.run(lambda: self.setCannonSpeed(1)).until(lambda: self.rightMotor.getSupplyCurrent()>50).andThen(self.hasCoralOverride())
         
     
     def placeCoral(self):
@@ -68,4 +69,9 @@ class Cannon(Subsystem):
     
     def placeL1(self):
         return self.run(self.leftMotor.set(TalonSRXControlMode.PercentOutput, 0.2)).alongWith(self.rightMotor.set(TalonSRXControlMode.PercentOutput, 0.2)).until(lambda: self.rightMotor.getSupplyCurrent()>50)
+    
+    def periodic(self):
+        SmartDashboard.putNumber("Cannon/leftMotor", self.leftMotor.getMotorOutputPercent())
+        SmartDashboard.putNumber("Cannon/rigthMotor", self.rightMotor.getMotorOutputPercent())
+        SmartDashboard.getBoolean("Cannon/loaded", self.loaded)
 

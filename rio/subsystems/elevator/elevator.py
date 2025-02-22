@@ -8,14 +8,15 @@ from wpilib.sysid import SysIdRoutineLog
 from commands2 import Command
 from phoenix6.signals import NeutralModeValue
 from phoenix6.controls import MotionMagicTorqueCurrentFOC, DutyCycleOut, VoltageOut
-from phoenix6.configs import TalonFXConfiguration, CurrentLimitsConfigs
+from phoenix6.configs import TalonFXConfiguration, CurrentLimitsConfigs, TalonFXConfigurator
 from phoenix6.configs.config_groups import InvertedValue
 from wpilib import *
 from lib.util.units import Units
 from phoenix6.controls import StrictFollower, MotionMagicVoltage
 from phoenix6 import SignalLogger, ampere, StatusSignal
+from wpilib.shuffleboard import Shuffleboard
 
-from rio.subsystems.elevator.floor import Floor
+from subsystems.elevator.floor import Floor
 from subsystems.elevator.elevator_constants import Elevator_Constants
 
 
@@ -168,10 +169,10 @@ class Elevator(Subsystem):
         Overridden to update dashboard.
         """
         current: StatusSignal[ampere] = self.motor_one.get_torque_current()
-        SmartDashboard.putNumber("Elevator left amps", current.value())
+        SmartDashboard.putNumber("Elevator/Elevator left amps", current.value)
         current = self.motor_two.get_torque_current()
-        SmartDashboard.putNumber("Elevator right amps", current.value())
-
+        SmartDashboard.putNumber("Elevator/Elevator right amps", current.value)
+        SmartDashboard.updateValues()
     # Functions below this point may be archived or deleted later
 
     def setPosition(self, position: float):
