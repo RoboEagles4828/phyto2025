@@ -35,7 +35,7 @@
       <joint_name>front_right_wheel_joint</joint_name>
       <joint_name>back_left_wheel_joint</joint_name>
       <joint_name>back_right_wheel_joint</joint_name>
-      <initial_velocity>10.0</initial_velocity>
+      <initial_velocity>0.0</initial_velocity>
     </plugin>
 
   </gazebo>
