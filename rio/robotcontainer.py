@@ -117,7 +117,7 @@ class RobotContainer:
                 )
             )
         )
-        self._joystick.rightTrigger().whileTrue(self.hopper.intake().alongWith(self.cannon.loadCoral()))
+        self._joystick.rightTrigger().whileTrue(self.cannon.loadCoral().deadlineFor(self.hopper.intake()))
         self._joystick.rightBumper().whileTrue(self.elevator.move_up_gradually())
         self._joystick.leftBumper().whileTrue(self.elevator.move_down_gradually())
 

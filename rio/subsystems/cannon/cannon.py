@@ -15,7 +15,7 @@ class Cannon(Subsystem):
         self.leftMotor.configSupplyCurrentLimit(Constants_Cannon.supply_config)
         self.rightMotor.configSupplyCurrentLimit(Constants_Cannon.supply_config)
 
-        #check to see which one should be inverted
+        # check to see which one should be inverted
         self.leftMotor.setInverted(True)
         self.rightMotor.setInverted(False)
 
@@ -25,7 +25,7 @@ class Cannon(Subsystem):
 
     # def getBeamBreakState(self):
     #     return not(self.beamBreak.get())
-        
+
     def setCannonSpeed(self, percentOutput):
 
         """
@@ -33,15 +33,17 @@ class Cannon(Subsystem):
         """
 
         self.rightMotor.set(TalonSRXControlMode.PercentOutput, percentOutput)
-        
 
     def loadCoral(self):
         """
         This sets the motors to run when the coral is being loaded from the hopper
         """
-        return self.run(lambda: self.setCannonSpeed(0.3)).until(lambda: self.stopLoading()).andThen(self.runOnce(self.hasCoralOverride()))
-        
-    
+        return (
+            self.run(lambda: self.setCannonSpeed(0.3))
+            .until(self.stopLoading)
+            .andThen(self.runOnce(self.hasCoralOverride))
+        )
+
     def placeCoral(self):
         """
         Outtakes the coral from the cannon
@@ -54,7 +56,7 @@ class Cannon(Subsystem):
         Stops the motors
         """
         return self.run(lambda: self.setCannonSpeed(0))
-    
+
     def stopLoading(self):
         return abs(self.rightMotor.getStatorCurrent())>10
 
@@ -62,17 +64,17 @@ class Cannon(Subsystem):
         """
         This is used to override the current state of the robot
         """
-        self.loaded = not(self.loaded)
-    
+        self.loaded = not self.loaded
+
     def getLoaded(self):
         """
         Returns wether the robot thinks it has a coral in the cannon
         """
         return self.loaded
-    
+
     def placeL1(self):
         return self.run(self.leftMotor.set(TalonSRXControlMode.PercentOutput, 0.2)).alongWith(self.rightMotor.set(TalonSRXControlMode.PercentOutput, 0.2)).until(lambda: self.rightMotor.getSupplyCurrent()>50)
-    
+
     def periodic(self):
         # SmartDashboard.putNumber("Cannon/leftMotorPercentOut", self.leftMotor.getMotorOutputPercent())
         # SmartDashboard.putNumber("Cannon/rigthMotorPercentOut", self.rightMotor.getMotorOutputPercent())
@@ -83,4 +85,3 @@ class Cannon(Subsystem):
         SmartDashboard.putNumber("Cannon/rightSupplyCurrent", self.rightMotor.getSupplyCurrent())
         # SmartDashboard.putNumber("Cannon/leftMotorSensorVelocity", self.leftMotor.getSelectedSensorVelocity())
         # SmartDashboard.putNumber("Cannon/rightMotorSensorVelocity", self.rightMotor.getSelectedSensorVelocity())
-
