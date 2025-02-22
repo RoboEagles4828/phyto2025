@@ -124,7 +124,7 @@ class Elevator(Subsystem):
         Returns a new command to sets the target rotations to the given Floor.
         Designed for button click or as part of a command group.
         """
-        self.runOnce(
+        return self.runOnce(
             lambda: self.motor_one.set_control(
                 self.request.with_position(floor.rotations)
             )
@@ -135,7 +135,7 @@ class Elevator(Subsystem):
         Returns a new command to manually move up.
         Designed to run while a button is held. Use the stop command on release.
         """
-        self.run(
+        return self.run(
             lambda: self.motor_one.set_control(
                 self.dutyCycle.with_output(Elevator_Constants.kManualUpDutyCycle)
             )
@@ -146,7 +146,7 @@ class Elevator(Subsystem):
         Returns a new command to manually move down.
         Designed to run while a button is held. Use the stop command on release.
         """
-        self.run(
+        return self.run(
             lambda: self.motor_one.set_control(
                 self.dutyCycle.with_output(Elevator_Constants.kManualDownDutyCycle)
             )
@@ -158,7 +158,7 @@ class Elevator(Subsystem):
         Designed for a button click or part of a command group. Also good for the release
         of the button used with manual motion.
         """
-        self.runOnce(
+        return self.runOnce(
             lambda: self.motor_one.set_control(
                 DutyCycleOut(Elevator_Constants.kManualNoPower)
             )

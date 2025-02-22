@@ -10,7 +10,7 @@ class Cannon(Subsystem):
         self.rightMotor = TalonSRX(Constants_Cannon.rightMotorID)
 
         # if the digital input is false, then it can see the coral
-        self.beamBreak = DigitalInput(Constants_Cannon.digitalInputID)
+        # self.beamBreak = DigitalInput(Constants_Cannon.digitalInputID)
 
         self.leftMotor.configSupplyCurrentLimit(Constants_Cannon.supply_config)
         self.rightMotor.configSupplyCurrentLimit(Constants_Cannon.supply_config)
@@ -23,8 +23,8 @@ class Cannon(Subsystem):
 
         self.loaded = False
 
-    def getBeamBreakState(self):
-        return not(self.beamBreak.get())
+    # def getBeamBreakState(self):
+    #     return not(self.beamBreak.get())
         
     def setCannonSpeed(self, percentOutput):
 
@@ -39,7 +39,7 @@ class Cannon(Subsystem):
         """
         This sets the motors to run when the coral is being loaded from the hopper
         """
-        return self.run(lambda: self.setCannonSpeed(1)).until(lambda: self.rightMotor.getSupplyCurrent()>50).andThen(self.hasCoralOverride())
+        return self.run(lambda: self.setCannonSpeed(0.3)).until(lambda: self.rightMotor.getSupplyCurrent()>50).andThen(self.runOnce(self.hasCoralOverride()))
         
     
     def placeCoral(self):
@@ -71,7 +71,11 @@ class Cannon(Subsystem):
         return self.run(self.leftMotor.set(TalonSRXControlMode.PercentOutput, 0.2)).alongWith(self.rightMotor.set(TalonSRXControlMode.PercentOutput, 0.2)).until(lambda: self.rightMotor.getSupplyCurrent()>50)
     
     def periodic(self):
-        SmartDashboard.putNumber("Cannon/leftMotor", self.leftMotor.getMotorOutputPercent())
-        SmartDashboard.putNumber("Cannon/rigthMotor", self.rightMotor.getMotorOutputPercent())
+        SmartDashboard.putNumber("Cannon/leftMotorPercentOut", self.leftMotor.getMotorOutputPercent())
+        SmartDashboard.putNumber("Cannon/rigthMotorPercentOut", self.rightMotor.getMotorOutputPercent())
         SmartDashboard.getBoolean("Cannon/loaded", self.loaded)
+        SmartDashboard.putNumber("Cannon/leftMotorCurrent", self.leftMotor.getSupplyCurrent())
+        SmartDashboard.putNumber("Cannon/rightMotorCurrent", self.rightMotor.getSupplyCurrent())
+        SmartDashboard.putNumber("Cannon/leftMotorSensorVelocity", self.leftMotor.getSelectedSensorVelocity())
+        SmartDashboard.putNumber("Cannon/rightMotorSensorVelocity", self.rightMotor.getSelectedSensorVelocity())
 
