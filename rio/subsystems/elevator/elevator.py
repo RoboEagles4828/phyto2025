@@ -12,9 +12,10 @@ from phoenix6.configs import TalonFXConfiguration, CurrentLimitsConfigs, TalonFX
 from phoenix6.configs.config_groups import InvertedValue
 from wpilib import *
 from lib.util.units import Units
-from phoenix6.controls import StrictFollower, MotionMagicVoltage
+from phoenix6.controls import StrictFollower, MotionMagicVoltage, Follower
 from phoenix6 import SignalLogger, ampere, StatusSignal
 from wpilib.shuffleboard import Shuffleboard
+from wpilib import DigitalInput
 
 from subsystems.elevator.floor import Floor
 from subsystems.elevator.elevator_constants import Elevator_Constants
@@ -44,6 +45,7 @@ class Elevator(Subsystem):
         cfg.slot0.k_i = Elevator_Constants.kIntegral
         cfg.slot0.k_d = Elevator_Constants.kDerivative
 
+        self.motor_two.setNeutralMode(NeutralModeValue.BRAKE)
         self.motor_one.setNeutralMode(NeutralModeValue.BRAKE)
 
         # Applying Limit Configurations
@@ -62,12 +64,12 @@ class Elevator(Subsystem):
         motion_magic_configs.motion_magic_jerk = Elevator_Constants.kMagicJerk
 
         # Applying all of Settings (and Checking if Error Occurs.)
-        self.motor_two.set_control(StrictFollower(Elevator_Constants.kMotor1ID))
+        self.motor_two.set_control(Follower(Elevator_Constants.kMotor1ID, True))
         cfg2.apply(limit_configs)
         cfg2.apply(cfg)
 
         # Misc
-        self.request = MotionMagicTorqueCurrentFOC(0).with_slot(0)
+        self.request = MotionMagicTorqueCurrentFOC(0).with_slot(0).with_limit_forward_motion()
 
         self.dutyCycle = DutyCycleOut(0.0)
         self.voltageOut = VoltageOut(0.0)
@@ -90,6 +92,10 @@ class Elevator(Subsystem):
                 self,
             ),
         )
+
+        self.limitSwitch = DigitalInput(Elevator_Constants.kLimitSwitchID) #true means activated
+        self.targetRotation = 0.0
+        self.isZeroed = False
 
         # Create Mechanism Canvas for SmartDashboard
         canvasWidth = 21.0
@@ -118,6 +124,19 @@ class Elevator(Subsystem):
 
     def sys_id_dynamic(self, direction: SysIdRoutine.Direction) -> Command:
         return self._sys_id_routine.dynamic(direction)
+    
+    def move_to_position(self, position:float)-> Command:
+        """
+        Returns a new command to sets the target rotations to the given position.
+        Designed for button click or as part of a command group.
+        """
+        self.isZeroed = False
+        self.targetRotation = position
+        return self.runOnce(
+            lambda: self.motor_one.set_control(
+                self.request.with_position(position)
+            )
+        )
 
     def move_to_floor(self, floor: Floor) -> Command:
         """
@@ -126,7 +145,7 @@ class Elevator(Subsystem):
         """
         return self.runOnce(
             lambda: self.motor_one.set_control(
-                self.request.with_position(floor.rotations)
+                self.request.with_position(floor.rotations).with_slot(0)
             )
         )
 
@@ -135,6 +154,7 @@ class Elevator(Subsystem):
         Returns a new command to manually move up.
         Designed to run while a button is held. Use the stop command on release.
         """
+        self.isZeroed = False
         return self.run(
             lambda: self.motor_one.set_control(
                 self.dutyCycle.with_output(Elevator_Constants.kManualUpDutyCycle)
@@ -148,7 +168,7 @@ class Elevator(Subsystem):
         """
         return self.run(
             lambda: self.motor_one.set_control(
-                self.dutyCycle.with_output(Elevator_Constants.kManualDownDutyCycle)
+                self.dutyCycle.with_output(Elevator_Constants.kManualDownDutyCycle).with_limit_reverse_motion(self.limitSwitch.get())
             )
         )
 
@@ -163,16 +183,40 @@ class Elevator(Subsystem):
                 DutyCycleOut(Elevator_Constants.kManualNoPower)
             )
         )
+    
+    def zero_rotations(self) -> Command:
+        """
+        Returns a new command to zero the elevator's position.
+        """
+        return self.runOnce(lambda: self.motor_one.set_position(0.0))
+    
+    def zero_position(self):
+        """
+        Moves the robot down until the limit switch is activated
+        """
+        return self.move_down_gradually().until(lambda: self.limitSwitch.get())
+    
+    def set_motor_zero(self):
+        if self.limitSwitch.get() and self.isZeroed == False:
+            self.motor_one.set_position(0.0)
+            self.isZeroed = True
+    
+    def isSwitchTriggered(self):
+        return not(self.limitSwitch.get())
 
     def periodic(self) -> None:
         """
         Overridden to update dashboard.
         """
+        self.set_motor_zero()
         current: StatusSignal[ampere] = self.motor_one.get_torque_current()
         SmartDashboard.putNumber("Elevator/Elevator left amps", current.value)
         current = self.motor_two.get_torque_current()
         SmartDashboard.putNumber("Elevator/Elevator right amps", current.value)
-        SmartDashboard.updateValues()
+        SmartDashboard.putNumber("Elevator/Elevator position", self.motor_one.get_position().value)
+        SmartDashboard.putBoolean("Elevator/Limit Switch Value", self.limitSwitch.get())
+        SmartDashboard.putNumber("Elevator/Desired Position", self.targetRotation)
+        SmartDashboard.putNumber("Elevator/Zeroed", self.isZeroed)
     # Functions below this point may be archived or deleted later
 
     def setPosition(self, position: float):

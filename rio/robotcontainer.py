@@ -47,9 +47,9 @@ class RobotContainer:
         # Setting up bindings for necessary control of the swerve drive platform
         self._drive = (
             swerve.requests.FieldCentric()
-            .with_deadband(self._max_speed * 0.2)
+            .with_deadband(self._max_speed * 0.1)
             .with_rotational_deadband(
-                self._max_angular_rate * 0.2
+                self._max_angular_rate * 0.1
             )  # Add a 10% deadband
             .with_drive_request_type(
                 swerve.SwerveModule.DriveRequestType.OPEN_LOOP_VOLTAGE
@@ -109,17 +109,25 @@ class RobotContainer:
         self.cannon.setDefaultCommand(self.cannon.stop())
         self.elevator.setDefaultCommand(self.elevator.stop())
 
-        self._joystick.a().whileTrue(self.drivetrain.apply_request(lambda: self._brake))
-        self._joystick.b().whileTrue(
-            self.drivetrain.apply_request(
-                lambda: self._point.with_module_direction(
-                    Rotation2d(-self._joystick.getLeftY(), -self._joystick.getLeftX())
-                )
-            )
-        )
-        self._joystick.rightTrigger().whileTrue(self.cannon.loadCoral().deadlineFor(self.hopper.intake()))
+        # self._joystick.a().whileTrue(self.drivetrain.apply_request(lambda: self._brake))
+        # self._joystick.b().whileTrue(
+        #     self.drivetrain.apply_request(
+        #         lambda: self._point.with_module_direction(
+        #             Rotation2d(-self._joystick.getLeftY(), -self._joystick.getLeftX())
+        #         )
+        #     )
+        # )
+        self._joystick.y().onTrue(self.elevator.move_to_position(-1.181369)) #l1
+        self._joystick.a().onTrue(self.elevator.move_to_position(-1.495605)) #l2
+        self._joystick.b().onTrue(self.elevator.move_to_position(-2.74414)) #l3
+        self._joystick.x().onTrue(self.elevator.move_to_position(-3.248584)) #l4
+        self._joystick.back().onTrue(self.drivetrain.runOnce(lambda: self.drivetrain.zeroHeading()))
+        self._joystick.povDown().onTrue(self.elevator.zero_rotations())
+        self._joystick.leftTrigger().whileTrue(self.cannon.loadCoral().deadlineFor(self.hopper.intake()))
+        self._joystick.povUp().whileTrue(self.hopper.agitate())
         self._joystick.rightBumper().whileTrue(self.elevator.move_up_gradually())
         self._joystick.leftBumper().whileTrue(self.elevator.move_down_gradually())
+        self._joystick.povRight().onTrue(self.elevator.zero_rotations())
 
         # self._joystick.rightBumper().onTrue(InstantCommand(lambda: self.drivetrain.zeroPigeon()))
         # Run SysId routines when holding back/start and X/Y.

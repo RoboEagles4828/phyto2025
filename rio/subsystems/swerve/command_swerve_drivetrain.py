@@ -10,6 +10,7 @@ from wpimath.units import degreesToRadians
 from wpimath.kinematics import ChassisSpeeds
 from pathplannerlib.auto import AutoBuilder, PathConstraints, PathPlannerPath
 from auto.auto_constants import AutoConstants
+from wpilib import SmartDashboard
 # from subsystems.vision.vision import Vision
 # from generated.tuner_constants import TunerConstants
 
@@ -300,6 +301,8 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
                     else self._BLUE_ALLIANCE_PERSPECTIVE_ROTATION
                 )
                 self._has_applied_operator_perspective = True
+
+        SmartDashboard.putNumber("Swerve/Forward Direction", self.get_operator_forward_direction().degrees())
         # self.update_Odom()
 
     def _start_sim_thread(self):
@@ -371,7 +374,19 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
         """
         Gets the heading of the robot
         """
-        return self.get_state().pose.rotation
+        return self.get_state().pose.rotation().degrees()
+    
+    def setOperatorPerspectiveFalse(self):
+        """
+        Sets the operator perspective to false
+        """
+        self._has_applied_operator_perspective = False
+
+    def zeroHeading(self):
+        """
+        Zeros the heading of the robot
+        """
+        return self.set_operator_perspective_forward(Rotation2d(self.get_state().pose.rotation().radians()))
     
     # def update_Odom(self):
     #     """

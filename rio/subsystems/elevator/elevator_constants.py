@@ -7,12 +7,14 @@ class Elevator_Constants:
     kMotor1ID = 21
     kMotor2ID = 22
 
+    kLimitSwitchID = 9
+
     # Configurations
     kGravity = 0.0
     kStatic = 0.0
     kVelocity = 0.0
     kAcceleration = 0.0
-    kPorportional = 0.0
+    kPorportional = 0.8
     kIntegral = 0.0
     kDerivative = 0.0
 
