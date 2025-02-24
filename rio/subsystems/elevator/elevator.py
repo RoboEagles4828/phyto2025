@@ -6,7 +6,7 @@ from phoenix6.hardware import TalonFX
 from phoenix6.signal_logger import SignalLogger
 from wpilib.sysid import SysIdRoutineLog
 from commands2 import Command
-from phoenix6.signals import NeutralModeValue
+from phoenix6.signals import NeutralModeValue, GravityTypeValue
 from phoenix6.controls import MotionMagicTorqueCurrentFOC, DutyCycleOut, VoltageOut
 from phoenix6.configs import TalonFXConfiguration, CurrentLimitsConfigs, TalonFXConfigurator
 from phoenix6.configs.config_groups import InvertedValue
@@ -29,47 +29,50 @@ class Elevator(Subsystem):
     def __init__(self):
 
         # Creating Motors and Configurators
-        self.motor_one = TalonFX(Elevator_Constants.kMotor1ID)  # CAN ID 1
-        self.motor_two = TalonFX(Elevator_Constants.kMotor2ID)  # CAN ID 2
-        cfg = TalonFXConfiguration()
-        cfg2 = self.motor_one.configurator
+        self.rightMotorLeader = TalonFX(Elevator_Constants.kRightMotorID)  # CAN ID 1
+        self.leftMotorFollower = TalonFX(Elevator_Constants.kLeftMotorID)  # CAN ID 2
+        self.rightMotorCfg = TalonFXConfiguration()
 
         # Gear Ratio and PID values
-        # cfg.motor_output.inverted = InvertedValue.CLOCKWISE_POSITIVE
-        cfg.feedback.sensor_to_mechanism_ratio = Elevator_Constants.kGearRatio
-        cfg.slot0.k_g = Elevator_Constants.kGravity
-        cfg.slot0.k_s = Elevator_Constants.kStatic
-        cfg.slot0.k_v = Elevator_Constants.kVelocity
-        cfg.slot0.k_a = Elevator_Constants.kAcceleration
-        cfg.slot0.k_p = Elevator_Constants.kPorportional # An error of 1 rotation results in 2.4 V output
-        cfg.slot0.k_i = Elevator_Constants.kIntegral
-        cfg.slot0.k_d = Elevator_Constants.kDerivative
+        # self.rightMotorCfg.motor_output.inverted = InvertedValue.CLOCKWISE_POSITIVE
+        self.rightMotorCfg.feedback.sensor_to_mechanism_ratio = Elevator_Constants.kGearRatio
+        self.rightMotorCfg.slot0.gravity_type = GravityTypeValue.ELEVATOR_STATIC
+        self.rightMotorCfg.slot0.k_g = Elevator_Constants.kGravity
+        self.rightMotorCfg.slot0.k_s = Elevator_Constants.kStatic
+        self.rightMotorCfg.slot0.k_v = Elevator_Constants.kVelocity
+        self.rightMotorCfg.slot0.k_a = Elevator_Constants.kAcceleration
+        self.rightMotorCfg.slot0.k_p = Elevator_Constants.kPorportional # An error of 1 rotation results in 2.4 V output
+        self.rightMotorCfg.slot0.k_i = Elevator_Constants.kIntegral
+        self.rightMotorCfg.slot0.k_d = Elevator_Constants.kDerivative
 
-        self.motor_two.setNeutralMode(NeutralModeValue.BRAKE)
-        self.motor_one.setNeutralMode(NeutralModeValue.BRAKE)
+        self.rightMotorCfg.motor_output.neutral_mode = NeutralModeValue.BRAKE
+
+        
 
         # Applying Limit Configurations
-        limit_configs = CurrentLimitsConfigs()
-        limit_configs.stator_current_limit = Elevator_Constants.kCurrentLimit  # Note that this is in AMPERES
-        limit_configs.stator_current_limit_enable = True
+        self.rightMotorCfg.current_limits.stator_current_limit = Elevator_Constants.kCurrentLimit  # Note that this is in AMPERES
+        self.rightMotorCfg.current_limits.stator_current_limit_enable = True
 
         # Motion Magic Configurations
-        motion_magic_configs = cfg.motion_magic
-        motion_magic_configs.motion_magic_cruise_velocity = (
+        self.rightMotorCfg.motion_magic.motion_magic_cruise_velocity = (
             Elevator_Constants.kCruiseVelocity
         )
-        motion_magic_configs.motion_magic_acceleration = (
+        self.rightMotorCfg.motion_magic.motion_magic_acceleration = (
             Elevator_Constants.kMagicAcceleration
         )
-        motion_magic_configs.motion_magic_jerk = Elevator_Constants.kMagicJerk
+        self.rightMotorCfg.motion_magic.motion_magic_jerk = Elevator_Constants.kMagicJerk
+
+        self.leftMotorCfg = self.rightMotorCfg
+        self.leftMotorCfg.motor_output.neutral_mode = NeutralModeValue.BRAKE
+        self.leftMotorFollower.set_control(Follower(Elevator_Constants.kRightMotorID, True))
 
         # Applying all of Settings (and Checking if Error Occurs.)
-        self.motor_two.set_control(Follower(Elevator_Constants.kMotor1ID, True))
-        cfg2.apply(limit_configs)
-        cfg2.apply(cfg)
+        self.motor_two.set_control(Follower(Elevator_Constants.kRightMotorID, True))
+        self.rightMotorLeader.configurator.apply(self.rightMotorCfg)
+        self.leftMotorCfg
 
         # Misc
-        self.request = MotionMagicTorqueCurrentFOC(0).with_slot(0).with_limit_forward_motion()
+        self.request = MotionMagicTorqueCurrentFOC(0.0)
 
         self.dutyCycle = DutyCycleOut(0.0)
         self.voltageOut = VoltageOut(0.0)

@@ -4,8 +4,8 @@ from wpimath import units
 class Elevator_Constants:
 
     # Motor IDs
-    kMotor1ID = 21
-    kMotor2ID = 22
+    kLeftMotorID = 21
+    kRightMotorID = 22
 
     kLimitSwitchID = 9
 
@@ -14,9 +14,12 @@ class Elevator_Constants:
     kStatic = 0.0
     kVelocity = 0.0
     kAcceleration = 0.0
-    kPorportional = 0.8
+    kPorportional = 0.0
     kIntegral = 0.0
     kDerivative = 0.0
+
+    kForwardSoftLimitEnable = True
+
 
     kGearRatio = 20.0
 
