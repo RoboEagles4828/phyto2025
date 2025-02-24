@@ -7,6 +7,7 @@
 import commands2
 import commands2.button
 import commands2.cmd
+from commands2 import ConditionalCommand
 from commands2.sysid import SysIdRoutine
 from commands2.instantcommand import InstantCommand
 from commands2.command import Command
@@ -154,6 +155,13 @@ class RobotContainer:
             lambda state: self._logger.telemeterize(state)
         )
 
+        self.execute.or_(self._joystick.getLeftStickButton()).onTrue(
+            ConditionalCommand(
+                # js do what the board thing says to do
+                self.nextCommand()
+            )
+        )       
+
     def getAutonomousCommand(self) -> Command:
         """Use this to pass the autonomous command to the main {@link Robot} class.
 
@@ -163,5 +171,3 @@ class RobotContainer:
         auto = self.autoChooser.getSelected()
 
         return auto
-        
-
