@@ -3,8 +3,8 @@ from wpilib import DigitalInput
 
 class Constants_Cannon:
 
-    leftMotorID = 31
-    rightMotorID = 32
+    leftMotorID = 14
+    rightMotorID = 15
     digitalInputID = 0
 
     current_limit = 40
