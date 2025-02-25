@@ -7,7 +7,7 @@ from phoenix6.signal_logger import SignalLogger
 from wpilib.sysid import SysIdRoutineLog
 from commands2 import Command
 from phoenix6.signals import NeutralModeValue, GravityTypeValue
-from phoenix6.controls import MotionMagicTorqueCurrentFOC, DutyCycleOut, VoltageOut
+from phoenix6.controls import MotionMagicTorqueCurrentFOC, DutyCycleOut, VoltageOut, TorqueCurrentFOC
 from phoenix6.configs import TalonFXConfiguration, CurrentLimitsConfigs, TalonFXConfigurator
 from phoenix6.configs.config_groups import InvertedValue
 from wpilib import *
@@ -22,9 +22,6 @@ from subsystems.elevator.elevator_constants import Elevator_Constants
 
 
 class Elevator(Subsystem):
-
-    motor_one: TalonFX
-    motor_two: TalonFX
 
     def __init__(self):
 
@@ -67,15 +64,15 @@ class Elevator(Subsystem):
         self.leftMotorFollower.set_control(Follower(Elevator_Constants.kRightMotorID, True))
 
         # Applying all of Settings (and Checking if Error Occurs.)
-        self.motor_two.set_control(Follower(Elevator_Constants.kRightMotorID, True))
         self.rightMotorLeader.configurator.apply(self.rightMotorCfg)
-        self.leftMotorCfg
+        self.leftMotorFollower.configurator.apply(self.leftMotorCfg)
 
         # Misc
         self.request = MotionMagicTorqueCurrentFOC(0.0)
 
         self.dutyCycle = DutyCycleOut(0.0)
         self.voltageOut = VoltageOut(0.0)
+        self.torqueCurrent = TorqueCurrentFOC(0.0)
 
         self._sys_id_routine = SysIdRoutine(
             SysIdRoutine.Config(
@@ -88,7 +85,7 @@ class Elevator(Subsystem):
                 ),
             ),
             SysIdRoutine.Mechanism(
-                lambda output: self.motor_one.set_control(
+                lambda output: self.rightMotorLeader.set_control(
                     self.voltageOut.with_output(output),
                 ),
                 lambda log: None,
@@ -98,7 +95,7 @@ class Elevator(Subsystem):
 
         self.limitSwitch = DigitalInput(Elevator_Constants.kLimitSwitchID) #true means activated
         self.targetRotation = 0.0
-        self.isZeroed = False
+        self.requestedAmps = 0.0
 
         # Create Mechanism Canvas for SmartDashboard
         canvasWidth = 21.0
@@ -121,6 +118,7 @@ class Elevator(Subsystem):
         )
 
         SmartDashboard.putData("Elevator/mechanism", canvas)
+        SmartDashboard.putNumber("Elevator/Torque_Amps", self.requestedAmps)
 
     def sys_id_quasistatic(self, direction: SysIdRoutine.Direction) -> Command:
         return self._sys_id_routine.quasistatic(direction)
@@ -133,10 +131,9 @@ class Elevator(Subsystem):
         Returns a new command to sets the target rotations to the given position.
         Designed for button click or as part of a command group.
         """
-        self.isZeroed = False
         self.targetRotation = position
         return self.runOnce(
-            lambda: self.motor_one.set_control(
+            lambda: self.rightMotorLeader.set_control(
                 self.request.with_position(position)
             )
         )
@@ -147,7 +144,7 @@ class Elevator(Subsystem):
         Designed for button click or as part of a command group.
         """
         return self.runOnce(
-            lambda: self.motor_one.set_control(
+            lambda: self.rightMotorLeader.set_control(
                 self.request.with_position(floor.rotations).with_slot(0)
             )
         )
@@ -157,9 +154,8 @@ class Elevator(Subsystem):
         Returns a new command to manually move up.
         Designed to run while a button is held. Use the stop command on release.
         """
-        self.isZeroed = False
         return self.run(
-            lambda: self.motor_one.set_control(
+            lambda: self.rightMotorLeader.set_control(
                 self.dutyCycle.with_output(Elevator_Constants.kManualUpDutyCycle)
             )
         )
@@ -170,10 +166,43 @@ class Elevator(Subsystem):
         Designed to run while a button is held. Use the stop command on release.
         """
         return self.run(
-            lambda: self.motor_one.set_control(
+            lambda: self.rightMotorLeader.set_control(
                 self.dutyCycle.with_output(Elevator_Constants.kManualDownDutyCycle).with_limit_reverse_motion(self.limitSwitch.get())
             )
         )
+    
+    def move_up_through_torque(self)-> Command:
+        """
+        Returns a new command to move up through torque
+        """
+        return self.run(
+            lambda: self.rightMotorLeader.set_control(
+                self.torqueCurrent.with_output(6)
+            )
+        )
+    
+    def move_down_through_torque(self)-> Command:
+        """
+        Returns a new command to move down through torque
+        """
+        return self.run(
+            lambda: self.rightMotorLeader.set_control(
+                self.torqueCurrent.with_output(-0.5).with_limit_reverse_motion(self.limitSwitch.get())
+            )
+        )
+    
+    def move_to_current_position(self)->Command:
+
+        return self.run(
+            lambda: self.rightMotorLeader.set_control(
+                self.request.with_position(self.rightMotorLeader.get_position().value).with_limit_reverse_motion(self.limitSwitch.get())
+            )
+        ) 
+    def updateAmps(self, addedAmps):
+        """
+        Returns a new command to update the requested amps
+        """
+        self.requestedAmps = self.requestedAmps + addedAmps
 
     def stop(self) -> Command:
         """
@@ -182,7 +211,7 @@ class Elevator(Subsystem):
         of the button used with manual motion.
         """
         return self.runOnce(
-            lambda: self.motor_one.set_control(
+            lambda: self.rightMotorLeader.set_control(
                 DutyCycleOut(Elevator_Constants.kManualNoPower)
             )
         )
@@ -191,7 +220,7 @@ class Elevator(Subsystem):
         """
         Returns a new command to zero the elevator's position.
         """
-        return self.runOnce(lambda: self.motor_one.set_position(0.0))
+        return self.runOnce(lambda: self.rightMotorLeader.set_position(0.0))
     
     def zero_position(self):
         """
@@ -200,9 +229,8 @@ class Elevator(Subsystem):
         return self.move_down_gradually().until(lambda: self.limitSwitch.get())
     
     def set_motor_zero(self):
-        if self.limitSwitch.get() and self.isZeroed == False:
-            self.motor_one.set_position(0.0)
-            self.isZeroed = True
+        if self.limitSwitch.get():
+            self.rightMotorLeader.set_position(0.0)
     
     def isSwitchTriggered(self):
         return not(self.limitSwitch.get())
@@ -212,19 +240,19 @@ class Elevator(Subsystem):
         Overridden to update dashboard.
         """
         self.set_motor_zero()
-        current: StatusSignal[ampere] = self.motor_one.get_torque_current()
+        current: StatusSignal[ampere] = self.rightMotorLeader.get_torque_current()
         SmartDashboard.putNumber("Elevator/Elevator left amps", current.value)
-        current = self.motor_two.get_torque_current()
+        current = self.leftMotorFollower.get_torque_current()
         SmartDashboard.putNumber("Elevator/Elevator right amps", current.value)
-        SmartDashboard.putNumber("Elevator/Elevator position", self.motor_one.get_position().value)
+        SmartDashboard.putNumber("Elevator/Elevator position", self.rightMotorLeader.get_position().value)
         SmartDashboard.putBoolean("Elevator/Limit Switch Value", self.limitSwitch.get())
         SmartDashboard.putNumber("Elevator/Desired Position", self.targetRotation)
-        SmartDashboard.putNumber("Elevator/Zeroed", self.isZeroed)
+        SmartDashboard.putNumber("Elevator/Torque_Amps", self.requestedAmps)
     # Functions below this point may be archived or deleted later
 
     def setPosition(self, position: float):
         self.desired_position = position
-        self.motor_one.set_control(MotionMagicVoltage, position)
+        self.rightMotorLeader.set_control(MotionMagicVoltage, position)
 
     def setHeight(self, height: float):
         position = (
@@ -244,4 +272,4 @@ class Elevator(Subsystem):
         )
 
     def getHeight(self):
-        return self.getHeight(self.motor_one.get_position())
+        return self.getHeight(self.rightMotorLeader.get_position())

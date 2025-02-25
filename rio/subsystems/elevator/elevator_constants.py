@@ -10,8 +10,8 @@ class Elevator_Constants:
     kLimitSwitchID = 9
 
     # Configurations
-    kGravity = 0.0
-    kStatic = 0.0
+    kGravity = 3.0
+    kStatic = 3.0
     kVelocity = 0.0
     kAcceleration = 0.0
     kPorportional = 0.0
@@ -21,7 +21,7 @@ class Elevator_Constants:
     kForwardSoftLimitEnable = True
 
 
-    kGearRatio = 20.0
+    kGearRatio = 12.0
 
     MECH_M_PER_ROT = .4
 
