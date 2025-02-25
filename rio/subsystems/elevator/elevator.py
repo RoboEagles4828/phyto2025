@@ -157,9 +157,9 @@ class Elevator(Subsystem):
         )
 
     def calcFeedforward(self, targetPosition) -> float:
-        feedForward: float = 0.0  # TODO change to constants.
+        feedForward: float = 4.0  # TODO change to constants (down).
         if self.getPosition() < targetPosition:
-            feedForward = 6.0
+            feedForward = 6.0 # up
         return feedForward
 
     def move_to_floor(self, floor: Floor) -> Command:

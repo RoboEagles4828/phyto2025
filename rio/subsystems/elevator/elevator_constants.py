@@ -10,11 +10,11 @@ class Elevator_Constants:
     kLimitSwitchID = 9
 
     # Configurations
-    kGravity = 3.0
-    kStatic = 3.0
+    kGravity = 0.0
+    kStatic = 0.0
     kVelocity = 3.0
     kAcceleration = 1.0
-    kPorportional = 0.0
+    kPorportional = 1.0
     kIntegral = 0.0
     kDerivative = 0.0
 
@@ -39,7 +39,7 @@ class Elevator_Constants:
 
     _kCruiseVelocityMPS = 0.5
 
-    kCruiseVelocity = _kCruiseVelocityMPS / kMetersPerRotation
+    kCruiseVelocity = 1.5 # _kCruiseVelocityMPS / kMetersPerRotation
     kMagicAcceleration = kCruiseVelocity * 2.0
     kMagicJerk = kMagicAcceleration * 10.0
 
