@@ -11,7 +11,6 @@ from commands2.sysid import SysIdRoutine
 from commands2.instantcommand import InstantCommand
 from commands2.command import Command
 
-from subsystems.elevator.to_position_command import ToPositionCommand
 from subsystems.swerve.tuner_constants import TunerConstants
 from telemetry import Telemetry
 
@@ -118,14 +117,10 @@ class RobotContainer:
         #         )
         #     )
         # )
-        self._joystick.y().onTrue(self.elevator.move_to_position(1)) #l1
-        self._joystick.a().onTrue(self.elevator.move_to_position(2)) #l2
-        self._joystick.b().onTrue(self.elevator.move_to_position(3)) #l3
+        self._joystick.y().onTrue(self.elevator.move_to_position(1.1)) #l1
+        self._joystick.a().onTrue(self.elevator.move_to_position(2.1)) #l2
+        self._joystick.b().onTrue(self.elevator.move_to_position(3.1)) #l3
         self._joystick.x().onTrue(self.elevator.move_to_position(4)) #l4
-        #self._joystick.y().whileTrue(ToPositionCommand(self, 1)) #l1
-        #self._joystick.a().whileTrue(ToPositionCommand(self, 2)) #l2
-        #self._joystick.b().whileTrue(ToPositionCommand(self, 3)) #l3
-        #self._joystick.x().whileTrue(ToPositionCommand(self, 4)) #l4
         
         self._joystick.back().onTrue(self.drivetrain.runOnce(lambda: self.drivetrain.zeroHeading()))
         # self._joystick.povDown().onTrue(self.elevator.zero_rotations())
@@ -176,5 +171,3 @@ class RobotContainer:
         auto = self.autoChooser.getSelected()
 
         return auto
-        
-

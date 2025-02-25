@@ -16,6 +16,7 @@ from phoenix6.controls import StrictFollower, MotionMagicVoltage, Follower
 from phoenix6 import SignalLogger, ampere, StatusSignal
 from wpilib.shuffleboard import Shuffleboard
 from wpilib import DigitalInput
+from wpimath.filter import Debouncer
 
 from subsystems.elevator.floor import Floor
 from subsystems.elevator.elevator_constants import Elevator_Constants
@@ -43,8 +44,6 @@ class Elevator(Subsystem):
         self.rightMotorCfg.slot0.k_d = Elevator_Constants.kDerivative
 
         self.rightMotorCfg.motor_output.neutral_mode = NeutralModeValue.BRAKE
-
-        
 
         # Applying Limit Configurations
         self.rightMotorCfg.current_limits.stator_current_limit = Elevator_Constants.kCurrentLimit  # Note that this is in AMPERES
@@ -94,6 +93,7 @@ class Elevator(Subsystem):
         )
 
         self.limitSwitch = DigitalInput(Elevator_Constants.kLimitSwitchID) #true means activated
+        self.debouncer = Debouncer(0.1, Debouncer.DebounceType.kBoth)
         self.targetRotation = 0.0
         self.requestedAmps = 0.0
 
@@ -125,23 +125,42 @@ class Elevator(Subsystem):
 
     def sys_id_dynamic(self, direction: SysIdRoutine.Direction) -> Command:
         return self._sys_id_routine.dynamic(direction)
-    
+
     def move_to_position(self, position:float)-> Command:
         """
         Returns a new command to sets the target rotations to the given position.
         Designed for button click or as part of a command group.
         """
-        self.targetRotation = position
-        return self.run(
+        return self.startRun(
+            lambda: self.setTargetRotation(position),
             lambda: self.rightMotorLeader.set_control(
                 self.request.with_position(position).with_limit_reverse_motion(self.limitSwitch.get())
             )
         )
 
-    def move_to_position_with_ff(self, position, feedforward):
+    def setTargetRotation(self, position) -> None:
         self.targetRotation = position
-        self.rightMotorLeader.set_control(
-                self.request.with_position(position).with_feed_forward(feedforward).with_limit_reverse_motion(self.limitSwitch.get()))
+
+    def move_to_position_with_ff(self, position: float)-> Command:
+        """
+        Returns a new command to sets the target rotations to the given position.
+        With a calculated feedforward.
+        Designed for button click or as part of a command group.
+        """
+        return self.startRun(
+            lambda: self.setTargetRotation(position),
+            lambda: self.rightMotorLeader.set_control(
+                self.request.with_position(position)
+                .with_feed_forward(self.calcFeedforward(position))
+                .with_limit_reverse_motion(self.limitSwitch.get())
+            ),
+        )
+
+    def calcFeedforward(self, targetPosition) -> float:
+        feedForward: float = 0.0  # TODO change to constants.
+        if self.getPosition() < targetPosition:
+            feedForward = 6.0
+        return feedForward
 
     def move_to_floor(self, floor: Floor) -> Command:
         """
@@ -175,7 +194,7 @@ class Elevator(Subsystem):
                 self.dutyCycle.with_output(Elevator_Constants.kManualDownDutyCycle).with_limit_reverse_motion(self.limitSwitch.get())
             )
         )
-    
+
     def move_up_through_torque(self)-> Command:
         """
         Returns a new command to move up through torque
@@ -185,7 +204,7 @@ class Elevator(Subsystem):
                 self.torqueCurrent.with_output(6)
             )
         )
-    
+
     def move_down_through_torque(self)-> Command:
         """
         Returns a new command to move down through torque
@@ -195,7 +214,7 @@ class Elevator(Subsystem):
                 self.torqueCurrent.with_output(-0.5).with_limit_reverse_motion(self.limitSwitch.get())
             )
         )
-    
+
     def move_to_current_position(self)->Command:
 
         return self.run(
@@ -220,25 +239,22 @@ class Elevator(Subsystem):
                 DutyCycleOut(Elevator_Constants.kManualNoPower)
             )
         )
-    
+
     def zero_rotations(self) -> Command:
         """
         Returns a new command to zero the elevator's position.
         """
         return self.runOnce(lambda: self.rightMotorLeader.set_position(0.0))
-    
+
     def zero_position(self):
         """
         Moves the robot down until the limit switch is activated
         """
         return self.move_down_gradually().until(lambda: self.limitSwitch.get())
-    
+
     def set_motor_zero(self):
-        if self.limitSwitch.get():
+        if self.debouncer.calculate(self.limitSwitch.get()):
             self.rightMotorLeader.set_position(0.0)
-    
-    def isSwitchTriggered(self):
-        return not(self.limitSwitch.get())
 
     def periodic(self) -> None:
         """
@@ -253,6 +269,7 @@ class Elevator(Subsystem):
         SmartDashboard.putBoolean("Elevator/Limit Switch Value", self.limitSwitch.get())
         SmartDashboard.putNumber("Elevator/Desired Position", self.targetRotation)
         SmartDashboard.putNumber("Elevator/Torque_Amps", self.requestedAmps)
+        SmartDashboard.putNumber("Elevator/Velocity", self.getVelocity())
     # Functions below this point may be archived or deleted later
 
     def setPosition(self, position: float):
@@ -278,6 +295,9 @@ class Elevator(Subsystem):
 
     def getHeight(self):
         return self.getHeight(self.rightMotorLeader.get_position())
-    
+
     def getPosition(self) -> float:
         return self.rightMotorLeader.get_position().value
+
+    def getVelocity(self) -> float:
+        return self.rightMotorLeader.get_velocity().value
