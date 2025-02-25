@@ -94,7 +94,8 @@ class Elevator(Subsystem):
 
         self.limitSwitch = DigitalInput(Elevator_Constants.kLimitSwitchID) #true means activated
         self.debouncer = Debouncer(0.1, Debouncer.DebounceType.kBoth)
-        self.targetRotation = 0.0
+        self.targetRotation = 0.0 # Where to get to
+        self.targetMovementUp = True # Initial direction to target rotation
         self.requestedAmps = 0.0
 
         # Create Mechanism Canvas for SmartDashboard
@@ -138,8 +139,53 @@ class Elevator(Subsystem):
             )
         )
 
+    def move_to_position_duty_cycle(self, position: float)-> Command:
+        """
+        Returns a new command to sets the target rotations to the given position.
+        Designed for button click or as part of a command group.
+        """
+        return self.startRun(
+            lambda: self.setTargetRotation(position),
+            lambda: self.rightMotorLeader.set_control(
+                self.dutyCycle.with_output(
+                    self.calculateOutput()
+                ).with_limit_reverse_motion(self.limitSwitch.get())
+            ),
+        ).until(self.atDesiredLevel())
+
+    def calculateOutput(self) -> float:
+        output: float = 0.0
+        delta: float = self.targetRotation - self.getPosition()
+        if (self.targetMovementUp != (delta > 0)):
+            # Overshoot, but only reverse magnet search
+            # after significant overshoot. Where significant
+            # is defined by a balance between position tracking
+            # accuracy and the need to not shake up an down
+            # around a bad position.
+            if abs(delta > 0.1): # TODO figure this out, should be in slow zone.
+                self.targetMovementUp = not self.targetMovementUp
+        
+        farAway: bool = abs(delta) > 0.2
+        if farAway:
+            if self.targetMovementUp:
+                output = 0.3 # TODO far away moving up
+            else:
+                output = 0.15 # TODO far away moving down
+        else:
+            if self.targetMovementUp:
+                output = 0.15 # TODO close moving up
+            else:
+                output = 0.1 # TODO close moving down
+        return output
+
+    def atDesiredLevel(self) -> bool:
+        nearing: bool = abs(self.targetRotation - self.getPosition()) < 0.4
+        atLevel: bool = False # TODO read hall effect sensor ?with debounce?
+        return nearing and atLevel
+
     def setTargetRotation(self, position) -> None:
         self.targetRotation = position
+        self.targetMovementUp = (self.targetRotation - self.getPosition()) > 0
 
     def move_to_position_with_ff(self, position: float)-> Command:
         """
