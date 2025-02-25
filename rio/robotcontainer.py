@@ -11,6 +11,7 @@ from commands2.sysid import SysIdRoutine
 from commands2.instantcommand import InstantCommand
 from commands2.command import Command
 
+from subsystems.elevator.to_position_command import ToPositionCommand
 from subsystems.swerve.tuner_constants import TunerConstants
 from telemetry import Telemetry
 
@@ -117,10 +118,14 @@ class RobotContainer:
         #         )
         #     )
         # )
-        # self._joystick.y().onTrue(self.elevator.move_to_position(-1.181369)) #l1
-        # self._joystick.a().onTrue(self.elevator.move_to_position(-1.495605)) #l2
-        # self._joystick.b().onTrue(self.elevator.move_to_position(-2.74414)) #l3
-        # self._joystick.x().onTrue(self.elevator.move_to_position(-3.248584)) #l4
+        self._joystick.y().onTrue(self.elevator.move_to_position(1)) #l1
+        self._joystick.a().onTrue(self.elevator.move_to_position(2)) #l2
+        self._joystick.b().onTrue(self.elevator.move_to_position(3)) #l3
+        self._joystick.x().onTrue(self.elevator.move_to_position(4)) #l4
+        #self._joystick.y().whileTrue(ToPositionCommand(self, 1)) #l1
+        #self._joystick.a().whileTrue(ToPositionCommand(self, 2)) #l2
+        #self._joystick.b().whileTrue(ToPositionCommand(self, 3)) #l3
+        #self._joystick.x().whileTrue(ToPositionCommand(self, 4)) #l4
         
         self._joystick.back().onTrue(self.drivetrain.runOnce(lambda: self.drivetrain.zeroHeading()))
         # self._joystick.povDown().onTrue(self.elevator.zero_rotations())
@@ -134,7 +139,7 @@ class RobotContainer:
         self._joystick.leftBumper().whileTrue(self.elevator.move_down_through_torque())
         self._joystick.rightTrigger().whileTrue(self.elevator.move_up_gradually())
         self._joystick.leftTrigger().whileTrue(self.elevator.move_down_gradually())
-        self._joystick.a().whileTrue(self.elevator.move_to_current_position())
+        # self._joystick.a().whileTrue(self.elevator.move_to_current_position())
         # self._joystick.povRight().onTrue(self.elevator.zero_rotations())
 
         # self._joystick.rightBumper().onTrue(InstantCommand(lambda: self.drivetrain.zeroPigeon()))

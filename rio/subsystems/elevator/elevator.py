@@ -132,11 +132,16 @@ class Elevator(Subsystem):
         Designed for button click or as part of a command group.
         """
         self.targetRotation = position
-        return self.runOnce(
+        return self.run(
             lambda: self.rightMotorLeader.set_control(
-                self.request.with_position(position)
+                self.request.with_position(position).with_limit_reverse_motion(self.limitSwitch.get())
             )
         )
+
+    def move_to_position_with_ff(self, position, feedforward):
+        self.targetRotation = position
+        self.rightMotorLeader.set_control(
+                self.request.with_position(position).with_feed_forward(feedforward).with_limit_reverse_motion(self.limitSwitch.get()))
 
     def move_to_floor(self, floor: Floor) -> Command:
         """
@@ -273,3 +278,6 @@ class Elevator(Subsystem):
 
     def getHeight(self):
         return self.getHeight(self.rightMotorLeader.get_position())
+    
+    def getPosition(self) -> float:
+        return self.rightMotorLeader.get_position().value
