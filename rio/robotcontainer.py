@@ -63,6 +63,9 @@ class RobotContainer:
 
         self._joystick = commands2.button.CommandXboxController(0)
 
+        self.operator1 = commands2.button.CommandGenericHID(1)
+        self.operator2 = commands2.button.CommandGenericHID(2)
+
         self.drivetrain = TunerConstants.create_drivetrain()
         self.elevator = Elevator()
         self.hopper = Hopper()
@@ -71,6 +74,7 @@ class RobotContainer:
         # Configure the button bindings
 
         self.configureButtonBindings()
+        self.configureOperatorBindings()
 
         self.autoChooser = AutoBuilder.buildAutoChooser("None")
         SmartDashboard.putData("AutoChooser",self.autoChooser)
@@ -154,6 +158,26 @@ class RobotContainer:
         self.drivetrain.register_telemetry(
             lambda state: self._logger.telemeterize(state)
         )
+    
+    def configureOperatorBindings(self) -> None:
+        self.operator1.axisLessThan(1, -0.99) # Go to L4
+        self.operator1.axisGreaterThan(0, 0.99) # Go to L3
+        self.operator1.axisLessThan(0, -0.99) # Go to L2
+        self.operator1.axisGreaterThan(1, 0.99) # Go to L1
+
+        self.operator2.axisGreaterThan(0, 0.99) # Reef side A
+        self.operator2.axisLessThan(0, -0.99) # Reef side B
+        self.operator2.axisLessThan(1, -0.99) # Reef side C
+        self.operator2.axisGreaterThan(1, 0.99) # Reef side D
+        self.operator2.button(0) # Reef side E
+        self.operator2.button(1) # Reef side F
+        self.operator2.button(2) # Reef side G
+        self.operator2.button(3) # Reef side H
+        self.operator2.button(4) # Reef side I
+        self.operator2.button(5) # Reef side J
+        self.operator2.button(6) # Reef side K
+        self.operator2.button(7) # Reef side L
+
 
         self.execute.or_(self._joystick.getLeftStickButton()).onTrue(
             ConditionalCommand(
