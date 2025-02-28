@@ -170,12 +170,12 @@ class Elevator(Subsystem):
             if self.targetMovementUp:
                 output = 0.3 # TODO far away moving up
             else:
-                output = 0.15 # TODO far away moving down
+                output = -0.15 # TODO far away moving down
         else:
             if self.targetMovementUp:
-                output = 0.15 # TODO close moving up
+                output = 0.20 # TODO close moving up
             else:
-                output = 0.1 # TODO close moving down
+                output = -0.1 # TODO close moving down
         return output
 
     def atDesiredLevel(self) -> bool:
