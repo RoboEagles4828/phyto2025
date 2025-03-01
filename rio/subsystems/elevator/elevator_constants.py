@@ -8,6 +8,7 @@ class Elevator_Constants:
     kRightMotorID = 22
 
     kBottomLimitSwitchID = 9
+    kTopLimitSwitchID = 0
 
     # PID Constants
     kGravity = 0.0

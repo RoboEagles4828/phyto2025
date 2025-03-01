@@ -71,22 +71,28 @@ class Elevator(Subsystem):
         self.leftMotorFollower.configurator.apply(self.motorCfg)
 
         self.bottomLimitSwitch = DigitalInput(Elevator_Constants.kBottomLimitSwitchID)
+        self.topLimitSwitch = DigitalInput(Elevator_Constants.kTopLimitSwitchID)
 
         self.debouncer = Debouncer(0.1, Debouncer.DebounceType.kBoth)
 
         self.desiredPosition = 0.0
         self.nextTargetPosition = 0.0
 
+
     
-    def move_to_position_execute(self, slot: int = 0):
+    def move_to_position_execute(self):
         """
         The command that is run during manual cycle. Doesnt require a position input
         """
-        
+
+        slot = 0
+
+        if self.nextTargetPosition > 3.5:
+            slot = 1
         return self.startRun(
             lambda: self.setTargetRotation(self.nextTargetPosition),
             lambda: self.rightMotorLeader.set_control(
-                self.request.with_position(self.nextTargetPosition).with_slot(0)
+                self.request.with_position(self.nextTargetPosition).with_slot(slot).with_limit_forward_motion(self.topLimitSwitch.get()).with_limit_reverse_motion(self.bottomLimitSwitch.get())
             )
         )
 
@@ -149,6 +155,8 @@ class Elevator(Subsystem):
         SmartDashboard.putNumber("Elevator/Velocity", self.getVelocity())
         SmartDashboard.putNumber("Elevator/Desired Position", self.desiredPosition)
         SmartDashboard.putNumber("Elevator/Voltage", self.rightMotorLeader.get_motor_voltage().value)
+        SmartDashboard.putBoolean("Elevator/Bottom Limit", self.bottomLimitSwitch.get())
+        SmartDashboard.putBoolean("Elevator/Top Limit", self.topLimitSwitch.get())
 
 
 
