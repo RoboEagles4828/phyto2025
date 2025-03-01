@@ -75,8 +75,20 @@ class Elevator(Subsystem):
         self.debouncer = Debouncer(0.1, Debouncer.DebounceType.kBoth)
 
         self.desiredPosition = 0.0
+        self.nextTargetPosition = 0.0
 
-
+    
+    def move_to_position_execute(self, slot: int = 0):
+        """
+        The command that is run during manual cycle. Doesnt require a position input
+        """
+        
+        return self.startRun(
+            lambda: self.setTargetRotation(self.nextTargetPosition),
+            lambda: self.rightMotorLeader.set_control(
+                self.request.with_position(self.nextTargetPosition).with_slot(0)
+            )
+        )
 
 
     def move_to_position(self, position : float, slot: int = 0) -> Command:
@@ -127,6 +139,9 @@ class Elevator(Subsystem):
     
     def setTargetRotation(self, position):
         self.desiredPosition = position
+
+    def setNextTargetRotation(self, position):
+        self.nextTargetPosition = position
 
     def periodic(self):
         self.set_motor_zero()

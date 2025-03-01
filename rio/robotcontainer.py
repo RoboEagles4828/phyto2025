@@ -62,6 +62,8 @@ class RobotContainer:
 
         self._joystick = commands2.button.CommandXboxController(0)
 
+        self._operator_joystick = commands2.button.CommandXboxController(1)
+
         self.operator1 = commands2.button.CommandGenericHID(1)
         self.operator2 = commands2.button.CommandGenericHID(2)
 
