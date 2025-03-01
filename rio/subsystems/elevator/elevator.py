@@ -8,7 +8,7 @@ from wpilib.sysid import SysIdRoutineLog
 from commands2 import Command
 from phoenix6.signals import NeutralModeValue, GravityTypeValue
 from phoenix6.controls import MotionMagicTorqueCurrentFOC, DutyCycleOut, VoltageOut, TorqueCurrentFOC
-from phoenix6.configs import TalonFXConfiguration, CurrentLimitsConfigs, TalonFXConfigurator
+from phoenix6.configs import TalonFXConfiguration, CurrentLimitsConfigs, TalonFXConfigurator, ClosedLoopRampsConfigs, OpenLoopRampsConfigs
 from phoenix6.configs.config_groups import InvertedValue
 from wpilib import *
 from lib.util.units import Units
@@ -52,6 +52,8 @@ class Elevator(Subsystem):
         self.motorCfg.motion_magic.motion_magic_cruise_velocity = Elevator_Constants.kCruiseVelocity
         self.motorCfg.motion_magic.motion_magic_acceleration = Elevator_Constants.kMagicAcceleration
         self.motorCfg.motion_magic.motion_magic_jerk = Elevator_Constants.kMagicJerk
+        self.motorCfg.closed_loop_ramps.voltage_closed_loop_ramp_period = 0.5
+        self.motorCfg.open_loop_ramps.voltage_open_loop_ramp_period = 0.5
 
         # Add motor controls (follow and motionmagic)
         self.leftMotorFollower.set_control(Follower(Elevator_Constants.kRightMotorID, True))
@@ -127,6 +129,7 @@ class Elevator(Subsystem):
         SmartDashboard.putNumber("Elevator/Position", self.getPosition())
         SmartDashboard.putNumber("Elevator/Velocity", self.getVelocity())
         SmartDashboard.putNumber("Elevator/Desired Position", self.desiredPosition)
+        SmartDashboard.putNumber("Elevator/Voltage", self.rightMotorLeader.get_motor_voltage().value)
 
 
 

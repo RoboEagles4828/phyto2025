@@ -14,7 +14,7 @@ class Elevator_Constants:
     kStatic = 0.0
     kVelocity = 0.1
     kAcceleration = 0.0
-    kPorportional = 8.0
+    kPorportional = 9.0
     kIntegral = 0
     kDerivative = 0.0
 

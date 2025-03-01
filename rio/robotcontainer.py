@@ -119,8 +119,8 @@ class RobotContainer:
         # )
         self._joystick.y().whileTrue(self.elevator.move_to_position(1.1)) #l1
         self._joystick.a().whileTrue(self.elevator.move_to_position(2.1)) #l2
-        self._joystick.b().whileTrue(self.elevator.stop()) #l3
-        self._joystick.x().whileTrue(self.elevator.move_to_position(0)) #l4
+        self._joystick.b().whileTrue(self.elevator.move_to_position(3.5)) #l3
+        self._joystick.x().whileTrue(self.elevator.move_to_position(0)) #zero
         
         self._joystick.back().onTrue(self.drivetrain.runOnce(lambda: self.drivetrain.zeroHeading()))
         # self._joystick.povDown().onTrue(self.elevator.zero_rotations())
@@ -129,6 +129,7 @@ class RobotContainer:
 
         self._joystick.rightTrigger().whileTrue(self.elevator.move_up_gradually())
         self._joystick.leftTrigger().whileTrue(self.elevator.move_down_gradually())
+        self._joystick.rightBumper().whileTrue(self.cannon.loadCoral().deadlineFor(self.hopper.intake()))
         # self._joystick.a().whileTrue(self.elevator.move_to_current_position())
         # self._joystick.povRight().onTrue(self.elevator.zero_rotations())
 
