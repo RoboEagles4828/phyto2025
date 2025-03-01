@@ -43,6 +43,10 @@ class Elevator(Subsystem):
         self.motorCfg.slot0.k_i = Elevator_Constants.kIntegral
         self.motorCfg.slot0.k_d = Elevator_Constants.kDerivative
 
+        #Configure for L4
+        self.motorCfg.slot1.k_v = 0.1
+        self.motorCfg.slot1.k_p = 8
+
         # Apply limit configurations here
         limit_configs = CurrentLimitsConfigs()
         limit_configs.stator_current_limit = Elevator_Constants.kCurrentLimit   # Note that this is in AMPERES
@@ -75,7 +79,7 @@ class Elevator(Subsystem):
 
 
 
-    def move_to_position(self, position : float) -> Command:
+    def move_to_position(self, position : float, slot: int = 0) -> Command:
         """
         Returns a new command to sets the target rotations to the given position.
         Designed for button click or as part of a command group.
@@ -83,7 +87,7 @@ class Elevator(Subsystem):
         return self.startRun(
             lambda: self.setTargetRotation(position),
             lambda: self.rightMotorLeader.set_control(
-                self.request.with_position(position)
+                self.request.with_position(position).with_slot(slot)
             )
         )
     

@@ -119,7 +119,7 @@ class RobotContainer:
         # )
         self._joystick.y().whileTrue(self.elevator.move_to_position(1.1)) #l1
         self._joystick.a().whileTrue(self.elevator.move_to_position(2.1)) #l2
-        self._joystick.b().whileTrue(self.elevator.move_to_position(3.5)) #l3
+        self._joystick.b().whileTrue(self.elevator.move_to_position(3.5, 1)) #l3
         self._joystick.x().whileTrue(self.elevator.move_to_position(0)) #zero
         
         self._joystick.back().onTrue(self.drivetrain.runOnce(lambda: self.drivetrain.zeroHeading()))
