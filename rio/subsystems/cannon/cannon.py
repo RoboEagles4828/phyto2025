@@ -1,16 +1,15 @@
-from commands2 import Subsystem
-from wpilib import DigitalInput
-from phoenix5 import TalonSRX, TalonSRXControlMode, FollowerType
+from commands2 import Command, Subsystem
+from phoenix5 import NeutralMode, TalonSRX, TalonSRXControlMode
 from subsystems.cannon.constants_cannon import Constants_Cannon
 from wpilib import SmartDashboard
 
-class Cannon(Subsystem):
-    def __init__(self):
-        self.leftMotor = TalonSRX(Constants_Cannon.leftMotorID)
-        self.rightMotor = TalonSRX(Constants_Cannon.rightMotorID)
 
-        # if the digital input is false, then it can see the coral
-        # self.beamBreak = DigitalInput(Constants_Cannon.digitalInputID)
+class Cannon(Subsystem):
+    def __init__(self) -> None:
+        self.leftMotor = TalonSRX(Constants_Cannon.leftMotorID)
+        self._configure_motor(self.leftMotor)
+        self.rightMotor = TalonSRX(Constants_Cannon.rightMotorID)
+        self._configure_motor(self.rightMotor)
 
         self.leftMotor.configSupplyCurrentLimit(Constants_Cannon.supply_config)
         self.rightMotor.configSupplyCurrentLimit(Constants_Cannon.supply_config)
@@ -19,52 +18,54 @@ class Cannon(Subsystem):
         self.leftMotor.setInverted(True)
         self.rightMotor.setInverted(False)
 
-        self.leftMotor.follow(self.rightMotor, FollowerType.PercentOutput)
+        self.loaded = True  # Start match with pre-loaded game piece
 
-        self.loaded = False
+    def _configure_motor(self, motor: TalonSRX):
+        motor.configFactoryDefault()
+        motor.setNeutralMode(NeutralMode.Brake)
 
-    # def getBeamBreakState(self):
-    #     return not(self.beamBreak.get())
-
-    def setCannonSpeed(self, percentOutput):
-
-        """
-        Sets the speed for both the left and right
-        """
-
-        self.rightMotor.set(TalonSRXControlMode.PercentOutput, percentOutput)
-
-    def loadCoral(self):
-        """
-        This sets the motors to run when the coral is being loaded from the hopper
-        """
+    def loadCoral(self) -> Command:
         return (
-            self.run(lambda: self.setCannonSpeed(0.3))
+            self.runEnd(
+                lambda: self._runStraight(Constants_Cannon.loadPercentOutput),
+                lambda: self._stop(),
+            )
             .until(self.stopLoading)
-            .andThen(self.runOnce(self.hasCoralOverride))
+            .andThen(self.runOnce(self.setLoaded(True)))
         )
 
-    def placeCoral(self):
-        """
-        Outtakes the coral from the cannon
-        """ 
-        self.loaded = False
-        return self.run(lambda: self.setCannonSpeed(1))
+    def placeCoral(self) -> Command:
+        """Currently designed for whileTrue, but could easily be changed to timed."""
+        return self.runEnd(
+            lambda: self._runStraight(Constants_Cannon.placePercentOutput),
+            lambda: self._stop(),
+        ).andThen(self.runOnce(self.setLoaded(False)))
 
-    def stop(self):
+    def placeCoralTimed(self) -> Command:
+        """The same as placeCoral but with a timeout. Suitable for automodes."""
+        return (
+            self.runEnd(
+                lambda: self._runStraight(Constants_Cannon.placePercentOutput),
+                lambda: self._stop(),
+            )
+            .withTimeout(Constants_Cannon.placeCoralAutoTimeoutSec)
+            .andThen(self.runOnce(self.setLoaded(False)))
+        )
+
+    def stop(self) -> Command:
         """
         Stops the motors
         """
-        return self.run(lambda: self.setCannonSpeed(0))
+        return self.run(lambda: self._stop())
 
     def stopLoading(self):
-        return abs(self.rightMotor.getStatorCurrent())>10
+        return abs(self.rightMotor.getStatorCurrent()) > 10
 
-    def hasCoralOverride(self):
-        """
-        This is used to override the current state of the robot
-        """
-        self.loaded = not self.loaded
+    def backup_command(self) -> Command:
+        return self.runEnd(
+            lambda: self._runStraight(Constants_Cannon.backupPercentOutput),
+            lambda: self._stop(),
+        )
 
     def getLoaded(self):
         """
@@ -72,16 +73,36 @@ class Cannon(Subsystem):
         """
         return self.loaded
 
-    def placeL1(self):
-        return self.run(self.leftMotor.set(TalonSRXControlMode.PercentOutput, 0.2)).alongWith(self.rightMotor.set(TalonSRXControlMode.PercentOutput, 0.2)).until(lambda: self.rightMotor.getSupplyCurrent()>50)
+    def setLoaded(self, newLoaded):
+        self.loaded = newLoaded
+
+    def placeL1(self) -> Command:
+        return self.runEnd(
+            lambda: self._runSpec(0.7, 0.4),
+            lambda: self._stop(),
+        ).andThen(self.runOnce(self.setLoaded(False)))
+
+    def placeL1Timed(self) -> Command:
+        """Same as placeL1 but with a timeout. Suitable for use in automodes."""
+        return (
+            self.runEnd(
+                lambda: self._runSpec(0.7, 0.4),
+                lambda: self._stop(),
+            )
+            .withTimeout(Constants_Cannon.placeCoralAutoTimeoutSec)
+            .andThen(self.runOnce(self.setLoaded(False)))
+        )
+
+    def _runStraight(self, leftPercentOutput) -> None:
+        self._runSpec(leftPercentOutput, leftPercentOutput * 1.05)
+
+    def _runSpec(self, leftPercentOutput, rightPercentOutput) -> None:
+        self.leftMotor.set(TalonSRXControlMode.PercentOutput, leftPercentOutput)
+        self.rightMotor.set(TalonSRXControlMode.PercentOutput, rightPercentOutput)
+
+    def _stop(self) -> None:
+        self.leftMotor.set(TalonSRXControlMode.PercentOutput, 0.0)
+        self.rightMotor.set(TalonSRXControlMode.PercentOutput, 0.0)
 
     def periodic(self):
-        # SmartDashboard.putNumber("Cannon/leftMotorPercentOut", self.leftMotor.getMotorOutputPercent())
-        # SmartDashboard.putNumber("Cannon/rigthMotorPercentOut", self.rightMotor.getMotorOutputPercent())
         SmartDashboard.putBoolean("Cannon/loaded", self.loaded)
-        SmartDashboard.putNumber("Cannon/leftStatorCurrent", self.leftMotor.getStatorCurrent())
-        SmartDashboard.putNumber("Cannon/rightStatorCurrent", self.rightMotor.getStatorCurrent())
-        SmartDashboard.putNumber("Cannon/leftSupplyCurrent", self.leftMotor.getSupplyCurrent())
-        SmartDashboard.putNumber("Cannon/rightSupplyCurrent", self.rightMotor.getSupplyCurrent())
-        # SmartDashboard.putNumber("Cannon/leftMotorSensorVelocity", self.leftMotor.getSelectedSensorVelocity())
-        # SmartDashboard.putNumber("Cannon/rightMotorSensorVelocity", self.rightMotor.getSelectedSensorVelocity())
