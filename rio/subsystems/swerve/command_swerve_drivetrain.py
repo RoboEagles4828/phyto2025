@@ -11,7 +11,8 @@ from wpimath.kinematics import ChassisSpeeds
 from pathplannerlib.auto import AutoBuilder, PathConstraints, PathPlannerPath
 from auto.auto_constants import AutoConstants
 from wpilib import SmartDashboard
-# from subsystems.vision.vision import Vision
+# from subsystems.vision.vision import VisionSubsystem as Vision
+# from subsystems.vision.vision_constants import Vision_Constants as vision_constants
 # from generated.tuner_constants import TunerConstants
 
 
@@ -388,6 +389,13 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
         """
         return self.set_operator_perspective_forward(Rotation2d(self.get_state().pose.rotation().radians()))
     
+    
+    def getPose(self):
+        """
+        Gets the pose of the robot
+        """
+        # print(self.get_state().pose)
+        return self.get_state().pose
     # def update_Odom(self):
     #     """
     #     Updates the odometry with the vision

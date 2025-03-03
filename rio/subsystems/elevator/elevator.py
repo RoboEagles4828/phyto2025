@@ -92,7 +92,15 @@ class Elevator(Subsystem):
         return self.startRun(
             lambda: self.setTargetRotation(self.nextTargetPosition),
             lambda: self.rightMotorLeader.set_control(
-                self.request.with_position(self.nextTargetPosition).with_slot(slot).with_limit_forward_motion(self.topLimitSwitch.get()).with_limit_reverse_motion(self.bottomLimitSwitch.get())
+                self.request.with_position(self.nextTargetPosition).with_slot(slot).with_limit_forward_motion(not(self.topLimitSwitch.get())).with_limit_reverse_motion(self.bottomLimitSwitch.get())
+            )
+        )
+    
+    def move_to_zero(self):
+        return self.startRun(
+            lambda: self.setTargetRotation(self.nextTargetPosition),
+            lambda: self.rightMotorLeader.set_control(
+                self.dutyCycle.with_output(-.7).with_limit_reverse_motion(self.bottomLimitSwitch.get())
             )
         )
 
@@ -157,6 +165,9 @@ class Elevator(Subsystem):
         SmartDashboard.putNumber("Elevator/Voltage", self.rightMotorLeader.get_motor_voltage().value)
         SmartDashboard.putBoolean("Elevator/Bottom Limit", self.bottomLimitSwitch.get())
         SmartDashboard.putBoolean("Elevator/Top Limit", self.topLimitSwitch.get())
+
+        SmartDashboard.putNumber("Elevator/Next Target", self.nextTargetPosition)
+        
 
 
 
