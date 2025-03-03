@@ -1,8 +1,9 @@
 from commands2 import Subsystem
 from wpilib import DigitalInput
 from phoenix5 import TalonSRX, TalonSRXControlMode, FollowerType
-from subsystems.cannon.constants_cannon import Constants_Cannon
 from wpilib import SmartDashboard
+from subsystems.cannon.constants_cannon import Constants_Cannon
+from robotstate import RobotState
 
 class Cannon(Subsystem):
     def __init__(self):
@@ -21,7 +22,6 @@ class Cannon(Subsystem):
 
         self.leftMotor.follow(self.rightMotor, FollowerType.PercentOutput)
 
-        self.loaded = False
         self.scoringL1 = False
 
     # def getBeamBreakState(self):
@@ -42,14 +42,14 @@ class Cannon(Subsystem):
         return (
             self.run(lambda: self.setCannonSpeed(0.3))
             .until(self.stopLoading)
-            .andThen(self.runOnce(self.hasCoralOverride))
+            .andThen(self.runOnce(lambda: RobotState.setCoralInElevator(True)))
         )
 
     def placeCoral(self):
         """
         Outtakes the coral from the cannon
         """ 
-        self.loaded = False
+        RobotState.coralInElevator = False
         self.leftMotor.follow(self.rightMotor, FollowerType.PercentOutput)
 
         if self.scoringL1==True:
@@ -65,18 +65,6 @@ class Cannon(Subsystem):
 
     def stopLoading(self):
         return abs(self.rightMotor.getStatorCurrent())>10
-
-    def hasCoralOverride(self):
-        """
-        This is used to override the current state of the robot
-        """
-        self.loaded = not self.loaded
-
-    def getLoaded(self):
-        """
-        Returns wether the robot thinks it has a coral in the cannon
-        """
-        return self.loaded
     
     def setScoreToL1(self):
         self.scoringL1 = True
@@ -90,7 +78,7 @@ class Cannon(Subsystem):
     def periodic(self):
         # SmartDashboard.putNumber("Cannon/leftMotorPercentOut", self.leftMotor.getMotorOutputPercent())
         # SmartDashboard.putNumber("Cannon/rigthMotorPercentOut", self.rightMotor.getMotorOutputPercent())
-        SmartDashboard.putBoolean("Cannon/loaded", self.loaded)
+        SmartDashboard.putBoolean("Cannon/loaded", RobotState.coralInElevator)
         SmartDashboard.putNumber("Cannon/leftStatorCurrent", self.leftMotor.getStatorCurrent())
         SmartDashboard.putNumber("Cannon/rightStatorCurrent", self.rightMotor.getStatorCurrent())
         SmartDashboard.putNumber("Cannon/leftSupplyCurrent", self.leftMotor.getSupplyCurrent())
