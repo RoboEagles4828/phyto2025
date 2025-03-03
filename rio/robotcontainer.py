@@ -158,18 +158,26 @@ class RobotContainer:
         self.drivetrain.register_telemetry(
             lambda state: self._logger.telemeterize(state)
         )
+
+        self._joystick.leftStick().onTrue(self.elevator.operatorAction)    
+
+        self.operatorAction = 0
     
+    def setAction(self, action):
+        self.operatorAction = action
+        pass
+
     def configureOperatorBindings(self) -> None:
-        self.operator1.axisLessThan(1, -0.99) # Go to L4
-        self.operator1.axisGreaterThan(0, 0.99) # Go to L3
-        self.operator1.axisLessThan(0, -0.99) # Go to L2
-        self.operator1.axisGreaterThan(1, 0.99) # Go to L1
+        self.operator1.axisLessThan(self.setAction(self.elevator.move_to_position(-3.248584))) # Go to L4
+        self.operator1.axisGreaterThan(self.setAction(self.elevator.move_to_position(-2.74414))) # Go to L3
+        self.operator1.axisLessThan(self.setAction(self.elevator.move_to_position(-1.495605))) # Go to L2
+        self.operator1.axisGreaterThan(self.setAction(self.elevator.move_to_position(-1.181369))) # Go to L1
 
         self.operator2.axisGreaterThan(0, 0.99) # Reef side A
         self.operator2.axisLessThan(0, -0.99) # Reef side B
         self.operator2.axisLessThan(1, -0.99) # Reef side C
         self.operator2.axisGreaterThan(1, 0.99) # Reef side D
-        self.operator2.button(0) # Reef side E
+        self.operator2.button(0) # reef side E
         self.operator2.button(1) # Reef side F
         self.operator2.button(2) # Reef side G
         self.operator2.button(3) # Reef side H
@@ -177,14 +185,9 @@ class RobotContainer:
         self.operator2.button(5) # Reef side J
         self.operator2.button(6) # Reef side K
         self.operator2.button(7) # Reef side L
+    
 
 
-        self.execute.or_(self._joystick.getLeftStickButton()).onTrue(
-            ConditionalCommand(
-                # js do what the board thing says to do
-                self.nextCommand()
-            )
-        )       
 
     def getAutonomousCommand(self) -> Command:
         """Use this to pass the autonomous command to the main {@link Robot} class.
