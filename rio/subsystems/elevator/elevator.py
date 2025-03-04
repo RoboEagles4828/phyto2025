@@ -74,7 +74,7 @@ class Elevator(Subsystem):
 
     def zero(self):
         self.motor_one.set_control(self.request.with_position(0.0))
-        self.mechanism.setLength(Units.inchesToMeters(Elevator_Constants.kBaseHeight))
+        return self.mechanism.setLength(Units.inchesToMeters(Elevator_Constants.kBaseHeight))
 
     def goToZero(self):
         return self.runOnce(self.zero())
@@ -99,8 +99,8 @@ class Elevator(Subsystem):
 
     def setHeight(self, height: float):
         position = (height - Elevator_Constants.kBaseHeight) * Elevator_Constants.kRotationsPerInch
-        self.mechanism.setLength(Units.inchesToMeters(height))
-        self.setPosition(position)
+        return self.mechanism.setLength(Units.inchesToMeters(height))
+        # self.setPosition(position)
     
     def closeEnough(self, position: float):
         return self.desired_position>=0.0 and math.fabs(self.desired_position-position)

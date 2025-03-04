@@ -12,6 +12,7 @@ from commands2.instantcommand import InstantCommand
 from commands2.command import Command
 from commands2.selectcommand import SelectCommand
 from commands2.sequentialcommandgroup import SequentialCommandGroup
+from pathplannerlib.auto import NamedCommands
 
 from subsystems.swerve.tuner_constants import TunerConstants
 from telemetry import Telemetry
@@ -93,10 +94,12 @@ class RobotContainer:
 
         self.configureButtonBindings()
 
-        self.autoChooser = AutoBuilder.buildAutoChooser("None")
-        SmartDashboard.putData("AutoChooser",self.autoChooser)
+        NamedCommands.registerCommand("Raise Elevator L1", self.elevator.runOnce(lambda: self.elevator.setHeight(ReefPoints.PointAL3.m_elevatorHeight)))
+        NamedCommands.registerCommand("Zero Elevator", self.elevator.runOnce(lambda: self.elevator.zero()))
 
-    
+        self.autoChooser = AutoBuilder.buildAutoChooser("None")
+        Shuffleboard.getTab("Autonomous").add("Auton Selector", self.autoChooser)
+
     def driveToPose(self)-> Command:
         return SequentialCommandGroup(PID_Swerve(self.drivetrain, self.pose.neartestFace(self.drivetrain.getPose().translation(), False), False), True).andThen(lambda: self.drivetrain.manualOperatorPerspectiveOverride())
     

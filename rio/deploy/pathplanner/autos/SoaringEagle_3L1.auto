@@ -1,0 +1,99 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "P2to5L"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Raise Elevator L1"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.0
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "5LtoLeft_Source"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Zero Elevator"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left_Sourceto6L"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Raise Elevator L1"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.0
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "6LtoLeft_Source"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Zero Elevator"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left_Sourceto6R"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Raise Elevator L1"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}
