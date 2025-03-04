@@ -46,19 +46,40 @@ class RobotContainer:
             0.85
         )  # 3/4 of a rotation per second max angular velocity
 
+        driveDeadbandFactor = 0.07
+        """Max speed (m/s) multipled by this value to set a m/s deadband."""
+        rotationalDeadbandFactor = 0.07
+        """Max angular rate (rad/s) multipled by this value to set a rad/s deadband."""
+        self.reefAlignSlownessFactor = 2.0
+        """
+        In robot oriented reef alignment slow down by this factor.
+        Used to reduce speed in the command. Also used to keep the
+        deadbands aligned on the same stick defection being dead.
+        """
+
         # Setting up bindings for necessary control of the swerve drive platform
         self._drive = (
             swerve.requests.FieldCentric()
-            .with_deadband(self._max_speed * 0.07)
+            .with_deadband(self._max_speed * driveDeadbandFactor)
             .with_rotational_deadband(
-                self._max_angular_rate * 0.07
-            )  # Add a 10% deadband
+                self._max_angular_rate * rotationalDeadbandFactor
+            )
             .with_drive_request_type(
                 swerve.SwerveModule.DriveRequestType.OPEN_LOOP_VOLTAGE
             )  # Use open-loop control for drive motors
         )
         self._brake = swerve.requests.SwerveDriveBrake()
         self._point = swerve.requests.PointWheelsAt()
+        self._reefAlign = (
+            swerve.requests.RobotCentric()
+            .with_deadband(self._max_speed * (driveDeadbandFactor / self.reefAlignSlownessFactor))
+            .with_rotational_deadband(
+                self._max_angular_rate * (rotationalDeadbandFactor / self.reefAlignSlownessFactor)
+            )
+            .with_drive_request_type(
+                swerve.SwerveModule.DriveRequestType.OPEN_LOOP_VOLTAGE
+            )  # Use open-loop control for drive motors
+        )
 
         self._logger = Telemetry(self._max_speed)
 
@@ -129,7 +150,7 @@ class RobotContainer:
         #     )
         # )
 
-        #operator buttons
+        # operator buttons
         self._operator_joystick.a().whileTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(1.093)).andThen(self.cannon.runOnce(lambda: self.cannon.setScoreToL1()))) #l1
         self._operator_joystick.x().whileTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(1.6)).andThen(self.cannon.runOnce(lambda: self.cannon.setNormalScoring()))) #l2
         self._operator_joystick.b().whileTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(2.355)).andThen(self.cannon.runOnce(lambda: self.cannon.setNormalScoring()))) #l3
@@ -146,6 +167,32 @@ class RobotContainer:
         self._joystick.rightBumper().whileTrue(self.hopper.agitate())
         self._joystick.y().whileTrue(self.cannon.placeL1())
         self._joystick.povDown().whileTrue(self.elevator.move_to_zero())
+
+        self._joystick.povLeft().whileTrue(
+            self.drivetrain.apply_request(
+                lambda: (
+                    self._reefAlign.with_velocity_x(
+                        negative_value
+                        * self._joystick.getLeftY()
+                        * self._max_speed
+                        / self.reefAlignSlownessFactor
+                    )  # Drive forward with negative Y (forward)
+                    .with_velocity_y(
+                        negative_value
+                        * self._joystick.getLeftX()
+                        * self._max_speed
+                        / self.reefAlignSlownessFactor
+                    )  # Drive left with negative X (left)
+                    .with_rotational_rate(
+                        negative_value
+                        * self._joystick.getRightX()
+                        * self._max_angular_rate
+                        / self.reefAlignSlownessFactor
+                    )  # Drive counterclockwise with negative X (left)
+                )
+            )
+        )
+
         # Run SysId routines when holding back/start and X/Y.
         # Note that each routine should be run exactly once in a single log.
         (self._joystick.back() & self._joystick.y()).whileTrue(
