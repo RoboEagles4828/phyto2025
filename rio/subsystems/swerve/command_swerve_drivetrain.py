@@ -263,6 +263,14 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
         """
         return self.run(lambda: self.set_control(request()))
 
+    def stopCommand(self) -> Command:
+        """Returns a command that will stop the drive train."""
+        self.runOnce(
+            lambda: self.set_control(
+                swerve.requests.FieldCentric()
+            )
+        )
+
     def sys_id_quasistatic(self, direction: SysIdRoutine.Direction) -> Command:
         """
         Runs the SysId Quasistatic test in the given direction for the routine
