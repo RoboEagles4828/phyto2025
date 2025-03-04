@@ -3,11 +3,13 @@ from phoenix5 import TalonSRX, TalonSRXControlMode, SupplyCurrentLimitConfigurat
 from subsystems.hopper.hopper_constants import ConstantsHopper
 from wpilib import DigitalInput
 from wpilib import SmartDashboard
+from wpimath.filter import Debouncer
 
 
 class Hopper(Subsystem):
     def __init__(self):
         self.hopperMotor = TalonSRX(ConstantsHopper.hopperMotorID)
+        self.stallDebouncer = Debouncer(0.5, Debouncer.DebounceType.kBoth)
         # self.beamBreak = DigitalInput(ConstantsHopper.beamBreakID)
 
         self.hopperMotor.configSupplyCurrentLimit(ConstantsHopper.supply_config)
@@ -25,7 +27,11 @@ class Hopper(Subsystem):
 
     def intake(self) -> Command:
         """Runs the hopper motor at max speed"""
-        return self.run(lambda: self.setHopperSpeed(ConstantsHopper.intake_duty_cycle))
+        return self.run(lambda: self.setHopperSpeed(ConstantsHopper.intake_duty_cycle)
+                        ).until(lambda: self.hopper_stall()
+                                ).andThen(lambda: self.setHopperSpeed(ConstantsHopper.agitation_duty_cycle)
+                                          ).until(lambda: self.re_run_intake()
+                                                  ).andThen(lambda: self.setHopperSpeed(ConstantsHopper.intake_duty_cycle))
 
     # def hasCoral(self) -> bool:
     #     """Returns whether the hopper has coral"""
@@ -36,5 +42,15 @@ class Hopper(Subsystem):
         return self.run(lambda: self.setHopperSpeed(ConstantsHopper.agitation_duty_cycle))
     
 
+    def hopper_stall(self):
+        return self.stallDebouncer.calculate(self.hopperMotor.getStatorCurrent() > 15)
+    
+    def re_run_intake(self):
+        return self.stallDebouncer.calculate(self.hopperMotor.getStatorCurrent() < 10)
     # def periodic(self):
     #     SmartDashboard.putNumber("Hopper/Motor Speed", self.hopperMotor.getMotorOutputPercent())
+
+    def periodic(self):
+        
+        SmartDashboard.putNumber("Hopper/Motor Supply Current", self.hopperMotor.getSupplyCurrent())
+        SmartDashboard.putNumber("Hopper/Motor Stator Current", self.hopperMotor.getStatorCurrent())

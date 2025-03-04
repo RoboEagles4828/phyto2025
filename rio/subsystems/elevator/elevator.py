@@ -2,6 +2,7 @@ import math
 
 from commands2 import Subsystem
 from commands2.sysid import SysIdRoutine
+from commands2.conditionalcommand import ConditionalCommand
 from phoenix6.hardware import TalonFX
 from phoenix6.signal_logger import SignalLogger
 from wpilib.sysid import SysIdRoutineLog
@@ -17,6 +18,7 @@ from phoenix6 import SignalLogger, ampere, StatusSignal
 from wpilib.shuffleboard import Shuffleboard
 from wpilib import DigitalInput
 from wpimath.filter import Debouncer
+from wpilib.sysid import SysIdRoutineLog
 
 from subsystems.elevator.elevator_constants import Elevator_Constants
 
@@ -45,7 +47,7 @@ class Elevator(Subsystem):
 
         #Configure for L4
         self.motorCfg.slot1.k_v = 0.1
-        self.motorCfg.slot1.k_p = 8
+        self.motorCfg.slot1.k_p = 5.6
 
         # Apply limit configurations here
         limit_configs = CurrentLimitsConfigs()
@@ -77,7 +79,33 @@ class Elevator(Subsystem):
 
         self.desiredPosition = 0.0
         self.nextTargetPosition = 0.0
+        self.levelingSlot = 0
 
+        self.voltageOut = VoltageOut(0.0)
+        self._sys_id_routine = SysIdRoutine(
+            SysIdRoutine.Config(
+                # Use default ramp rate (1 V/s) and timeout (10 s)
+                # Reduce dynamic voltage to 4 V (TODO may need more)
+                stepVoltage=4.0,
+                # Log state with SignalLogger class
+                recordState=lambda state: SignalLogger.write_string(
+                    "SysIdElevator_State", SysIdRoutineLog.stateEnumToString(state)
+                ),
+            ),
+            SysIdRoutine.Mechanism(
+                lambda output: self.rightMotorLeader.set_control(
+                    self.voltageOut.with_output(output),
+                ),
+                lambda log: None,
+                self,
+            ),
+        )
+
+    def sys_id_quasistatic(self, direction: SysIdRoutine.Direction) -> Command:
+        return self._sys_id_routine.quasistatic(direction)
+
+    def sys_id_dynamic(self, direction: SysIdRoutine.Direction) -> Command:
+        return self._sys_id_routine.dynamic(direction)
 
     
     def move_to_position_execute(self):
@@ -85,22 +113,30 @@ class Elevator(Subsystem):
         The command that is run during manual cycle. Doesnt require a position input
         """
 
-        slot = 0
-
-        if self.nextTargetPosition > 3.5:
-            slot = 1
         return self.startRun(
             lambda: self.setTargetRotation(self.nextTargetPosition),
             lambda: self.rightMotorLeader.set_control(
-                self.request.with_position(self.nextTargetPosition).with_slot(slot).with_limit_forward_motion(not(self.topLimitSwitch.get())).with_limit_reverse_motion(self.bottomLimitSwitch.get())
-            )
-        )
+                self.request.with_position(self.nextTargetPosition).with_slot(self.levelingSlot).with_limit_forward_motion(not(self.topLimitSwitch.get())).with_limit_reverse_motion(self.bottomLimitSwitch.get())
+            ))
+        # return ConditionalCommand(
+        #     self.startRun(
+        #     lambda: self.setTargetRotation(self.nextTargetPosition),
+        #     lambda: self.rightMotorLeader.set_control(
+        #         self.request.with_position(self.nextTargetPosition).with_slot(1).with_limit_forward_motion(not(self.topLimitSwitch.get())).with_limit_reverse_motion(self.bottomLimitSwitch.get())
+        #     )),
+        #     self.startRun(
+        #     lambda: self.setTargetRotation(self.nextTargetPosition),
+        #     lambda: self.rightMotorLeader.set_control(
+        #         self.request.with_position(self.nextTargetPosition).with_slot(0).with_limit_forward_motion(not(self.topLimitSwitch.get())).with_limit_reverse_motion(self.bottomLimitSwitch.get())
+        #     )),
+        #     self.movingToL4()
+        # )
     
     def move_to_zero(self):
         return self.startRun(
             lambda: self.setTargetRotation(self.nextTargetPosition),
             lambda: self.rightMotorLeader.set_control(
-                self.dutyCycle.with_output(-.7).with_limit_reverse_motion(self.bottomLimitSwitch.get())
+                self.dutyCycle.with_output(-.5).with_limit_reverse_motion(self.bottomLimitSwitch.get())
             )
         )
 
@@ -136,7 +172,7 @@ class Elevator(Subsystem):
         """
         return self.run(
             lambda: self.rightMotorLeader.set_control(
-                self.dutyCycle.with_output(Elevator_Constants.kManualOut)
+                self.dutyCycle.with_output(Elevator_Constants.kManualOut).with_limit_forward_motion(not(self.topLimitSwitch.get()))
             )
         )
 
@@ -156,6 +192,9 @@ class Elevator(Subsystem):
 
     def setNextTargetRotation(self, position):
         self.nextTargetPosition = position
+        self.levelingSlot = 0
+        if self.nextTargetPosition>=3.5:
+            self.levelingSlot = 1
 
     def periodic(self):
         self.set_motor_zero()

@@ -29,16 +29,16 @@ from typing import Optional
 
 class VisionSubsystem(Subsystem):
 
-    def __init__(self):
+    def __init__(self, swerve: CommandSwerveDrivetrain):
         self.frontLeftCamera = PhotonCamera("frontLeft")
         self.lastEstimatedTimestamp = 0.0
         self.lastPose = Pose2d()
-        self.swerve = CommandSwerveDrivetrain()
+        self.swerve = swerve
         self.updateDashboard = True
         self.field = Field2d()
-        kTagLayout = AprilTagFieldLayout(AprilTagField.k2025ReefscapeAndyMark, 17.55, 8.05)
+        kTagLayout = AprilTagFieldLayout.loadField(AprilTagField.k2025ReefscapeAndyMark)
 
-        self.photonEsimtator = PhotonPoseEstimator(kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, constants.kRobotToFrontLeftCameraTransform)
+        self.photonEsimtator = PhotonPoseEstimator(kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, self.frontLeftCamera, constants.kRobotToFrontLeftCameraTransform)
         self.photonEsimtator.multiTagFallbackStrategy = PoseStrategy.LOWEST_AMBIGUITY
 
         SmartDashboard.putData("vision/Field", self.field)
@@ -76,8 +76,9 @@ class VisionSubsystem(Subsystem):
     
     def periodic(self):
         result = self.frontLeftCamera.getLatestResult()
-
         haveTarget = result.hasTargets()
+
+        self.updatePoseEstimation()
 
         SmartDashboard.putString("Vision/Result", str(result))
         SmartDashboard.putBoolean("Vision/ Have Target", haveTarget)

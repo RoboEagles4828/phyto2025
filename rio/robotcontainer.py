@@ -10,6 +10,7 @@ import commands2.cmd
 from commands2.sysid import SysIdRoutine
 from commands2.instantcommand import InstantCommand
 from commands2.command import Command
+from commands2.conditionalcommand import ConditionalCommand
 
 from subsystems.swerve.tuner_constants import TunerConstants
 from telemetry import Telemetry
@@ -26,6 +27,7 @@ from subsystems.swerve.command_swerve_drivetrain import CommandSwerveDrivetrain
 from subsystems.elevator.elevator import Elevator
 from subsystems.cannon.cannon import Cannon
 from subsystems.hopper.hopper import Hopper
+from subsystems.vision.vision  import VisionSubsystem
 
 class RobotContainer:
     """
@@ -47,9 +49,9 @@ class RobotContainer:
         # Setting up bindings for necessary control of the swerve drive platform
         self._drive = (
             swerve.requests.FieldCentric()
-            .with_deadband(self._max_speed * 0.1)
+            .with_deadband(self._max_speed * 0.07)
             .with_rotational_deadband(
-                self._max_angular_rate * 0.1
+                self._max_angular_rate * 0.07
             )  # Add a 10% deadband
             .with_drive_request_type(
                 swerve.SwerveModule.DriveRequestType.OPEN_LOOP_VOLTAGE
@@ -73,6 +75,7 @@ class RobotContainer:
         self.elevator = Elevator()
         self.hopper = Hopper()
         self.cannon = Cannon()
+        self.vision = VisionSubsystem(self.drivetrain)
 
         # Configure the button bindings
 
@@ -130,7 +133,7 @@ class RobotContainer:
         self._operator_joystick.a().whileTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(1.093)).andThen(self.cannon.runOnce(lambda: self.cannon.setScoreToL1()))) #l1
         self._operator_joystick.x().whileTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(1.6)).andThen(self.cannon.runOnce(lambda: self.cannon.setNormalScoring()))) #l2
         self._operator_joystick.b().whileTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(2.355)).andThen(self.cannon.runOnce(lambda: self.cannon.setNormalScoring()))) #l3
-        self._operator_joystick.y().whileTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(3.7)).andThen(self.cannon.runOnce(lambda: self.cannon.setNormalScoring()))) #l4
+        self._operator_joystick.y().whileTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(3.6)).andThen(self.cannon.runOnce(lambda: self.cannon.setNormalScoring()))) #l4
         self._operator_joystick.rightTrigger().whileTrue(self.elevator.move_up_gradually())
         self._operator_joystick.leftTrigger().whileTrue(self.elevator.move_down_gradually())
         self._operator_joystick.povDown().whileTrue(self.elevator.move_to_zero())
@@ -142,6 +145,7 @@ class RobotContainer:
         self._joystick.leftBumper().whileTrue(self.cannon.placeCoral())
         self._joystick.rightBumper().whileTrue(self.hopper.agitate())
         self._joystick.y().whileTrue(self.cannon.placeL1())
+        self._joystick.povDown().whileTrue(self.elevator.move_to_zero())
         # Run SysId routines when holding back/start and X/Y.
         # Note that each routine should be run exactly once in a single log.
         (self._joystick.back() & self._joystick.y()).whileTrue(
