@@ -29,6 +29,8 @@ from subsystems.cannon.cannon import Cannon
 from subsystems.hopper.hopper import Hopper
 from subsystems.vision.vision  import VisionSubsystem
 
+from pathplannerlib.auto import NamedCommands
+
 class RobotContainer:
     """
     This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -82,8 +84,17 @@ class RobotContainer:
         self.configureButtonBindings()
         self.configureOperatorBindings()
 
+        NamedCommands.registerCommand("Elevator to L1", self.elevator.move_to_position(1.093, 0))
+        NamedCommands.registerCommand("Elevator to Zero", self.elevator.move_to_zero())
+        NamedCommands.registerCommand("Hopper Intake", self.hopper.intake())
+        NamedCommands.registerCommand("Cannon L1", self.cannon.placeL1())
+        NamedCommands.registerCommand("Load Coral to Cannon", self.cannon.loadCoral())
+        NamedCommands.registerCommand("Elevator Stop", self.elevator.stop())
+        NamedCommands.registerCommand("Cannon Stop", self.cannon.stop())
+
+
         self.autoChooser = AutoBuilder.buildAutoChooser("None")
-        SmartDashboard.putData("AutoChooser",self.autoChooser)
+        Shuffleboard.getTab("Autonomous").add(self.autoChooser)
 
 
     def configureButtonBindings(self) -> None:

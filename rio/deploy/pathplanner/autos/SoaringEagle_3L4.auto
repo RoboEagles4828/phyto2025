@@ -5,9 +5,27 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "Hopper Intake"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "P2to5L"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Elevator Stop"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Cannon L1"
           }
         },
         {
