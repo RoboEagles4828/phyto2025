@@ -213,7 +213,6 @@ class RobotContainer:
                     lambda: (
                         swerve.requests.FieldCentric()
                         .with_velocity_x(-1.0)
-                        .with_velocity_y(-1.0)
                     )
                 ).withTimeout(2.0)
             )
