@@ -60,14 +60,13 @@ class RobotContainer:
 
         self._logger = Telemetry(self._max_speed)
 
-        self._joystick = commands2.button.CommandXboxController(0)
+        self._driver_joystick = commands2.button.CommandXboxController(0)
 
         self._operator_joystick = commands2.button.CommandXboxController(1)
-
+ 
         self._test_joystick = commands2.button.CommandXboxController(2)
 
-        self.operator1 = commands2.button.CommandGenericHID(1)
-        self.operator2 = commands2.button.CommandGenericHID(2)
+
 
         self.drivetrain = TunerConstants.create_drivetrain()
         self.elevator = Elevator()
@@ -76,12 +75,18 @@ class RobotContainer:
 
         # Configure the button bindings
 
-        self.configureButtonBindings()
-        self.configureOperatorBindings()
+        self.configureBindings()
 
         self.autoChooser = AutoBuilder.buildAutoChooser("None")
         SmartDashboard.putData("AutoChooser",self.autoChooser)
 
+    def configureBindings(self) -> None:
+        self.configureButtonBindings()
+        temp_joystick = commands2.button.CommandGenericHID(2)
+        if temp_joystick.isConnected:
+            self.configureOperatorBindings()
+        else:
+            self.configureTestBindings
 
     def configureButtonBindings(self) -> None:
         """
@@ -167,6 +172,9 @@ class RobotContainer:
         )
     
     def configureOperatorBindings(self) -> None:
+        self.operator1 = commands2.button.CommandGenericHID(1)
+        self.operator2 = commands2.button.CommandGenericHID(2)
+    
         self.operator1.axisLessThan(1, -0.99) # Go to L4
         self.operator1.axisGreaterThan(0, 0.99) # Go to L3
         self.operator1.axisLessThan(0, -0.99) # Go to L2
@@ -184,7 +192,6 @@ class RobotContainer:
         self.operator2.button(5) # Reef side J
         self.operator2.button(6) # Reef side K
         self.operator2.button(7) # Reef side L
-
 
     def getAutonomousCommand(self) -> Command:
         """Use this to pass the autonomous command to the main {@link Robot} class.
