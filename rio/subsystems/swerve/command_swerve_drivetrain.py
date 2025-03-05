@@ -10,6 +10,7 @@ from wpimath.units import degreesToRadians
 from wpimath.kinematics import ChassisSpeeds
 from pathplannerlib.auto import AutoBuilder, PathConstraints, PathPlannerPath
 from auto.auto_constants import AutoConstants
+from phoenix6.swerve import requests
 from wpilib import SmartDashboard
 # from subsystems.vision.vision import VisionSubsystem as Vision
 # from subsystems.vision.vision_constants import Vision_Constants as vision_constants
@@ -396,6 +397,22 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
         """
         # print(self.get_state().pose)
         return self.get_state().pose
+    
+    def drive(self, translation: Translation2d, rotation: float, isOpenLoop: bool):
+        """
+        Drives the robot
+        """
+        desiredSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(translation.X(), translation.Y(), rotation, self.get_state().pose.rotation())
+
+        self.driveRobotRelative(desiredSpeeds, isOpenLoop)
+
+    def driveRobotRelative(self, desiredSpeeds: ChassisSpeeds, isOpenLoop: bool):
+        """
+        Drives the robot relative to the robot
+        """
+        ChassisSpeeds.discretize(desiredSpeeds, 0.02)
+
+        self.set_control(requests.RobotCentric().with_velocity_x(desiredSpeeds.vx).with_velocity_y(desiredSpeeds.vy).with_rotational_rate(desiredSpeeds.omega).with_drive_request_type(requests.SwerveModule.DriveRequestType.OPEN_LOOP_VOLTAGE if isOpenLoop else requests.SwerveModule.DriveRequestType.VELOCITY))
     # def update_Odom(self):
     #     """
     #     Updates the odometry with the vision

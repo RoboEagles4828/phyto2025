@@ -177,7 +177,7 @@ class RobotContainer:
 
 
         # Tester Joystick buttons
-        self._test_joystick.rightBumper().whileTrue(SelectCommand(self.alignLeftCommands, lambda: self.pose.neartestFace(self.drivetrain.getPose().translation(), False)))
+        self._test_joystick.rightBumper().onTrue(SelectCommand(self.alignLeftCommands, lambda: self.pose.neartestFace(self.drivetrain.getPose().translation(), False)))
         # Run SysId routines when holding back/start and X/Y.
         # Note that each routine should be run exactly once in a single log.
         (self._joystick.back() & self._joystick.y()).whileTrue(
