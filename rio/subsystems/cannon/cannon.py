@@ -51,18 +51,12 @@ class Cannon(Subsystem):
         Outtakes the coral from the cannon
         """ 
         self.loaded = False
-        self.leftMotor.follow(self.rightMotor, FollowerType.PercentOutput)
+        return self.run(lambda: self.setCannonSpeed(0.6))
 
         # if self.scoringL1==True:
         #     return self.run(self.leftMotor.set(TalonSRXControlMode.PercentOutput, 0.7)).alongWith(self.rightMotor.set(TalonSRXControlMode.PercentOutput, 0.5))
         # else:
         #     return self.run(lambda: self.setCannonSpeed(0.6))
-
-        return ConditionalCommand(
-            self.run(lambda: self.setCannonSpeed(0.6)),
-            self.run(lambda: self.leftMotor.set(TalonSRXControlMode.PercentOutput, 0.7)).alongWith(self.rightMotor.set(TalonSRXControlMode.PercentOutput, 0.5)),
-            lambda: self.scoringL1
-        )
 
     def stop(self):
         """

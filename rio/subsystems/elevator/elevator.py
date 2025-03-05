@@ -47,7 +47,7 @@ class Elevator(Subsystem):
 
         #Configure for L4
         self.motorCfg.slot1.k_v = 0.1
-        self.motorCfg.slot1.k_p = 5.6
+        self.motorCfg.slot1.k_p = 8
 
         # Apply limit configurations here
         limit_configs = CurrentLimitsConfigs()
