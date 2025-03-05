@@ -7,25 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Calibration_Path1"
+            "pathName": "Straight"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Calibration_Path2"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": null
+            "pathName": "Straight2"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "Testing",
   "choreoAuto": false
 }

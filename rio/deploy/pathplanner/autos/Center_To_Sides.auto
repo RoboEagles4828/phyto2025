@@ -7,37 +7,37 @@
         {
           "type": "path",
           "data": {
-            "pathName": "P2to5L"
+            "pathName": "Straight"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "5LtoLeft_Source"
+            "pathName": "4M_To_LeftSource"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Left_Sourceto6L"
+            "pathName": "LeftSource_To_1R"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "6LtoLeft_Source"
+            "pathName": "1R_To_RightSource"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Left_Sourceto6R"
+            "pathName": "RightSource_To_1L"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "Misc",
+  "folder": "Customs",
   "choreoAuto": false
 }
