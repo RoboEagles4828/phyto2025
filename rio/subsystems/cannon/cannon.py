@@ -46,7 +46,7 @@ class Cannon(Subsystem):
             .andThen(self.runOnce(self.hasCoralOverride))
         )
 
-    def createPlaceCoralCommand(self, isL1: Callable[[], None]) -> Command:
+    def createPlaceCoralCommand(self, isL1: Callable[[], bool]) -> Command:
         """
         Creates a command that will run the cannon appropriately for any level.
 
