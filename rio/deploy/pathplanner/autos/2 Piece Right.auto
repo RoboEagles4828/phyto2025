@@ -7,37 +7,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Straight"
+            "pathName": "Right_To_Reef"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "4M_To_LeftSource"
+            "pathName": "3R_To_RightSource"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "LeftSource_To_1R"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "1R_To_RightSource"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "RightSource_To_1L"
+            "pathName": "RightSource_To_2L"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "3 Piece and More",
+  "folder": "2 Piece Autos",
   "choreoAuto": false
 }

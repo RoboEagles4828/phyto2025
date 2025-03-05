@@ -19,25 +19,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "LeftSource_To_6R"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "6RtoLeft_Source"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "LeftSource_To_6L"
+            "pathName": "Left_Sourceto6L"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "3 Piece and More",
+  "folder": "2 Piece Autos",
   "choreoAuto": false
 }

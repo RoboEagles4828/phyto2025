@@ -3,17 +3,20 @@
   "robotLength": 0.88265,
   "holonomicMode": true,
   "pathFolders": [
-    "Unloaded",
+    "2 Piece Center",
     "CenterToSides",
     "LeftTo3Reef",
     "Misc",
+    "2 Piece Left",
     "RightTo3Reef",
-    "Testing- Paths"
+    "Testing- Paths",
+    "Unloaded"
   ],
   "autoFolders": [
-    "Testing",
+    "3 Piece and More",
     "Misc",
-    "Customs"
+    "2 Piece Autos",
+    "Testing"
   ],
   "defaultMaxVel": 3.0,
   "defaultMaxAccel": 3.0,
