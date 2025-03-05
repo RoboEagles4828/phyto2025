@@ -79,11 +79,6 @@ class RobotContainer:
         self.cannon = Cannon()
         self.vision = VisionSubsystem(self.drivetrain)
 
-        # Configure the button bindings
-
-        self.configureButtonBindings()
-        self.configureOperatorBindings()
-
         NamedCommands.registerCommand("Elevator to L1", self.elevator.move_to_position(1.093, 0))
         NamedCommands.registerCommand("Elevator to Zero", self.elevator.move_to_zero())
         NamedCommands.registerCommand("Hopper Intake", self.hopper.intake())
@@ -95,6 +90,11 @@ class RobotContainer:
 
         self.autoChooser = AutoBuilder.buildAutoChooser("None")
         Shuffleboard.getTab("Autonomous").add(self.autoChooser)
+
+        # Configure the button bindings
+
+        self.configureButtonBindings()
+        self.configureOperatorBindings()
 
 
     def configureButtonBindings(self) -> None:

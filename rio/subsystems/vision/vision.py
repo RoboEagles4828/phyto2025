@@ -58,7 +58,7 @@ class VisionSubsystem(Subsystem):
         newResult = abs(latestTimestamp-self.lastEstimatedTimestamp) > 0.00001
 
         if self.updateDashboard:
-            SmartDashboard.putBoolean("visioin/ New Result", newResult)
+            SmartDashboard.putBoolean("Vision/ New Result", newResult)
         
         if not newResult:
             return False

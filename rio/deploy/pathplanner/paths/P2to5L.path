@@ -33,7 +33,7 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": " Elevator to L1",
+      "name": "",
       "waypointRelativePos": 0.4274135855741289,
       "endWaypointRelativePos": null,
       "command": null
