@@ -104,6 +104,7 @@ class RobotContainer:
         self.configureOperatorBindings()
 
         self.autoChooser = AutoBuilder.buildAutoChooser("None")
+        self.addNoPathAutos()
         SmartDashboard.putData("AutoChooser",self.autoChooser)
 
 
@@ -246,3 +247,28 @@ class RobotContainer:
         auto = self.autoChooser.getSelected()
 
         return auto
+
+    def addNoPathAutos(self):
+        self.autoChooser.addOption("Score One L1 - Middle", self.scoreMiddleL1Auto())
+
+    def scoreMiddleL1Auto(self) -> Command:
+        return (
+            self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(1.093))
+            .andThen(self.cannon.runOnce(lambda: self.cannon.setScoreToL1()))
+            .andThen(
+                self.drivetrain.apply_request(
+                    lambda: (
+                        swerve.requests.RobotCentric()
+                        .with_velocity_x(1.0)
+                    )
+                ).withTimeout(2.0)
+            )
+            .andThen(self.drivetrain.stopCommand())
+            .andThen(
+                self.elevator.move_to_position_execute().raceWith(
+                    commands2.WaitUntilCommand(
+                        lambda: self.elevator.acceptablyOnTargetForL1()
+                    ).andThen(self.cannon.placeL1().withTimeout(1.0))
+                )
+            )
+        )
