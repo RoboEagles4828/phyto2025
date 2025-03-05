@@ -208,7 +208,7 @@ class Elevator(Subsystem):
         SmartDashboard.putNumber("Elevator/Next Target", self.nextTargetPosition)
 
     def acceptablyOnTargetForL1(self) -> bool:
-        return (abs(self.getPosition() - self.nextTargetPosition) < 0.1)
+        return (abs(self.getPosition() - self.nextTargetPosition) < 0.05)
 
     def set_motor_zero(self):
         if self.debouncer.calculate(self.bottomLimitSwitch.get()):

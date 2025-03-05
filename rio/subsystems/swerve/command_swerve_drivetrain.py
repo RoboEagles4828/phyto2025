@@ -265,9 +265,9 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
 
     def stopCommand(self) -> Command:
         """Returns a command that will stop the drive train."""
-        self.runOnce(
+        return self.runOnce(
             lambda: self.set_control(
-                swerve.requests.FieldCentric()
+                swerve.requests.RobotCentric()
             )
         )
 

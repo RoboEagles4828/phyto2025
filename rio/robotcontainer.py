@@ -202,7 +202,7 @@ class RobotContainer:
         return auto
 
     def addNoPathAutos(self):
-        self.autoChooser.addOption(self.scoreMiddleL1Auto())
+        self.autoChooser.addOption("Score One L1 - Middle", self.scoreMiddleL1Auto())
 
     def scoreMiddleL1Auto(self) -> Command:
         return (
@@ -211,8 +211,8 @@ class RobotContainer:
             .andThen(
                 self.drivetrain.apply_request(
                     lambda: (
-                        swerve.requests.FieldCentric()
-                        .with_velocity_x(-1.0)
+                        swerve.requests.RobotCentric()
+                        .with_velocity_x(1.0)
                     )
                 ).withTimeout(2.0)
             )
