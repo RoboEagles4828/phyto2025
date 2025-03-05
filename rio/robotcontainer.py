@@ -37,6 +37,12 @@ class RobotContainer:
     subsystems, commands, and button mappings) should be declared here.
     """
 
+    elevatorL1 = 1.093
+    elevatorL2 = 1.6
+    elevatorL3 = 2.355
+    elevatorL4 = 3.7
+    cannonL1Top = (elevatorL1 + elevatorL2) / 2
+
     def __init__(self) -> None:
 
         self._max_speed = (
@@ -107,6 +113,9 @@ class RobotContainer:
         self.addNoPathAutos()
         SmartDashboard.putData("AutoChooser",self.autoChooser)
 
+    def isPlaceCoralL1(self) -> bool:
+        """Returns true if the elevator height is proper for an L1 placement."""
+        return (self.elevator.getPosition() < RobotContainer.cannonL1Top)
 
     def configureButtonBindings(self) -> None:
         """
@@ -152,10 +161,10 @@ class RobotContainer:
         # )
 
         # operator buttons
-        self._operator_joystick.a().whileTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(1.093)).andThen(self.cannon.runOnce(lambda: self.cannon.setScoreToL1()))) #l1
-        self._operator_joystick.x().whileTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(1.6)).andThen(self.cannon.runOnce(lambda: self.cannon.setNormalScoring()))) #l2
-        self._operator_joystick.b().whileTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(2.355)).andThen(self.cannon.runOnce(lambda: self.cannon.setNormalScoring()))) #l3
-        self._operator_joystick.y().whileTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(3.7)).andThen(self.cannon.runOnce(lambda: self.cannon.setNormalScoring()))) #l4
+        self._operator_joystick.a().whileTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(RobotContainer.elevatorL1)))
+        self._operator_joystick.x().whileTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(RobotContainer.elevatorL2)))
+        self._operator_joystick.b().whileTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(RobotContainer.elevatorL3)))
+        self._operator_joystick.y().whileTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(RobotContainer.elevatorL4)))
         self._operator_joystick.rightTrigger().whileTrue(self.elevator.move_up_gradually())
         self._operator_joystick.leftTrigger().whileTrue(self.elevator.move_down_gradually())
         self._operator_joystick.povDown().whileTrue(self.elevator.move_to_zero())
@@ -164,9 +173,8 @@ class RobotContainer:
         self._joystick.leftTrigger().whileTrue(self.cannon.loadCoral().deadlineFor(self.hopper.intake()))
         self._joystick.back().onTrue(self.drivetrain.runOnce(lambda: self.drivetrain.zeroHeading()))
         self._joystick.rightTrigger().whileTrue(self.elevator.move_to_position_execute())
-        self._joystick.leftBumper().whileTrue(self.cannon.placeCoral())
+        self._joystick.leftBumper().whileTrue(self.cannon.createPlaceCoralCommand(self.isPlaceCoralL1))
         self._joystick.rightBumper().whileTrue(self.hopper.agitate())
-        self._joystick.y().whileTrue(self.cannon.placeL1())
         self._joystick.povDown().whileTrue(self.elevator.move_to_zero())
 
         self._joystick.povLeft().whileTrue(
@@ -217,7 +225,7 @@ class RobotContainer:
         self.drivetrain.register_telemetry(
             lambda state: self._logger.telemeterize(state)
         )
-    
+
     def configureOperatorBindings(self) -> None:
         self.operator1.axisLessThan(1, -0.99) # Go to L4
         self.operator1.axisGreaterThan(0, 0.99) # Go to L3
@@ -237,7 +245,6 @@ class RobotContainer:
         self.operator2.button(6) # Reef side K
         self.operator2.button(7) # Reef side L
 
-
     def getAutonomousCommand(self) -> Command:
         """Use this to pass the autonomous command to the main {@link Robot} class.
 
@@ -253,14 +260,12 @@ class RobotContainer:
 
     def scoreMiddleL1Auto(self) -> Command:
         return (
-            self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(1.093))
-            .andThen(self.cannon.runOnce(lambda: self.cannon.setScoreToL1()))
+            self.elevator.runOnce(
+                lambda: self.elevator.setNextTargetRotation(RobotContainer.elevatorL1)
+            )
             .andThen(
                 self.drivetrain.apply_request(
-                    lambda: (
-                        swerve.requests.RobotCentric()
-                        .with_velocity_x(1.0)
-                    )
+                    lambda: (swerve.requests.RobotCentric().with_velocity_x(1.0))
                 ).withTimeout(2.0)
             )
             .andThen(self.drivetrain.stopCommand())
@@ -268,7 +273,7 @@ class RobotContainer:
                 self.elevator.move_to_position_execute().raceWith(
                     commands2.WaitUntilCommand(
                         lambda: self.elevator.acceptablyOnTargetForL1()
-                    ).andThen(self.cannon.placeL1().withTimeout(1.0))
+                    ).andThen(self.cannon.createPlaceCoralCommand(self.isPlaceCoralL1).withTimeout(1.0))
                 )
             )
         )
