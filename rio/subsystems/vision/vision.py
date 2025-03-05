@@ -9,6 +9,8 @@ from photonlibpy.photonPoseEstimator import PhotonPoseEstimator, PoseStrategy
 from photonlibpy.targeting import PhotonTrackedTarget, PhotonPipelineResult
 from photonlibpy.estimatedRobotPose import EstimatedRobotPose
 from robotpy_apriltag import AprilTagFieldLayout, AprilTagField
+from phoenix6.utils import fpga_to_current_time
+from wpimath.estimator import SwerveDrive4PoseEstimator
 from wpilib import SmartDashboard
 from wpilib import RobotBase, Timer, Field2d
 from wpimath.geometry import (
@@ -58,7 +60,7 @@ class VisionSubsystem(Subsystem):
         newResult = abs(latestTimestamp-self.lastEstimatedTimestamp) > 0.00001
 
         if self.updateDashboard:
-            SmartDashboard.putBoolean("visioin/ New Result", newResult)
+            SmartDashboard.putBoolean("Vision/ New Result", newResult)
         
         if not newResult:
             return False
@@ -68,7 +70,7 @@ class VisionSubsystem(Subsystem):
         self.field.setRobotPose(self.lastPose)
 
         if self.swerve.get_state().pose != None:
-            self.swerve.add_vision_measurement(self.lastPose, latestTimestamp)
+            self.swerve.add_vision_measurement(self.lastPose, fpga_to_current_time(latestTimestamp))
         return True
     
     def getLastPose(self):
