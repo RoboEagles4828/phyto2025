@@ -60,13 +60,9 @@ class RobotContainer:
 
         self._logger = Telemetry(self._max_speed)
 
-        self._driver_joystick = commands2.button.CommandXboxController(0)
+        
 
-        self._operator_joystick = commands2.button.CommandXboxController(1)
- 
-        self._test_joystick = commands2.button.CommandXboxController(2)
-
-
+        
 
         self.drivetrain = TunerConstants.create_drivetrain()
         self.elevator = Elevator()
@@ -81,14 +77,25 @@ class RobotContainer:
         SmartDashboard.putData("AutoChooser",self.autoChooser)
 
     def configureBindings(self) -> None:
-        self.configureButtonBindings()
+        self.configureDriverBindings()
         temp_joystick = commands2.button.CommandGenericHID(2)
-        if temp_joystick.isConnected:
+        if temp_joystick.isConnected():
             self.configureOperatorBindings()
         else:
-            self.configureTestBindings
+            self.configureTestBindings()
 
-    def configureButtonBindings(self) -> None:
+    def configureTestBindings(self) -> None:
+        self._test_joystick = commands2.button.CommandXboxController(2)
+        self._test_joystick.a().whileTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(1.093)).andThen(self.cannon.runOnce(lambda: self.cannon.setScoreToL1()))) #l1
+        self._test_joystick.x().whileTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(1.6)).andThen(self.cannon.runOnce(lambda: self.cannon.setNormalScoring()))) #l2
+        self._test_joystick.b().whileTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(2.355)).andThen(self.cannon.runOnce(lambda: self.cannon.setNormalScoring()))) #l3
+        self._test_joystick.y().whileTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(3.7)).andThen(self.cannon.runOnce(lambda: self.cannon.setNormalScoring()))) #l4
+        self._test_joystick.rightTrigger().whileTrue(self.elevator.move_up_gradually())
+        self._test_joystick.leftTrigger().whileTrue(self.elevator.move_down_gradually())
+        self._test_joystick.povDown().whileTrue(self.elevator.move_to_zero())
+
+    def configureDriverBindings(self) -> None:
+        self._driver_joystick = commands2.button.CommandXboxController(0)
         """
         Use this method to define your button->command mappings. Buttons can be created by
         instantiating a :GenericHID or one of its subclasses (Joystick or XboxController),
@@ -131,15 +138,6 @@ class RobotContainer:
         #     )
         # )
 
-        #operator buttons
-        self._operator_joystick.a().whileTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(1.093)).andThen(self.cannon.runOnce(lambda: self.cannon.setScoreToL1()))) #l1
-        self._operator_joystick.x().whileTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(1.6)).andThen(self.cannon.runOnce(lambda: self.cannon.setNormalScoring()))) #l2
-        self._operator_joystick.b().whileTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(2.355)).andThen(self.cannon.runOnce(lambda: self.cannon.setNormalScoring()))) #l3
-        self._operator_joystick.y().whileTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(3.7)).andThen(self.cannon.runOnce(lambda: self.cannon.setNormalScoring()))) #l4
-        self._operator_joystick.rightTrigger().whileTrue(self.elevator.move_up_gradually())
-        self._operator_joystick.leftTrigger().whileTrue(self.elevator.move_down_gradually())
-        self._operator_joystick.povDown().whileTrue(self.elevator.move_to_zero())
-
         # driver buttons
         self._joystick.leftTrigger().whileTrue(self.cannon.loadCoral().deadlineFor(self.hopper.intake()))
         self._joystick.back().onTrue(self.drivetrain.runOnce(lambda: self.drivetrain.zeroHeading()))
@@ -172,6 +170,7 @@ class RobotContainer:
         )
     
     def configureOperatorBindings(self) -> None:
+        self._operator_joystick = commands2.button.CommandXboxController(1)
         self.operator1 = commands2.button.CommandGenericHID(1)
         self.operator2 = commands2.button.CommandGenericHID(2)
     
