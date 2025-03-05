@@ -50,7 +50,7 @@ class RobotContainer:
         """Max speed (m/s) multipled by this value to set a m/s deadband."""
         rotationalDeadbandFactor = 0.07
         """Max angular rate (rad/s) multipled by this value to set a rad/s deadband."""
-        self.reefAlignSlownessFactor = 2.0
+        self.reefAlignSlownessFactor = 4.0
         """
         In robot oriented reef alignment slow down by this factor.
         Used to reduce speed in the command. Also used to keep the
@@ -154,7 +154,7 @@ class RobotContainer:
         self._operator_joystick.a().whileTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(1.093)).andThen(self.cannon.runOnce(lambda: self.cannon.setScoreToL1()))) #l1
         self._operator_joystick.x().whileTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(1.6)).andThen(self.cannon.runOnce(lambda: self.cannon.setNormalScoring()))) #l2
         self._operator_joystick.b().whileTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(2.355)).andThen(self.cannon.runOnce(lambda: self.cannon.setNormalScoring()))) #l3
-        self._operator_joystick.y().whileTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(3.6)).andThen(self.cannon.runOnce(lambda: self.cannon.setNormalScoring()))) #l4
+        self._operator_joystick.y().whileTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(3.7)).andThen(self.cannon.runOnce(lambda: self.cannon.setNormalScoring()))) #l4
         self._operator_joystick.rightTrigger().whileTrue(self.elevator.move_up_gradually())
         self._operator_joystick.leftTrigger().whileTrue(self.elevator.move_down_gradually())
         self._operator_joystick.povDown().whileTrue(self.elevator.move_to_zero())
