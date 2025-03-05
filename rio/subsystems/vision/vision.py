@@ -8,6 +8,7 @@ from photonlibpy.photonCamera import PhotonCamera
 from photonlibpy.photonPoseEstimator import PhotonPoseEstimator, PoseStrategy
 from photonlibpy.targeting import PhotonTrackedTarget, PhotonPipelineResult
 from photonlibpy.estimatedRobotPose import EstimatedRobotPose
+from phoenix6.utils import fpga_to_current_time
 from robotpy_apriltag import AprilTagFieldLayout, AprilTagField
 from wpilib import SmartDashboard
 from wpilib import RobotBase, Timer, Field2d
@@ -68,7 +69,7 @@ class VisionSubsystem(Subsystem):
         self.field.setRobotPose(self.lastPose)
 
         if self.swerve.get_state().pose != None:
-            self.swerve.add_vision_measurement(self.lastPose, latestTimestamp)
+            self.swerve.add_vision_measurement(self.lastPose, fpga_to_current_time(latestTimestamp))
         return True
     
     def getLastPose(self):

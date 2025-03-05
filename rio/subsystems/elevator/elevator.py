@@ -196,6 +196,12 @@ class Elevator(Subsystem):
         if self.nextTargetPosition>=3.5:
             self.levelingSlot = 1
 
+    def tolerablePosition(self):
+        """
+        returns true if the elevator reaches a acceptable position
+        """
+        return abs(self.desiredPosition - self.getPosition()) < Elevator_Constants.kTolerance
+
     def periodic(self):
         self.set_motor_zero()
         SmartDashboard.putNumber("Elevator/Position", self.getPosition())

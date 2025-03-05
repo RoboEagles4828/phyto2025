@@ -35,3 +35,5 @@ class Elevator_Constants:
 
     # Manual control speeds
     kManualOut = 0.2
+
+    kTolerance = 0.1

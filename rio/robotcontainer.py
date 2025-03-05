@@ -11,6 +11,10 @@ from commands2.sysid import SysIdRoutine
 from commands2.instantcommand import InstantCommand
 from commands2.command import Command
 from commands2.conditionalcommand import ConditionalCommand
+from commands2.sequentialcommandgroup import SequentialCommandGroup
+from commands2.selectcommand import SelectCommand
+
+from commands.pid_swerve import PID_Swerve
 
 from subsystems.swerve.tuner_constants import TunerConstants
 from telemetry import Telemetry
@@ -28,6 +32,9 @@ from subsystems.elevator.elevator import Elevator
 from subsystems.cannon.cannon import Cannon
 from subsystems.hopper.hopper import Hopper
 from subsystems.vision.vision  import VisionSubsystem
+
+from general_constants.field_constants import ReefFace
+from subsystems.pose.pose import Pose
 
 from pathplannerlib.auto import NamedCommands
 
@@ -70,6 +77,7 @@ class RobotContainer:
 
         self._test_joystick = commands2.button.CommandXboxController(2)
 
+
         self.operator1 = commands2.button.CommandGenericHID(1)
         self.operator2 = commands2.button.CommandGenericHID(2)
 
@@ -78,8 +86,14 @@ class RobotContainer:
         self.hopper = Hopper()
         self.cannon = Cannon()
         self.vision = VisionSubsystem(self.drivetrain)
+        self.pose = Pose(self.drivetrain)
 
-        NamedCommands.registerCommand("Elevator to L1", self.elevator.move_to_position(1.093, 0))
+        self.alignLeftCommands: dict[ReefFace, Command] = {}
+
+        for face in ReefFace:
+            self.populateCommandList(face)
+        
+        NamedCommands.registerCommand("Elevator to L1", self.elevator.move_to_position(1.093, 0).withTimeout(1.0))
         NamedCommands.registerCommand("Elevator to Zero", self.elevator.move_to_zero())
         NamedCommands.registerCommand("Hopper Intake", self.hopper.intake())
         NamedCommands.registerCommand("Cannon L1", self.cannon.placeL1())
@@ -95,6 +109,9 @@ class RobotContainer:
 
         self.configureButtonBindings()
         self.configureOperatorBindings()
+
+    def populateCommandList(self, face: ReefFace):
+        self.alignLeftCommands[face] = SequentialCommandGroup(PID_Swerve(self.drivetrain, face.alignLeft, True))
 
 
     def configureButtonBindings(self) -> None:
@@ -157,6 +174,10 @@ class RobotContainer:
         self._joystick.rightBumper().whileTrue(self.hopper.agitate())
         self._joystick.y().whileTrue(self.cannon.placeL1())
         self._joystick.povDown().whileTrue(self.elevator.move_to_zero())
+
+
+        # Tester Joystick buttons
+        self._test_joystick.rightBumper().whileTrue(SelectCommand(self.alignLeftCommands, lambda: self.pose.neartestFace(self.drivetrain.getPose().translation(), False)))
         # Run SysId routines when holding back/start and X/Y.
         # Note that each routine should be run exactly once in a single log.
         (self._joystick.back() & self._joystick.y()).whileTrue(
