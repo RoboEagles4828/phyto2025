@@ -95,8 +95,8 @@ class RobotContainer:
 
         self._test_joystick = commands2.button.CommandXboxController(2)
 
-        self.operator1 = commands2.button.CommandGenericHID(1)
-        self.operator2 = commands2.button.CommandGenericHID(2)
+        self.operator1 = commands2.button.CommandGenericHID(3)
+        self.operator2 = commands2.button.CommandGenericHID(4)
 
         self.drivetrain = TunerConstants.create_drivetrain()
         self.elevator = Elevator()
