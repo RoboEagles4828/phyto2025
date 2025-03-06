@@ -89,8 +89,8 @@ class RobotContainer:
 
         self._test_joystick = commands2.button.CommandXboxController(2)
 
-        self.operator1 = commands2.button.CommandGenericHID(1)
-        self.operator2 = commands2.button.CommandGenericHID(2)
+        self.operator1 = commands2.button.CommandGenericHID(3)
+        self.operator2 = commands2.button.CommandGenericHID(4)
 
         self.drivetrain = TunerConstants.create_drivetrain()
         self.elevator = Elevator()
@@ -152,10 +152,10 @@ class RobotContainer:
         # )
 
         # operator buttons
-        self._operator_joystick.a().whileTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(1.093)).andThen(self.cannon.runOnce(lambda: self.cannon.setScoreToL1()))) #l1
-        self._operator_joystick.x().whileTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(1.6)).andThen(self.cannon.runOnce(lambda: self.cannon.setNormalScoring()))) #l2
-        self._operator_joystick.b().whileTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(2.355)).andThen(self.cannon.runOnce(lambda: self.cannon.setNormalScoring()))) #l3
-        self._operator_joystick.y().whileTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(3.7)).andThen(self.cannon.runOnce(lambda: self.cannon.setNormalScoring()))) #l4
+        self._operator_joystick.a().onTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(1.093)).andThen(self.cannon.runOnce(lambda: self.cannon.setScoreToL1()))) #l1
+        self._operator_joystick.x().onTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(1.6)).andThen(self.cannon.runOnce(lambda: self.cannon.setNormalScoring()))) #l2
+        self._operator_joystick.b().onTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(2.355)).andThen(self.cannon.runOnce(lambda: self.cannon.setNormalScoring()))) #l3
+        self._operator_joystick.y().onTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(3.7)).andThen(self.cannon.runOnce(lambda: self.cannon.setNormalScoring()))) #l4
         self._operator_joystick.rightTrigger().whileTrue(self.elevator.move_up_gradually())
         self._operator_joystick.leftTrigger().whileTrue(self.elevator.move_down_gradually())
         self._operator_joystick.povDown().whileTrue(self.elevator.move_to_zero())
