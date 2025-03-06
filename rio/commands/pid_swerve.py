@@ -44,8 +44,8 @@ class PID_Swerve(Command):
 
         print("initial targetPose" + str(self.targetPose))
 
-        self.xPID = PIDController(0.01, 0.0, 0.0)
-        self.yPID = PIDController(0.01, 0.0, 0.0)
+        self.xPID = PIDController(0.005, 0.0, 0.0)
+        self.yPID = PIDController(0.005, 0.0, 0.0)
         self.rotationPID = PIDController(0.003, 0.0, 0.0)
 
         self.xPID.setIZone(PID_Swerve.positionIZone)
@@ -102,7 +102,7 @@ class PID_Swerve(Command):
         feedForward = 0.02 * math.copysign(1, corection)
         rotationVal = max(-1.0, min(corection+feedForward, 1.0))
 
-        self.s_Swerve.drive(Translation2d(xVal, yVal).__mul__(1), rotationVal*PID_Swerve.maxAngularVelociy, True)
+        self.s_Swerve.drive(Translation2d(xVal, yVal).__mul__(2), rotationVal*PID_Swerve.maxAngularVelociy, True)
 
     def isFinished(self):
 
