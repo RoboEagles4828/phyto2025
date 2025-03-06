@@ -92,7 +92,7 @@ class Cannon(Subsystem):
         self.scoringL1 = False
 
     def placeL1(self):
-        return self.run(lambda: self.leftMotor.set(TalonSRXControlMode.PercentOutput, 0.7)).alongWith(self.rightMotor.set(TalonSRXControlMode.PercentOutput, 0.5))
+        return self.run(lambda: self.leftMotor.set(TalonSRXControlMode.PercentOutput, 0.7)).alongWith(lambda: self.rightMotor.set(TalonSRXControlMode.PercentOutput, 0.5))
 
     def periodic(self):
         # SmartDashboard.putNumber("Cannon/leftMotorPercentOut", self.leftMotor.getMotorOutputPercent())
