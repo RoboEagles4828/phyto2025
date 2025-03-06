@@ -161,10 +161,10 @@ class RobotContainer:
         # )
 
         # operator buttons
-        self._operator_joystick.a().whileTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(RobotContainer.elevatorL1)))
-        self._operator_joystick.x().whileTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(RobotContainer.elevatorL2)))
-        self._operator_joystick.b().whileTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(RobotContainer.elevatorL3)))
-        self._operator_joystick.y().whileTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(RobotContainer.elevatorL4)))
+        self._operator_joystick.a().onTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(RobotContainer.elevatorL1)))
+        self._operator_joystick.x().onTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(RobotContainer.elevatorL2)))
+        self._operator_joystick.b().onTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(RobotContainer.elevatorL3)))
+        self._operator_joystick.y().onTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(RobotContainer.elevatorL4)))
         self._operator_joystick.rightTrigger().whileTrue(self.elevator.move_up_gradually())
         self._operator_joystick.leftTrigger().whileTrue(self.elevator.move_down_gradually())
         self._operator_joystick.povDown().whileTrue(self.elevator.move_to_zero())
