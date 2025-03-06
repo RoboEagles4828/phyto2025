@@ -111,7 +111,7 @@ class RobotContainer:
         self.configureOperatorBindings()
 
     def populateCommandList(self, face: ReefFace):
-        self.alignLeftCommands[face] = SequentialCommandGroup(PID_Swerve(self.drivetrain, face.alignLeft, True))
+        self.alignLeftCommands[face] = SequentialCommandGroup(PID_Swerve(self.drivetrain, face.alignLeft, False))
 
 
     def configureButtonBindings(self) -> None:

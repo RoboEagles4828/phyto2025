@@ -28,7 +28,7 @@ class PID_Swerve(Command):
     positionTolerance = 1.0
     roughPositionTolerance = 2.5
     maxSpeed = 1.0
-    positionKs = 0.2
+    positionKs = 0.02
     positionIZone = 4.0
 
     # rotationPID = PIDController(0.003, 0.0, 0.0)
@@ -44,8 +44,8 @@ class PID_Swerve(Command):
 
         print("initial targetPose" + str(self.targetPose))
 
-        self.xPID = PIDController(0.01, 0.0, 0.0)
-        self.yPID = PIDController(0.01, 0.0, 0.0)
+        self.xPID = PIDController(0.09, 0.0, 0.0)
+        self.yPID = PIDController(0.09, 0.0, 0.0)
         self.rotationPID = PIDController(0.003, 0.0, 0.0)
 
         self.xPID.setIZone(PID_Swerve.positionIZone)
@@ -60,7 +60,7 @@ class PID_Swerve(Command):
 
         self.rotationPID.enableContinuousInput(-180, 180)
         self.rotationPID.setIZone(2.0)
-        self.rotationPID.setIntegratorRange(-0.02 * 2, 0.02 * 2)
+        self.rotationPID.setIntegratorRange(-PID_Swerve.positionKs * 2, PID_Swerve.positionKs * 2)
         self.rotationPID.setSetpoint(targetPose.rotation().degrees())
         self.rotationPID.setTolerance(PID_Swerve.angleTolerance if self.presice else PID_Swerve.roughAngleTolerance)
 
