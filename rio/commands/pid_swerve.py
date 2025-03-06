@@ -44,8 +44,8 @@ class PID_Swerve(Command):
 
         print("initial targetPose" + str(self.targetPose))
 
-        self.xPID = PIDController(0.09, 0.0, 0.0)
-        self.yPID = PIDController(0.09, 0.0, 0.0)
+        self.xPID = PIDController(0.01, 0.0, 0.0)
+        self.yPID = PIDController(0.01, 0.0, 0.0)
         self.rotationPID = PIDController(0.003, 0.0, 0.0)
 
         self.xPID.setIZone(PID_Swerve.positionIZone)
