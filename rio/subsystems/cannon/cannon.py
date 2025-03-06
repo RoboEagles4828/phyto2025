@@ -1,9 +1,11 @@
-from commands2 import Subsystem
+from commands2 import Subsystem, Command
 from wpilib import DigitalInput
 from phoenix5 import TalonSRX, TalonSRXControlMode, FollowerType
 from wpilib import SmartDashboard
+from commands2.conditionalcommand import ConditionalCommand
 from subsystems.cannon.constants_cannon import Constants_Cannon
 from robotstate import RobotState
+from typing import Callable
 
 class Cannon(Subsystem):
     def __init__(self):
@@ -21,8 +23,6 @@ class Cannon(Subsystem):
         self.rightMotor.setInverted(False)
 
         self.leftMotor.follow(self.rightMotor, FollowerType.PercentOutput)
-
-        self.scoringL1 = False
 
     # def getBeamBreakState(self):
     #     return not(self.beamBreak.get())
@@ -45,17 +45,23 @@ class Cannon(Subsystem):
             .andThen(self.runOnce(lambda: RobotState.setCoralInElevator(True)))
         )
 
-    def placeCoral(self):
+    def createPlaceCoralCommand(self, isL1: Callable[[], bool]) -> Command:
         """
-        Outtakes the coral from the cannon
-        """ 
-        RobotState.coralInElevator = False
-        self.leftMotor.follow(self.rightMotor, FollowerType.PercentOutput)
+        Creates a command that will run the cannon appropriately for any level.
 
-        if self.scoringL1==True:
-            return self.run(self.leftMotor.set(TalonSRXControlMode.PercentOutput, 0.7)).alongWith(self.rightMotor.set(TalonSRXControlMode.PercentOutput, 0.5))
-        else:
-            return self.run(lambda: self.setCannonSpeed(0.6))
+        :param isL1: a Callable that returns true when the elevator is at L1 height-ish.
+        :returns: the placement command
+        """
+        return ConditionalCommand(
+            self.run(lambda: self._spinForL1()),
+            self.run(lambda: self.setCannonSpeed(0.6)),
+            isL1,
+        )
+    
+    def _spinForL1(self)-> None:
+        """Exists just to make the lambda in createPlaceCoralCommand easy to write and read."""
+        self.leftMotor.set(TalonSRXControlMode.PercentOutput, 0.9)
+        self.rightMotor.set(TalonSRXControlMode.PercentOutput, 0.0)
 
     def stop(self):
         """
@@ -65,24 +71,14 @@ class Cannon(Subsystem):
 
     def stopLoading(self):
         return abs(self.rightMotor.getStatorCurrent())>10
-    
-    def setScoreToL1(self):
-        self.scoringL1 = True
-
-    def setNormalScoring(self):
-        self.scoringL1 = False
-
-    def placeL1(self):
-        return self.run(lambda: self.leftMotor.set(TalonSRXControlMode.PercentOutput, 0.7)).alongWith(self.rightMotor.set(TalonSRXControlMode.PercentOutput, 0.5))
 
     def periodic(self):
         # SmartDashboard.putNumber("Cannon/leftMotorPercentOut", self.leftMotor.getMotorOutputPercent())
         # SmartDashboard.putNumber("Cannon/rigthMotorPercentOut", self.rightMotor.getMotorOutputPercent())
-        SmartDashboard.putBoolean("Cannon/loaded", RobotState.coralInElevator)
+        SmartDashboard.putBoolean("Cannon/loaded", RobotState.coralInCannon)
         SmartDashboard.putNumber("Cannon/leftStatorCurrent", self.leftMotor.getStatorCurrent())
         SmartDashboard.putNumber("Cannon/rightStatorCurrent", self.rightMotor.getStatorCurrent())
         SmartDashboard.putNumber("Cannon/leftSupplyCurrent", self.leftMotor.getSupplyCurrent())
         SmartDashboard.putNumber("Cannon/rightSupplyCurrent", self.rightMotor.getSupplyCurrent())
-        SmartDashboard.putBoolean("Cannon/L1 Mode", self.scoringL1)
         # SmartDashboard.putNumber("Cannon/leftMotorSensorVelocity", self.leftMotor.getSelectedSensorVelocity())
         # SmartDashboard.putNumber("Cannon/rightMotorSensorVelocity", self.rightMotor.getSelectedSensorVelocity())

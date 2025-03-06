@@ -1,6 +1,6 @@
 class RobotState:
     
-    coralInElevator = True
+    coralInCannon = True
 
     def __new__(cls):
         if not hasattr(cls, "instance"):
@@ -8,5 +8,5 @@ class RobotState:
         
         return cls.instance
     
-    def setCoralInElevator(newCoralInElevator):
-        RobotState.coralInElevator = newCoralInElevator
+    def setCoralInElevator(newCoralInCannon : bool):
+        RobotState.coralInCannon = newCoralInCannon
