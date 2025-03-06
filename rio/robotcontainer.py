@@ -46,6 +46,12 @@ class RobotContainer:
     subsystems, commands, and button mappings) should be declared here.
     """
 
+    elevatorL1 = 1.093
+    elevatorL2 = 1.6
+    elevatorL3 = 2.355
+    elevatorL4 = 3.7
+    cannonL1Top = (elevatorL1 + elevatorL2) / 2
+
     def __init__(self) -> None:
 
         self._max_speed = (
@@ -55,19 +61,40 @@ class RobotContainer:
             0.85
         )  # 3/4 of a rotation per second max angular velocity
 
+        driveDeadbandFactor = 0.07
+        """Max speed (m/s) multipled by this value to set a m/s deadband."""
+        rotationalDeadbandFactor = 0.07
+        """Max angular rate (rad/s) multipled by this value to set a rad/s deadband."""
+        self.reefAlignSlownessFactor = 4.0
+        """
+        In robot oriented reef alignment slow down by this factor.
+        Used to reduce speed in the command. Also used to keep the
+        deadbands aligned on the same stick defection being dead.
+        """
+
         # Setting up bindings for necessary control of the swerve drive platform
         self._drive = (
             swerve.requests.FieldCentric()
-            .with_deadband(self._max_speed * 0.07)
+            .with_deadband(self._max_speed * driveDeadbandFactor)
             .with_rotational_deadband(
-                self._max_angular_rate * 0.07
-            )  # Add a 10% deadband
+                self._max_angular_rate * rotationalDeadbandFactor
+            )
             .with_drive_request_type(
                 swerve.SwerveModule.DriveRequestType.OPEN_LOOP_VOLTAGE
             )  # Use open-loop control for drive motors
         )
         self._brake = swerve.requests.SwerveDriveBrake()
         self._point = swerve.requests.PointWheelsAt()
+        self._reefAlign = (
+            swerve.requests.RobotCentric()
+            .with_deadband(self._max_speed * (driveDeadbandFactor / self.reefAlignSlownessFactor))
+            .with_rotational_deadband(
+                self._max_angular_rate * (rotationalDeadbandFactor / self.reefAlignSlownessFactor)
+            )
+            .with_drive_request_type(
+                swerve.SwerveModule.DriveRequestType.OPEN_LOOP_VOLTAGE
+            )  # Use open-loop control for drive motors
+        )
 
         self._logger = Telemetry(self._max_speed)
 
@@ -77,9 +104,8 @@ class RobotContainer:
 
         self._test_joystick = commands2.button.CommandXboxController(2)
 
-
-        self.operator1 = commands2.button.CommandGenericHID(1)
-        self.operator2 = commands2.button.CommandGenericHID(2)
+        self.operator1 = commands2.button.CommandGenericHID(3)
+        self.operator2 = commands2.button.CommandGenericHID(4)
 
         self.drivetrain = TunerConstants.create_drivetrain()
         self.elevator = Elevator()
@@ -101,18 +127,21 @@ class RobotContainer:
         NamedCommands.registerCommand("Elevator Stop", self.elevator.stop())
         NamedCommands.registerCommand("Cannon Stop", self.cannon.stop())
 
-
-        self.autoChooser = AutoBuilder.buildAutoChooser("None")
-        Shuffleboard.getTab("Autonomous").add(self.autoChooser)
-
         # Configure the button bindings
 
         self.configureButtonBindings()
         self.configureOperatorBindings()
 
+        self.autoChooser = AutoBuilder.buildAutoChooser("None")
+        self.addNoPathAutos()
+        SmartDashboard.putData("AutoChooser",self.autoChooser)
+
     def populateCommandList(self, face: ReefFace):
         self.alignLeftCommands[face] = SequentialCommandGroup(PID_Swerve(self.drivetrain, face.alignLeft, False))
 
+    def isPlaceCoralL1(self) -> bool:
+        """Returns true if the elevator height is proper for an L1 placement."""
+        return (self.elevator.getPosition() < RobotContainer.cannonL1Top)
 
     def configureButtonBindings(self) -> None:
         """
@@ -157,11 +186,11 @@ class RobotContainer:
         #     )
         # )
 
-        #operator buttons
-        self._operator_joystick.a().whileTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(1.093)).andThen(self.cannon.runOnce(lambda: self.cannon.setScoreToL1()))) #l1
-        self._operator_joystick.x().whileTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(1.6)).andThen(self.cannon.runOnce(lambda: self.cannon.setNormalScoring()))) #l2
-        self._operator_joystick.b().whileTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(2.355)).andThen(self.cannon.runOnce(lambda: self.cannon.setNormalScoring()))) #l3
-        self._operator_joystick.y().whileTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(3.6)).andThen(self.cannon.runOnce(lambda: self.cannon.setNormalScoring()))) #l4
+        # operator buttons
+        self._operator_joystick.a().onTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(RobotContainer.elevatorL1)))
+        self._operator_joystick.x().onTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(RobotContainer.elevatorL2)))
+        self._operator_joystick.b().onTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(RobotContainer.elevatorL3)))
+        self._operator_joystick.y().onTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(RobotContainer.elevatorL4)))
         self._operator_joystick.rightTrigger().whileTrue(self.elevator.move_up_gradually())
         self._operator_joystick.leftTrigger().whileTrue(self.elevator.move_down_gradually())
         self._operator_joystick.povDown().whileTrue(self.elevator.move_to_zero())
@@ -170,14 +199,38 @@ class RobotContainer:
         self._joystick.leftTrigger().whileTrue(self.cannon.loadCoral().deadlineFor(self.hopper.intake()))
         self._joystick.back().onTrue(self.drivetrain.runOnce(lambda: self.drivetrain.zeroHeading()))
         self._joystick.rightTrigger().whileTrue(self.elevator.move_to_position_execute())
-        self._joystick.leftBumper().whileTrue(self.cannon.placeCoral())
+        self._joystick.leftBumper().whileTrue(self.cannon.createPlaceCoralCommand(self.isPlaceCoralL1))
         self._joystick.rightBumper().whileTrue(self.hopper.agitate())
-        self._joystick.y().whileTrue(self.cannon.placeL1())
         self._joystick.povDown().whileTrue(self.elevator.move_to_zero())
 
+        self._joystick.povLeft().whileTrue(
+            self.drivetrain.apply_request(
+                lambda: (
+                    self._reefAlign.with_velocity_x(
+                        negative_value
+                        * self._joystick.getLeftY()
+                        * self._max_speed
+                        / self.reefAlignSlownessFactor
+                    )  # Drive forward with negative Y (forward)
+                    .with_velocity_y(
+                        negative_value
+                        * self._joystick.getLeftX()
+                        * self._max_speed
+                        / self.reefAlignSlownessFactor
+                    )  # Drive left with negative X (left)
+                    .with_rotational_rate(
+                        negative_value
+                        * self._joystick.getRightX()
+                        * self._max_angular_rate
+                        / self.reefAlignSlownessFactor
+                    )  # Drive counterclockwise with negative X (left)
+                )
+            )
+        )
 
         # Tester Joystick buttons
         self._test_joystick.rightBumper().onTrue(SelectCommand(self.alignLeftCommands, lambda: self.pose.neartestFace(self.drivetrain.getPose().translation(), False)))
+
         # Run SysId routines when holding back/start and X/Y.
         # Note that each routine should be run exactly once in a single log.
         (self._joystick.back() & self._joystick.y()).whileTrue(
@@ -201,7 +254,7 @@ class RobotContainer:
         self.drivetrain.register_telemetry(
             lambda state: self._logger.telemeterize(state)
         )
-    
+
     def configureOperatorBindings(self) -> None:
         self.operator1.axisLessThan(1, -0.99) # Go to L4
         self.operator1.axisGreaterThan(0, 0.99) # Go to L3
@@ -221,7 +274,6 @@ class RobotContainer:
         self.operator2.button(6) # Reef side K
         self.operator2.button(7) # Reef side L
 
-
     def getAutonomousCommand(self) -> Command:
         """Use this to pass the autonomous command to the main {@link Robot} class.
 
@@ -231,3 +283,26 @@ class RobotContainer:
         auto = self.autoChooser.getSelected()
 
         return auto
+
+    def addNoPathAutos(self):
+        self.autoChooser.addOption("Score One L1 - Middle", self.scoreMiddleL1Auto())
+
+    def scoreMiddleL1Auto(self) -> Command:
+        return (
+            self.elevator.runOnce(
+                lambda: self.elevator.setNextTargetRotation(RobotContainer.elevatorL1)
+            )
+            .andThen(
+                self.drivetrain.apply_request(
+                    lambda: (swerve.requests.RobotCentric().with_velocity_x(1.0))
+                ).withTimeout(2.0)
+            )
+            .andThen(self.drivetrain.stopCommand())
+            .andThen(
+                self.elevator.move_to_position_execute().raceWith(
+                    commands2.WaitUntilCommand(
+                        lambda: self.elevator.acceptablyOnTargetForL1()
+                    ).andThen(self.cannon.createPlaceCoralCommand(self.isPlaceCoralL1).withTimeout(1.0))
+                )
+            )
+        )

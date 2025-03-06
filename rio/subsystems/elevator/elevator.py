@@ -47,7 +47,7 @@ class Elevator(Subsystem):
 
         #Configure for L4
         self.motorCfg.slot1.k_v = 0.1
-        self.motorCfg.slot1.k_p = 5.6
+        self.motorCfg.slot1.k_p = 7.5
 
         # Apply limit configurations here
         limit_configs = CurrentLimitsConfigs()
@@ -212,9 +212,9 @@ class Elevator(Subsystem):
         SmartDashboard.putBoolean("Elevator/Top Limit", self.topLimitSwitch.get())
 
         SmartDashboard.putNumber("Elevator/Next Target", self.nextTargetPosition)
-        
 
-
+    def acceptablyOnTargetForL1(self) -> bool:
+        return (abs(self.getPosition() - self.nextTargetPosition) < 0.05)
 
     def set_motor_zero(self):
         if self.debouncer.calculate(self.bottomLimitSwitch.get()):
