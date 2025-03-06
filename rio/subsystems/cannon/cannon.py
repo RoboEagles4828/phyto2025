@@ -61,8 +61,8 @@ class Cannon(Subsystem):
     
     def _spinForL1(self)-> None:
         """Exists just to make the lambda in createPlaceCoralCommand easy to write and read."""
-        self.leftMotor.set(TalonSRXControlMode.PercentOutput, 0.7)
-        self.rightMotor.set(TalonSRXControlMode.PercentOutput, 0.4)
+        self.leftMotor.set(TalonSRXControlMode.PercentOutput, 0.9)
+        self.rightMotor.set(TalonSRXControlMode.PercentOutput, 0.0)
 
     def stop(self):
         """
