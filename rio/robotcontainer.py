@@ -89,14 +89,15 @@ class RobotContainer:
         self.pose = Pose(self.drivetrain)
 
         self.alignLeftCommands: dict[ReefFace, Command] = {}
+        self.alignRightCommands: dict[ReefFace, Command] = {}
 
         for face in ReefFace:
             self.populateCommandList(face)
         
-        NamedCommands.registerCommand("Elevator to L1", self.elevator.move_to_position(1.093, 0).withTimeout(1.0))
+        NamedCommands.registerCommand("Elevator to L1", self.elevator.move_to_position(1.093, 0).withTimeout(3.0))
         NamedCommands.registerCommand("Elevator to Zero", self.elevator.move_to_zero())
         NamedCommands.registerCommand("Hopper Intake", self.hopper.intake())
-        NamedCommands.registerCommand("Cannon L1", self.cannon.placeL1())
+        NamedCommands.registerCommand("Cannon L1", self.cannon.placeL1().withTimeout(3.0))
         NamedCommands.registerCommand("Load Coral to Cannon", self.cannon.loadCoral())
         NamedCommands.registerCommand("Elevator Stop", self.elevator.stop())
         NamedCommands.registerCommand("Cannon Stop", self.cannon.stop())
@@ -112,6 +113,7 @@ class RobotContainer:
 
     def populateCommandList(self, face: ReefFace):
         self.alignLeftCommands[face] = SequentialCommandGroup(PID_Swerve(self.drivetrain, face.alignLeft, False))
+        self.alignRightCommands[face] = SequentialCommandGroup(PID_Swerve(self.drivetrain, face.alignRight, False))
 
 
     def configureButtonBindings(self) -> None:
@@ -177,7 +179,8 @@ class RobotContainer:
 
 
         # Tester Joystick buttons
-        self._test_joystick.rightBumper().onTrue(SelectCommand(self.alignLeftCommands, lambda: self.pose.neartestFace(self.drivetrain.getPose().translation(), False)))
+        self._test_joystick.leftBumper().onTrue(SelectCommand(self.alignLeftCommands, lambda: self.pose.neartestFace(self.drivetrain.getPose().translation(), False)))
+        self._test_joystick.rightBumper().onTrue(SelectCommand(self.alignRightCommands, lambda: self.pose.neartestFace(self.drivetrain.getPose().translation(), False)))
         # Run SysId routines when holding back/start and X/Y.
         # Note that each routine should be run exactly once in a single log.
         (self._joystick.back() & self._joystick.y()).whileTrue(

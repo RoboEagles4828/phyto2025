@@ -26,7 +26,7 @@ class FieldConstants:
     reefFaceFiveRed = Pose2d(Units.inchesToMeters(497.77), Units.inchesToMeters(130.17), Rotation2d(240))
     reefFaceSixBlue = Pose2d(Units.inchesToMeters(160.39), Units.inchesToMeters(186.83), Rotation2d(120))
     reefFaceSixRed = Pose2d(Units.inchesToMeters(530.49), Units.inchesToMeters(130.17), Rotation2d(300))
-
+ 
     bumperWidth = Units.inchesToMeters(3)
     reefStandOff = Units.inchesToMeters(1.0)
     reefOffSet = Units.inchesToMeters(28 / 2.0 + bumperWidth + reefStandOff)
