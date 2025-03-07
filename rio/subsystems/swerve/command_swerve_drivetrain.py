@@ -349,22 +349,8 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
                 self
             )
 
-    def driveToPoseThenFollowPath(self, path: PathPlannerPath)-> Command:
 
-        """
-        Drives to a starting pose of a pre-generated path, then follows the pre-generated path
-        """
-        constraints = PathConstraints(3.0, 4, degreesToRadians(540), degreesToRadians(720))
-
-        redPath = path
-        bluePath = path.flipPath()
-
-        if (DriverStation.getAlliance() or DriverStation.Alliance.kBlue) == DriverStation.Alliance.kRed:
-            pathfindingCommand = AutoBuilder.pathfindThenFollowPath(redPath, constraints)
-        else:
-            pathfindingCommand = AutoBuilder.pathfindThenFollowPath(bluePath, constraints)
-
-        return pathfindingCommand
+            
     
     def flip(self):
         """
@@ -421,6 +407,26 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
         ChassisSpeeds.discretize(desiredSpeeds, 0.02)
 
         self.set_control(requests.RobotCentric().with_velocity_x(desiredSpeeds.vx).with_velocity_y(desiredSpeeds.vy).with_rotational_rate(desiredSpeeds.omega).with_drive_request_type(requests.SwerveModule.DriveRequestType.OPEN_LOOP_VOLTAGE if isOpenLoop else requests.SwerveModule.DriveRequestType.VELOCITY))
+
+
+    def driveToPoseThenFollowPath(self, path: PathPlannerPath)-> Command:
+
+        """
+        Drives to a starting pose of a pre-generated path, then follows the pre-generated path
+        """
+        constraints = PathConstraints(3.0, 4, degreesToRadians(540), degreesToRadians(720))
+
+        redPath = path
+
+
+        bluePath = path.flipPath()
+
+        if (DriverStation.getAlliance() or DriverStation.Alliance.kBlue) == DriverStation.Alliance.kRed:
+            pathfindingCommand = AutoBuilder.pathfindThenFollowPath(redPath, constraints)
+        else:
+            pathfindingCommand = AutoBuilder.pathfindThenFollowPath(bluePath, constraints)
+
+        return pathfindingCommand 
     # def update_Odom(self):
     #     """
     #     Updates the odometry with the vision

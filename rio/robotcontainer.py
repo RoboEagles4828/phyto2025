@@ -25,7 +25,7 @@ from wpimath.units import rotationsToRadians
 from wpilib import Joystick, RobotBase, SmartDashboard
 from wpilib.shuffleboard import Shuffleboard
 
-from pathplannerlib.auto import AutoBuilder
+from pathplannerlib.auto import AutoBuilder, PathPlannerPath
 
 from subsystems.swerve.command_swerve_drivetrain import CommandSwerveDrivetrain
 from subsystems.elevator.elevator import Elevator
