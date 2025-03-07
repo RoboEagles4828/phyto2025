@@ -5,6 +5,12 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "Elevator to L1"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Calibration_Path1"
@@ -13,7 +19,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Elevator to L1"
+            "name": "Elevator to Zero"
           }
         }
       ]

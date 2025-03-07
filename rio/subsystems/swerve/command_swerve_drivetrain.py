@@ -5,11 +5,15 @@ from phoenix6 import SignalLogger, swerve, units, utils
 from typing import Callable, overload
 from wpilib import DriverStation, Notifier, RobotController, reportError
 from wpilib.sysid import SysIdRoutineLog
-from wpimath.geometry import Rotation2d, Pose2d, Translation2d
+from wpimath.geometry import Rotation2d, Pose2d, Translation2d, Pose3d
 from wpimath.units import degreesToRadians
 from wpimath.kinematics import ChassisSpeeds
-from pathplannerlib.auto import AutoBuilder
+from pathplannerlib.auto import AutoBuilder, PathConstraints, PathPlannerPath
 from auto.auto_constants import AutoConstants
+from phoenix6.swerve import requests
+from wpilib import SmartDashboard
+# from subsystems.vision.vision import VisionSubsystem as Vision
+# from subsystems.vision.vision_constants import Vision_Constants as vision_constants
 # from generated.tuner_constants import TunerConstants
 
 
@@ -36,6 +40,7 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
         modules: list[swerve.SwerveModuleConstants],
     ) -> None:
         self.autoBuilderConfigure()
+        # self.vision = Vision()
         """
         Constructs a CTRE SwerveDrivetrain using the specified constants.
 
@@ -67,6 +72,7 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
         modules: list[swerve.SwerveModuleConstants],
     ) -> None:
         self.autoBuilderConfigure()
+        # self.vision = Vision()
         """
         Constructs a CTRE SwerveDrivetrain using the specified constants.
 
@@ -100,10 +106,11 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
         drivetrain_constants: swerve.SwerveDrivetrainConstants,
         odometry_update_frequency: units.hertz,
         odometry_standard_deviation: tuple[float, float, float],
-        vision_standard_deviation: tuple[float, float, float],
+        # vision_standard_deviation: tuple[float, float, float],
         modules: list[swerve.SwerveModuleConstants],
     ) -> None:
         self.autoBuilderConfigure()
+        # self.vision = Vision()
         """
         Constructs a CTRE SwerveDrivetrain using the specified constants.
 
@@ -153,6 +160,7 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
             drivetrain_constants, arg0, arg1, arg2, arg3
         )
         self.autoBuilderConfigure()
+        # self.vision = Vision()
         self._sim_notifier: Notifier | None = None
         self._last_sim_time: units.second = 0.0
 
@@ -256,6 +264,14 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
         """
         return self.run(lambda: self.set_control(request()))
 
+    def stopCommand(self) -> Command:
+        """Returns a command that will stop the drive train."""
+        return self.runOnce(
+            lambda: self.set_control(
+                swerve.requests.RobotCentric()
+            )
+        )
+
     def sys_id_quasistatic(self, direction: SysIdRoutine.Direction) -> Command:
         """
         Runs the SysId Quasistatic test in the given direction for the routine
@@ -296,6 +312,9 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
                 )
                 self._has_applied_operator_perspective = True
 
+        SmartDashboard.putNumber("Swerve/Forward Direction", self.get_operator_forward_direction().degrees())
+        # self.update_Odom()
+
     def _start_sim_thread(self):
         def _sim_periodic():
             current_time = utils.get_current_time_seconds()
@@ -310,9 +329,15 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
         self._sim_notifier.startPeriodic(self._SIM_LOOP_PERIOD)
 
     def getPigeonRotation2d(self)->Rotation2d:
+        """
+        Grabs the Rotation 2d from the pigeon
+        """
         return Rotation2d(degreesToRadians(self.pigeon2.get_yaw().value))
     
     def autoBuilderConfigure(self):
+            """
+            Configures the AutoBuilder for the robot
+            """
             AutoBuilder.configure(
                 lambda: self.get_state().pose,
                 self.reset_pose,
@@ -323,8 +348,14 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
                 self.flip,
                 self
             )
+
+
+            
     
     def flip(self):
+        """
+        Checks to see wether the robot should flip the path based on its current alliance
+        """
         return (DriverStation.getAlliance() or DriverStation.Alliance.kBlue) == DriverStation.Alliance.kRed
     
     def swerve_output(self, speeds, feedforwards):
@@ -334,3 +365,192 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
                 .with_wheel_force_feedforwards_x(feedforwards.robotRelativeForcesXNewtons)
                 .with_wheel_force_feedforwards_y(feedforwards.robotRelativeForcesYNewtons)
             )
+    
+    def getHeading(self):
+        """
+        Gets the heading of the robot
+        """
+        return self.get_state().pose.rotation().degrees()
+    
+    def setOperatorPerspectiveFalse(self):
+        """
+        Sets the operator perspective to false
+        """
+        self._has_applied_operator_perspective = False
+
+    def zeroHeading(self):
+        """
+        Zeros the heading of the robot
+        """
+        return self.set_operator_perspective_forward(Rotation2d(self.get_state().pose.rotation().radians()))
+    
+    
+    def getPose(self):
+        """
+        Gets the pose of the robot
+        """
+        # print(self.get_state().pose)
+        return self.get_state().pose
+    
+    def drive(self, translation: Translation2d, rotation: float, isOpenLoop: bool):
+        """
+        Drives the robot
+        """
+        desiredSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(translation.X(), translation.Y(), rotation, self.get_state().pose.rotation())
+
+        self.driveRobotRelative(desiredSpeeds, isOpenLoop)
+
+    def driveRobotRelative(self, desiredSpeeds: ChassisSpeeds, isOpenLoop: bool):
+        """
+        Drives the robot relative to the robot
+        """
+        ChassisSpeeds.discretize(desiredSpeeds, 0.02)
+
+        self.set_control(requests.RobotCentric().with_velocity_x(desiredSpeeds.vx).with_velocity_y(desiredSpeeds.vy).with_rotational_rate(desiredSpeeds.omega).with_drive_request_type(requests.SwerveModule.DriveRequestType.OPEN_LOOP_VOLTAGE if isOpenLoop else requests.SwerveModule.DriveRequestType.VELOCITY))
+
+
+    def driveToPoseThenFollowPath(self, path: PathPlannerPath)-> Command:
+
+        """
+        Drives to a starting pose of a pre-generated path, then follows the pre-generated path
+        """
+        constraints = PathConstraints(3.0, 4, degreesToRadians(540), degreesToRadians(720))
+
+        redPath = path
+
+
+        bluePath = path.flipPath()
+
+        if (DriverStation.getAlliance() or DriverStation.Alliance.kBlue) == DriverStation.Alliance.kRed:
+            pathfindingCommand = AutoBuilder.pathfindThenFollowPath(redPath, constraints)
+        else:
+            pathfindingCommand = AutoBuilder.pathfindThenFollowPath(bluePath, constraints)
+
+        return pathfindingCommand 
+    # def update_Odom(self):
+    #     """
+    #     Updates the odometry with the vision
+    #     """
+    #     frontleftEstimatedPose = self.vision.getEstimatedGlobalPoseFrontLeft()
+    #     frontrightEstimatedPose = self.vision.getEstimatedGlobalPoseFrontRight()
+    #     backleftEstimatedPose = self.vision.getEstimatedGlobalPoseBackLeft()
+    #     backrightEstimatedPose = self.vision.getEstimatedGlobalPoseBackRight()
+
+
+    #     if frontleftEstimatedPose is not None:
+
+    #         tags = frontleftEstimatedPose.targetsUsed
+    #         tagPoses: list[Pose3d] = []
+
+    #         distance = 0.0
+    #         stddevs = (0.0, 0.0, 0.0)
+
+    #         if len(tags)>0:
+    #             for tag in tags:
+    #                 id = tag.getFiducialId()
+    #                 pose = self.vision.aprilTagFieldLayout.getTagPose(id)
+    #                 if pose is not None:
+    #                     tagPoses.append(pose)
+                
+    #             if len(tagPoses)>0:
+    #                 for tagPose in tagPoses:
+    #                     distance += tagPose.translation().distance(frontleftEstimatedPose.estimatedPose.translation())
+
+    #                 distance = distance/len(tagPoses)
+                
+    #             singleTagXY = 0.03
+    #             multiTagXY  = 0.05
+    #             tagRot = math.radians(40)
+
+    #             xyStdDev = (singleTagXY if len(tagPoses) == 1 else multiTagXY) * distance**2
+    #             stddevs = (xyStdDev, xyStdDev, tagRot)
+
+    #             self.add_vision_measurement(Pose2d(x=frontleftEstimatedPose.estimatedPose.toPose2d().X(), y=frontleftEstimatedPose.estimatedPose.toPose2d().Y(), rotation=self.getHeading()), utils.get_current_time_seconds, stddevs)
+            
+    #     if frontrightEstimatedPose is not None:
+    #         tags = frontrightEstimatedPose.targetsUsed
+    #         tagPoses: list[Pose3d] = []
+
+    #         distance2 = 0.0
+    #         stddevs2 = (0.0, 0.0, 0.0)
+
+    #         if len(tags)>0:
+    #             for tag in tags:
+    #                 id = tag.getFiducialId()
+    #                 pose = self.vision.aprilTagFieldLayout.getTagPose(id)
+    #                 if pose is not None:
+    #                     tagPoses.append(pose)
+                
+    #             if len(tagPoses)>0:
+    #                 for tagPose in tagPoses:
+    #                     distance2 += tagPose.translation().distance(frontrightEstimatedPose.estimatedPose.translation())
+
+    #                 distance2 = distance2/len(tagPoses)
+                
+    #             singleTagXY = 0.03
+    #             multiTagXY  = 0.05
+    #             tagRot = math.radians(40)
+
+    #             xyStdDev2 = (singleTagXY if len(tagPoses) == 1 else multiTagXY) * distance**2
+    #             stddevs2 = (xyStdDev2, xyStdDev2, tagRot)
+
+    #             self.add_vision_measurement(Pose2d(x=frontrightEstimatedPose.estimatedPose.toPose2d().X(), y=frontrightEstimatedPose.estimatedPose.toPose2d().Y(), rotation=self.getHeading()), utils.get_current_time_seconds, stddevs2)
+        
+    #     if backleftEstimatedPose is not None:
+    #         tags = backleftEstimatedPose.targetsUsed
+    #         tagPoses: list[Pose3d] = []
+
+    #         distance3 = 0.0
+    #         stddevs3 = (0.0, 0.0, 0.0)
+
+    #         if len(tags)>0:
+    #             for tag in tags:
+    #                 id = tag.getFiducialId()
+    #                 pose = self.vision.aprilTagFieldLayout.getTagPose(id)
+    #                 if pose is not None:
+    #                     tagPoses.append(pose)
+                
+    #             if len(tagPoses)>0:
+    #                 for tagPose in tagPoses:
+    #                     distance3 += tagPose.translation().distance(backleftEstimatedPose.estimatedPose.translation())
+
+    #                 distance3 = distance3/len(tagPoses)
+                
+    #             singleTagXY = 0.03
+    #             multiTagXY  = 0.05
+    #             tagRot = math.radians(40)
+
+    #             xyStdDev3 = (singleTagXY if len(tagPoses) == 1 else multiTagXY) * distance**2
+    #             stddevs3 = (xyStdDev3, xyStdDev3, tagRot)
+
+    #             self.add_vision_measurement(Pose2d(x=backleftEstimatedPose.estimatedPose.toPose2d().X(), y=backleftEstimatedPose.estimatedPose.toPose2d().Y(), rotation=self.getHeading()), utils.get_current_time_seconds, stddevs3)
+        
+    #     if backrightEstimatedPose is not None:
+    #         tags = backrightEstimatedPose.targetsUsed
+    #         tagPoses: list[Pose3d] = []
+
+    #         distance4 = 0.0
+    #         stddevs4 = (0.0, 0.0, 0.0)
+
+    #         if len(tags)>0:
+    #             for tag in tags:
+    #                 id = tag.getFiducialId()
+    #                 pose = self.vision.aprilTagFieldLayout.getTagPose(id)
+    #                 if pose is not None:
+    #                     tagPoses.append(pose)
+                
+    #             if len(tagPoses)>0:
+    #                 for tagPose in tagPoses:
+    #                     distance4 += tagPose.translation().distance(backrightEstimatedPose.estimatedPose.translation())
+
+    #                 distance4 = distance4/len(tagPoses)
+                
+    #             singleTagXY = 0.03
+    #             multiTagXY  = 0.05
+    #             tagRot = math.radians(40)
+
+    #             xyStdDev4 = (singleTagXY if len(tagPoses) == 1 else multiTagXY) * distance**2
+    #             stddevs4 = (xyStdDev4, xyStdDev4, tagRot)
+
+    #             self.add_vision_measurement(Pose2d(x=backrightEstimatedPose.estimatedPose.toPose2d().X(), y=backrightEstimatedPose.estimatedPose.toPose2d().Y(), rotation=self.getHeading()), utils.get_current_time_seconds, stddevs4)
+        

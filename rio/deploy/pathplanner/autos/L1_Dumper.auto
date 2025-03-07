@@ -7,13 +7,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Calibration_Path1"
+            "pathName": "L1 Dumper Path"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "Elevator to L1"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 3.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Cannon L1"
           }
         }
       ]
