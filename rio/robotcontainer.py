@@ -46,7 +46,7 @@ class RobotContainer:
     subsystems, commands, and button mappings) should be declared here.
     """
 
-    elevatorL1 = 1.93
+    elevatorL1 = 1.105
     elevatorL2 = 1.6
     elevatorL3 = 2.355
     elevatorL4 = 3.7
