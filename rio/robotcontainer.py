@@ -46,7 +46,7 @@ class RobotContainer:
     subsystems, commands, and button mappings) should be declared here.
     """
 
-    elevatorL1 = 1.09
+    elevatorL1 = 1.93
     elevatorL2 = 1.6
     elevatorL3 = 2.355
     elevatorL4 = 3.7
@@ -120,7 +120,7 @@ class RobotContainer:
         for face in ReefFace:
             self.populateCommandList(face)
         
-        NamedCommands.registerCommand("Elevator to L1", self.elevator.move_to_position(1.09, 0).withTimeout(3.0))
+        NamedCommands.registerCommand("Elevator to L1", self.elevator.move_to_position(self.elevatorL1, 0).withTimeout(3.0))
         NamedCommands.registerCommand("Elevator to L4", self.elevator.move_to_position(3.9, 1).withTimeout(3.0))
         NamedCommands.registerCommand("Elevator to Zero", self.elevator.move_to_zero())
         NamedCommands.registerCommand("Hopper Intake", self.hopper.intake())
