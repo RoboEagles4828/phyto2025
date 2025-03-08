@@ -389,7 +389,6 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
         """
         Gets the pose of the robot
         """
-        # print(self.get_state().pose)
         return self.get_state().pose
     
     def drive(self, translation: Translation2d, rotation: float, isOpenLoop: bool):

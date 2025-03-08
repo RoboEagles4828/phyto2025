@@ -89,14 +89,5 @@ class Cannon(Subsystem):
         return self.loaded
 
     def periodic(self):
-        # SmartDashboard.putNumber("Cannon/leftMotorPercentOut", self.leftMotor.getMotorOutputPercent())
-        # SmartDashboard.putNumber("Cannon/rigthMotorPercentOut", self.rightMotor.getMotorOutputPercent())
-        SmartDashboard.putBoolean("Cannon/loaded", self.loaded)
-        SmartDashboard.putNumber("Cannon/leftStatorCurrent", self.leftMotor.getStatorCurrent())
-        SmartDashboard.putNumber("Cannon/rightStatorCurrent", self.rightMotor.getStatorCurrent())
-        SmartDashboard.putNumber("Cannon/leftSupplyCurrent", self.leftMotor.getSupplyCurrent())
-        SmartDashboard.putNumber("Cannon/rightSupplyCurrent", self.rightMotor.getSupplyCurrent())
-        SmartDashboard.putString("Cannon/lastran", self.lastRan)
-
-        # SmartDashboard.putNumber("Cannon/leftMotorSensorVelocity", self.leftMotor.getSelectedSensorVelocity())
-        # SmartDashboard.putNumber("Cannon/rightMotorSensorVelocity", self.rightMotor.getSelectedSensorVelocity())
+        pass                                              
+        #         

@@ -42,7 +42,7 @@ class Pose(Subsystem):
 
     def neartestFace(self, position: Translation2d, allianceColor: bool):
 
-        print("Running Command")
+        
         reefBearing = self.reefBearing(position, allianceColor)
 
         if(allianceColor):
@@ -50,28 +50,28 @@ class Pose(Subsystem):
         
         bearingAngle = inputModulus(reefBearing.degrees(), -180, 180)
 
-        print("reefBearing"+str(reefBearing))
-        print("bearingAngle"+str(bearingAngle))
+        
+        
 
         # self.bearingAngle = bearingAngle
 
         if bearingAngle>150 or bearingAngle< -150:
-            print("GH")
+            
             return ReefFace.GH
         elif bearingAngle>90:
-            print("EF")
+            
             return ReefFace.EF
         elif bearingAngle>30:
-            print("CD")
+            
             return ReefFace.CD
         elif bearingAngle>-30:
-            print("AB")
+            
             return ReefFace.AB
         elif bearingAngle>-90:
-            print("KL")
+            
             return ReefFace.KL
         else:
-            print("IJ")
+            
             return ReefFace.IJ
     
     def getPose(self):
@@ -85,13 +85,13 @@ class Pose(Subsystem):
         return self.closestFace
         
     def periodic(self):
-        # print(self.pose)
+        # 
         self.pose = self.swerve.getPose()
         self.getPose()
         self.bearingAngle = self.reefBearing(self.getTranslation(), False)
         self.closestFace = self.neartestFace(self.getTranslation(), False)
 
-        SmartDashboard.putNumber("Pose/Heading", self.swerve.get_state().raw_heading.degrees())
-        SmartDashboard.putNumber("Pose/Operator Forward", self.swerve.get_operator_forward_direction().degrees())
-        SmartDashboard.putNumber("Pose/bearingAngle", self.reefBearing(self.swerve.get_state().pose.translation(), True).degrees())
+        
+        
+        
         

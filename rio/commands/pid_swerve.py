@@ -42,7 +42,7 @@ class PID_Swerve(Command):
         self.targetPose = targetPose
         self.presice = presice
 
-        print("initial targetPose" + str(self.targetPose))
+        
 
         self.xPID = PIDController(0.005, 0.0, 0.0)
         self.yPID = PIDController(0.005, 0.0, 0.0)
@@ -72,31 +72,31 @@ class PID_Swerve(Command):
         self.yPID.reset()
         self.rotationPID.reset()
 
-        SmartDashboard.putNumberArray("PID_Swerve/Target Pose", self.targetPose)
+        
     
     def execute(self):
         self.__init__(self.s_Swerve, self.targetPose, self.presice)
-        print("target Pose" + str(self.targetPose))
+        
         pose: Pose2d = self.s_Swerve.get_state().pose
-        # print("Execution Pose:" + str(pose))
+        # 
         position: Translation2d = pose.translation()
         rotation: Rotation2d = pose.rotation()
 
         xCorrection = self.xPID.calculate(Units.metersToInches(position.X()))
         xFeedForward = self.positionKs * math.copysign(1, xCorrection)
         xVal = max(-1, min(xCorrection+xFeedForward, 1))
-        SmartDashboard.putNumber("PID_Swerve/X Position", Units.inchesToMeters(position.X()))
-        SmartDashboard.putNumber("PID_Swerve/X Feed Forward", xFeedForward)
-        SmartDashboard.putNumber("PID_Swerve/X Value", xVal)
-        SmartDashboard.putNumber("PID_Swerve/X Correction", xCorrection)
+        
+        
+        
+        
 
         yCorrection = self.yPID.calculate(Units.metersToInches(position.Y()))
         yFeedForward = self.positionKs * math.copysign(1, yCorrection)
         yVal = max(-1, min(yCorrection+yFeedForward, 1))
-        SmartDashboard.putNumber("PID_Swerve/Y Position", Units.inchesToMeters(position.Y()))
-        SmartDashboard.putNumber("PID_Swerve/Y Feed Forward", yFeedForward)
-        SmartDashboard.putNumber("PID_Swerve/Y Value", yVal)
-        SmartDashboard.putNumber("PID_Swerve/Y Correction", yCorrection)
+        
+        
+        
+        
 
         corection = self.rotationPID.calculate(rotation.degrees())
         feedForward = 0.02 * math.copysign(1, corection)

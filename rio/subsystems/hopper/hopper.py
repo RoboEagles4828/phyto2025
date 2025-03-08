@@ -44,9 +44,9 @@ class Hopper(Subsystem):
     def re_run_intake(self):
         return self.stallDebouncer.calculate(self.hopperMotor.getStatorCurrent() < 10)
     # def periodic(self):
-    #     SmartDashboard.putNumber("Hopper/Motor Speed", self.hopperMotor.getMotorOutputPercent())
+    #     
 
     def periodic(self):
+        pass
         
-        SmartDashboard.putNumber("Hopper/Motor Supply Current", self.hopperMotor.getSupplyCurrent())
-        SmartDashboard.putNumber("Hopper/Motor Stator Current", self.hopperMotor.getStatorCurrent())
+        
