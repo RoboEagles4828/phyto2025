@@ -1,0 +1,135 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "P2to5L"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Elevator to L1"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.5
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Cannon L1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "5LtoLeft_Source"
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Hopper Intake"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Load Coral to Cannon"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left_Sourceto6L"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Elevator to L1"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.5
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Cannon L1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "6LtoLeft_Source"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Elevator to L1"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.5
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Cannon L1"
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Hopper Intake"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Load Coral to Cannon"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left_Sourceto6R"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

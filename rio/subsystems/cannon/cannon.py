@@ -24,6 +24,7 @@ class Cannon(Subsystem):
         self.leftMotor.follow(self.rightMotor, FollowerType.PercentOutput)
 
         self.loaded = False
+        self.lastRan = "None"
 
     # def getBeamBreakState(self):
     #     return not(self.beamBreak.get())
@@ -35,6 +36,7 @@ class Cannon(Subsystem):
         """
         self.leftMotor.follow(self.rightMotor, FollowerType.PercentOutput)
         self.rightMotor.set(TalonSRXControlMode.PercentOutput, percentOutput)
+        self.lastRan = "Set cannon speed"
 
     def loadCoral(self):
         """
@@ -61,8 +63,9 @@ class Cannon(Subsystem):
     
     def _spinForL1(self)-> None:
         """Exists just to make the lambda in createPlaceCoralCommand easy to write and read."""
-        self.leftMotor.set(TalonSRXControlMode.PercentOutput, 0.9)
+        self.leftMotor.set(TalonSRXControlMode.PercentOutput, 0.7)
         self.rightMotor.set(TalonSRXControlMode.PercentOutput, 0.0)
+        self.lastRan = "_Spin for L1"
 
     def stop(self):
         """
@@ -93,5 +96,7 @@ class Cannon(Subsystem):
         SmartDashboard.putNumber("Cannon/rightStatorCurrent", self.rightMotor.getStatorCurrent())
         SmartDashboard.putNumber("Cannon/leftSupplyCurrent", self.leftMotor.getSupplyCurrent())
         SmartDashboard.putNumber("Cannon/rightSupplyCurrent", self.rightMotor.getSupplyCurrent())
+        SmartDashboard.putString("Cannon/lastran", self.lastRan)
+
         # SmartDashboard.putNumber("Cannon/leftMotorSensorVelocity", self.leftMotor.getSelectedSensorVelocity())
         # SmartDashboard.putNumber("Cannon/rightMotorSensorVelocity", self.rightMotor.getSelectedSensorVelocity())

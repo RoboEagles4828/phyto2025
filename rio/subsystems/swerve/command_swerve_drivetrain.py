@@ -382,7 +382,7 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
         """
         Zeros the heading of the robot
         """
-        return self.set_operator_perspective_forward(Rotation2d(self.get_state().pose.rotation().radians()))
+        return self.seed_field_centric()
     
     
     def getPose(self):
