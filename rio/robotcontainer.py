@@ -140,8 +140,8 @@ class RobotContainer:
         SmartDashboard.putData("AutoChooser",self.autoChooser)
 
     def populateCommandList(self, face: ReefFace):
-        self.alignLeftCommands[face] = SequentialCommandGroup(PID_Swerve(self.drivetrain, face.alignLeft, False))
-        self.alignRightCommands[face] = SequentialCommandGroup(PID_Swerve(self.drivetrain, face.alignRight, False))
+        self.alignLeftCommands[face] = SequentialCommandGroup(PID_Swerve(self.drivetrain, face.alignLeft, False).andThen(PID_Swerve(self.drivetrain, face.alignLeft, True)))
+        self.alignRightCommands[face] = SequentialCommandGroup(PID_Swerve(self.drivetrain, face.alignRight, False).andThen(PID_Swerve(self.drivetrain, face.alignRight, True)))
 
     def isPlaceCoralL1(self) -> bool:
         """Returns true if the elevator height is proper for an L1 placement."""
