@@ -3,48 +3,35 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.31557120503606,
-        "y": 5.056611165484866
+        "x": 7.573515229611783,
+        "y": 2.284
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.2657604107981255,
-        "y": 5.782797489749389
+        "x": 7.340078811674062,
+        "y": 2.373484293484419
       },
       "isLocked": false,
-      "linkedName": "5L"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 1.8201986055116395,
-        "y": 7.132411566296139
+        "x": 5.222473765708305,
+        "y": 2.951257321641251
       },
       "prevControl": {
-        "x": 2.0144984251927447,
-        "y": 6.972180443581247
+        "x": 5.45581517423569,
+        "y": 2.861525571037266
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "LeftSourceRight"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [
-    {
-      "name": "Cannon Stop",
-      "waypointRelativePos": 0.0,
-      "endWaypointRelativePos": null,
-      "command": null
-    },
-    {
-      "name": "Elevator to Zero",
-      "waypointRelativePos": 0.0,
-      "endWaypointRelativePos": 0.15469451600135004,
-      "command": null
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
@@ -55,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -55.0
+    "rotation": 121.24900000000001
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -119.99999999999999
+    "rotation": 135.0
   },
   "useDefaultConstraints": true
 }

@@ -42,7 +42,7 @@ class VisionSubsystem(Subsystem):
         self.photonEsimtator = PhotonPoseEstimator(kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, self.frontLeftCamera, constants.kRobotToFrontLeftCameraTransform)
         self.photonEsimtator.multiTagFallbackStrategy = PoseStrategy.LOWEST_AMBIGUITY
 
-        SmartDashboard.putData("vision/Field", self.field)
+        
 
     
     def updatePoseEstimation(self):
@@ -59,7 +59,7 @@ class VisionSubsystem(Subsystem):
         newResult = abs(latestTimestamp-self.lastEstimatedTimestamp) > 0.00001
 
         if self.updateDashboard:
-            SmartDashboard.putBoolean("Vision/ New Result", newResult)
+            pass
         
         if not newResult:
             return False
@@ -81,6 +81,6 @@ class VisionSubsystem(Subsystem):
 
         self.updatePoseEstimation()
 
-        SmartDashboard.putString("Vision/Result", str(result))
-        SmartDashboard.putBoolean("Vision/ Have Target", haveTarget)
-        SmartDashboard.putBoolean("Vision/ Have Result", result != None)
+        
+        
+        

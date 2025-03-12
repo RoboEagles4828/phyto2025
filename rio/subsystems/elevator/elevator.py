@@ -204,14 +204,14 @@ class Elevator(Subsystem):
 
     def periodic(self):
         self.set_motor_zero()
-        SmartDashboard.putNumber("Elevator/Position", self.getPosition())
-        SmartDashboard.putNumber("Elevator/Velocity", self.getVelocity())
-        SmartDashboard.putNumber("Elevator/Desired Position", self.desiredPosition)
-        SmartDashboard.putNumber("Elevator/Voltage", self.rightMotorLeader.get_motor_voltage().value)
-        SmartDashboard.putBoolean("Elevator/Bottom Limit", self.bottomLimitSwitch.get())
-        SmartDashboard.putBoolean("Elevator/Top Limit", self.topLimitSwitch.get())
+        
+        
+        
+        
+        
+        
 
-        SmartDashboard.putNumber("Elevator/Next Target", self.nextTargetPosition)
+        
 
     def acceptablyOnTargetForL1(self) -> bool:
         return (abs(self.getPosition() - self.nextTargetPosition) < 0.05)
