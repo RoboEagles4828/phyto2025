@@ -43,10 +43,3 @@ class Hopper(Subsystem):
     
     def re_run_intake(self):
         return self.stallDebouncer.calculate(self.hopperMotor.getStatorCurrent() < 10)
-    # def periodic(self):
-    #     
-
-    def periodic(self):
-        pass
-        
-        

@@ -79,4 +79,3 @@ class Cannon(Subsystem):
 
     def stopLoading(self):
         return abs(self.rightMotor.getStatorCurrent())>10
-

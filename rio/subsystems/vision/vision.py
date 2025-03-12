@@ -57,9 +57,6 @@ class VisionSubsystem(Subsystem):
 
         latestTimestamp = visionEstimate.timestampSeconds
         newResult = abs(latestTimestamp-self.lastEstimatedTimestamp) > 0.00001
-
-        if self.updateDashboard:
-            pass
         
         if not newResult:
             return False

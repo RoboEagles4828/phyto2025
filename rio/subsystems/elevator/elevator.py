@@ -204,14 +204,6 @@ class Elevator(Subsystem):
 
     def periodic(self):
         self.set_motor_zero()
-        
-        
-        
-        
-        
-        
-
-        
 
     def acceptablyOnTargetForL1(self) -> bool:
         return (abs(self.getPosition() - self.nextTargetPosition) < 0.05)

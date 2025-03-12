@@ -42,8 +42,6 @@ class PID_Swerve(Command):
         self.targetPose = targetPose
         self.presice = presice
 
-        
-
         self.xPID = PIDController(0.005, 0.0, 0.0)
         self.yPID = PIDController(0.005, 0.0, 0.0)
         self.rotationPID = PIDController(0.003, 0.0, 0.0)
@@ -72,8 +70,6 @@ class PID_Swerve(Command):
         self.yPID.reset()
         self.rotationPID.reset()
 
-        
-    
     def execute(self):
         self.__init__(self.s_Swerve, self.targetPose, self.presice)
         
@@ -86,17 +82,9 @@ class PID_Swerve(Command):
         xFeedForward = self.positionKs * math.copysign(1, xCorrection)
         xVal = max(-1, min(xCorrection+xFeedForward, 1))
         
-        
-        
-        
-
         yCorrection = self.yPID.calculate(Units.metersToInches(position.Y()))
         yFeedForward = self.positionKs * math.copysign(1, yCorrection)
         yVal = max(-1, min(yCorrection+yFeedForward, 1))
-        
-        
-        
-        
 
         corection = self.rotationPID.calculate(rotation.degrees())
         feedForward = 0.02 * math.copysign(1, corection)
@@ -105,5 +93,4 @@ class PID_Swerve(Command):
         self.s_Swerve.drive(Translation2d(xVal, yVal).__mul__(2), rotationVal*PID_Swerve.maxAngularVelociy, True)
 
     def isFinished(self):
-
         return self.xPID.atSetpoint() and self.yPID.atSetpoint() and self.rotationPID.atSetpoint()
