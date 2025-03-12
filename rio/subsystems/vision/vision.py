@@ -12,6 +12,7 @@ from phoenix6.utils import fpga_to_current_time
 from robotpy_apriltag import AprilTagFieldLayout, AprilTagField
 from wpilib import SmartDashboard
 from wpilib import RobotBase, Timer, Field2d
+from wpimath import units
 from wpimath.geometry import (
     Transform3d,
     Pose3d,
@@ -39,38 +40,61 @@ class VisionSubsystem(Subsystem):
         self.field = Field2d()
         kTagLayout = AprilTagFieldLayout.loadField(AprilTagField.k2025ReefscapeAndyMark)
 
-        self.photonEsimtator = PhotonPoseEstimator(kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, self.frontLeftCamera, constants.kRobotToFrontLeftCameraTransform)
-        self.photonEsimtator.multiTagFallbackStrategy = PoseStrategy.LOWEST_AMBIGUITY
+        self.photonEstimator = PhotonPoseEstimator(kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, self.frontLeftCamera, constants.kRobotToFrontLeftCameraTransform)
+        self.photonEstimator.multiTagFallbackStrategy = PoseStrategy.LOWEST_AMBIGUITY
 
         
 
     
+    # def updatePoseEstimation(self):
+    #     result = self.frontLeftCamera.getAllUnreadResults()
+    #     optVisionEstimate = self.photonEsimtator.update(result)
+        
+
+    #     if optVisionEstimate==None:
+    #         return False
+    #     else:
+    #         visionEstimate = optVisionEstimate
+
+    #     latestTimestamp = visionEstimate.timestampSeconds
+    #     newResult = abs(latestTimestamp-self.lastEstimatedTimestamp) > 0.00001
+
+    #     if self.updateDashboard:
+    #         pass
+        
+    #     if not newResult:
+    #         return False
+        
+    #     self.lastEstimatedTimestamp = latestTimestamp
+    #     self.lastPose = visionEstimate.estimatedPose.toPose2d()
+    #     self.field.setRobotPose(self.lastPose)
+
+    #     if self.swerve.get_state().pose != None:
+    #         self.swerve.add_vision_measurement(self.lastPose, fpga_to_current_time(latestTimestamp))
+    #     return True
+
     def updatePoseEstimation(self):
-        result = self.frontLeftCamera.getLatestResult()
-        optVisionEstimate = self.photonEsimtator.update(result)
-        
+        listofResults = self.frontLeftCamera.getAllUnreadResults()
+        newResult = not(listofResults)
+        updated = False
 
-        if optVisionEstimate==None:
-            return False
-        else:
-            visionEstimate = optVisionEstimate
 
-        latestTimestamp = visionEstimate.timestampSeconds
-        newResult = abs(latestTimestamp-self.lastEstimatedTimestamp) > 0.00001
+        for result in listofResults:
+            lastResult = result
 
-        if self.updateDashboard:
-            pass
-        
-        if not newResult:
-            return False
-        
-        self.lastEstimatedTimestamp = latestTimestamp
-        self.lastPose = visionEstimate.estimatedPose.toPose2d()
-        self.field.setRobotPose(self.lastPose)
+            optRobotPose = self.photonEstimator.update(lastResult)
 
-        if self.swerve.get_state().pose != None:
-            self.swerve.add_vision_measurement(self.lastPose, fpga_to_current_time(latestTimestamp))
-        return True
+            if optRobotPose == None:
+                continue
+
+            lastRobotPose = optRobotPose.estimatedPose.toPose2d()
+            self.field.setRobotPose(lastRobotPose)
+
+            if self.swerve.get_state().pose!= None and (lastRobotPose.X()-self.swerve.get_state().pose.X())<1.0 and (lastRobotPose.Y()-self.swerve.get_state().pose.X())<1.0:
+                self.swerve.add_vision_measurement(lastRobotPose, fpga_to_current_time(optRobotPose.timestampSeconds), (0.03, 0.03, units.degreesToRadians(40)))
+                updated = True
+        return updated
+
     
     def getLastPose(self):
         return self.lastPose

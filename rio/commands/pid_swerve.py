@@ -14,6 +14,8 @@ from subsystems.pose.pose import Pose
 from subsystems.swerve.tuner_constants import TunerConstants
 
 import math
+from pathplannerlib.util import FlippingUtil
+from wpilib import SmartDashboard
 
 
 class PID_Swerve(Command):
@@ -42,13 +44,14 @@ class PID_Swerve(Command):
         super().__init__()
         self.s_Swerve = swerve
         self.targetPose = targetPose
+        print(self.targetPose)
         self.presice = presice
 
         
 
         self.xPID = PIDController(PID_Swerve.presiceKP if self.presice else PID_Swerve.roughKP, 0.0, 0.0)
         self.yPID = PIDController(PID_Swerve.presiceKP if self.presice else PID_Swerve.roughKP, 0.0, 0.0)
-        self.rotationPID = PIDController(0.002, 0.0, 0.0)
+        self.rotationPID = PIDController(0.004, 0.0, 0.0)
 
         self.xPID.setIZone(PID_Swerve.positionIZone)
         self.xPID.setIntegratorRange(-PID_Swerve.positionKs * 2, PID_Swerve.positionKs * 2)
@@ -77,11 +80,11 @@ class PID_Swerve(Command):
         
     
     def execute(self):
-        self.__init__(self.s_Swerve, self.targetPose, self.presice)
+        # self.__init__(self.s_Swerve, self.targetPose, self.presice)
         
         pose: Pose2d = self.s_Swerve.get_state().pose
-        # 
         position: Translation2d = pose.translation()
+        print(self.targetPose)
         rotation: Rotation2d = pose.rotation()
 
         xCorrection = self.xPID.calculate(Units.metersToInches(position.X()))
