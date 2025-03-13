@@ -85,13 +85,14 @@ class VisionSubsystem(Subsystem):
             optRobotPose = self.photonEstimator.update(lastResult)
 
             if optRobotPose == None:
+                print("ignoring")
                 continue
 
             lastRobotPose = optRobotPose.estimatedPose.toPose2d()
             self.field.setRobotPose(lastRobotPose)
 
-            if self.swerve.get_state().pose!= None and (lastRobotPose.X()-self.swerve.get_state().pose.X())<1.0 and (lastRobotPose.Y()-self.swerve.get_state().pose.X())<1.0:
-                self.swerve.add_vision_measurement(lastRobotPose, fpga_to_current_time(optRobotPose.timestampSeconds), (0.03, 0.03, units.degreesToRadians(40)))
+            if self.swerve.get_state().pose!= None:
+                self.swerve.add_vision_measurement(lastRobotPose, fpga_to_current_time(optRobotPose.timestampSeconds))
                 updated = True
         return updated
 
