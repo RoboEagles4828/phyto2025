@@ -1,8 +1,11 @@
 from phoenix5 import SupplyCurrentLimitConfiguration
 class AlgaeConstants:
-    wheelMotorID = 23 # put in actual thing
-    pivotMotorID = 23
+    kWheelMotorID = 23 # put in actual thing
+    kPivotMotorID = 23
     
+    kBottomLimitSwitch = 0 # put in actual thing
+    kTopLimitSwitch = 1
+
     current_limit = 30
     current_threshold= 50
     current_threshold_time= 3.0
