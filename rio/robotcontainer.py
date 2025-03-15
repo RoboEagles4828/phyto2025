@@ -32,6 +32,7 @@ from subsystems.elevator.elevator import Elevator
 from subsystems.cannon.cannon import Cannon
 from subsystems.hopper.hopper import Hopper
 from subsystems.vision.vision  import VisionSubsystem
+from subsystems.algaemanipulator.algaemanipulator import AlgaeManipulator
 
 from general_constants.field_constants import ReefFace
 from subsystems.pose.pose import Pose
@@ -113,6 +114,7 @@ class RobotContainer:
         self.cannon = Cannon()
         self.vision = VisionSubsystem(self.drivetrain)
         self.pose = Pose(self.drivetrain)
+        self.algaemanipulator = AlgaeManipulator()
 
         self.alignLeftCommands: dict[ReefFace, Command] = {}
         self.alignRightCommands: dict[ReefFace, Command] = {}
