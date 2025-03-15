@@ -18,7 +18,7 @@ from wpimath.geometry import (
     Pose3d,
     Pose2d,
     Rotation2d,
-    Translation3d,
+    Translation2d,
     Transform2d,
     Rotation3d,
 )
@@ -91,9 +91,13 @@ class VisionSubsystem(Subsystem):
             lastRobotPose = optRobotPose.estimatedPose.toPose2d()
             self.field.setRobotPose(lastRobotPose)
 
-            if self.swerve.get_state().pose!= None:
-                self.swerve.add_vision_measurement(lastRobotPose, fpga_to_current_time(optRobotPose.timestampSeconds))
-                updated = True
+            currentPose: Pose2d = self.swerve.get_state().pose
+            if currentPose != None:
+                currentTranslation: Translation2d = currentPose.translation
+                distance: units.meters = currentTranslation.distance(lastRobotPose.translation)
+                if (distance < 1.0):
+                    self.swerve.add_vision_measurement(lastRobotPose, fpga_to_current_time(optRobotPose.timestampSeconds))
+                    updated = True
         return updated
 
     

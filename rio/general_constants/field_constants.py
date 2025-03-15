@@ -29,13 +29,13 @@ class FieldConstants:
  
     bumperWidth = Units.inchesToMeters(3)
     reefStandOff = Units.inchesToMeters(0.0)
-    reefOffSet = Units.inchesToMeters(28 / 2.0 + bumperWidth + reefStandOff)
+    reefOffSet = Units.inchesToMeters(28 / 2.0) + bumperWidth + reefStandOff
     reefExtraOffSet = Units.inchesToMeters(4.0)
 
-    fieldWidth = Units.inchesToMeters(26*12+5)
+    fieldWidth = Units.inchesToMeters(26*12+3)
     reefCenter = Translation2d(Units.inchesToMeters(176.75), fieldWidth/2)
     reefToFaceDistance = reefCenter.X() - Units.inchesToMeters(144.0)
-    branchSeperation = Units.inchesToMeters(12.0 + 15.0 / 16.0)
+    branchSeperation = Units.inchesToMeters(12.94)
     centerOffset = Translation2d(reefToFaceDistance + reefOffSet, 0.0)
     leftOffset = Translation2d(reefToFaceDistance + reefOffSet, - branchSeperation/2.0)
     rightOffset = Translation2d(reefToFaceDistance + reefOffSet, branchSeperation/2.0)
