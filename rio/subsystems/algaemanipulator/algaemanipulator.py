@@ -25,20 +25,25 @@ class AlgaeManipulator(Subsystem):
 
     def intake(self) -> Command:
         """spin wheel motor"""
-        return self.run(lambda: self.setSpeed(self.wheelMotor, 1.0))
+        return self.run(lambda: self.setSpeed(self.wheelMotor, 0.25))
     
+    """
+    def hold(self) -> Command:
+        return self.run(lambda: self.setSpeed(self.wheelMotor, 0.1))"
+    """
+    
+    def outtake(self) -> Command:
+        return self.run(lambda: self.setSpeed(self.wheelMotor, -0.2))
+
     def pivotPosition(self, pos : bool) -> ConditionalCommand: # down = false, up = true
         return ConditionalCommand(
-            self.run(lambda: self.setSpeed(self.pivotMotor(0.5))), # ontrue
-            self.run(lambda: self.setSpeed(self.pivotMotor(-0.5))), # onfalse
+            self.run(lambda: self.setSpeed(self.pivotMotor(1.0))), # ontrue
+            self.run(lambda: self.setSpeed(self.pivotMotor(-1.0))), # onfalse
             pos #bool
             )
     
-    def outtake(self) -> Command:
-        return self.run(lambda: self.setSpeed(self.wheelMotor, -1.0))
-
     def pivotStall(self):
-        return self.stallDebouncer.calculate(self.pivotMotor.getStatorCurrent() < 10)
+        return self.stallDebouncer.calculate(abs(self.pivotMotor.getStatorCurrent()) > 10)
 
     def periodic(self):
         if self.pivotStall() == True:

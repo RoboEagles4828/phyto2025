@@ -182,6 +182,7 @@ class RobotContainer:
         self.hopper.setDefaultCommand(self.hopper.stop())
         self.cannon.setDefaultCommand(self.cannon.stop())
         self.elevator.setDefaultCommand(self.elevator.stop())
+        self.algaemanipulator.setDefaultCommand(self.algaemanipulator.stop())
 
         # self._joystick.a().whileTrue(self.drivetrain.apply_request(lambda: self._brake))
         # self._joystick.b().whileTrue(
@@ -200,6 +201,8 @@ class RobotContainer:
         self._operator_joystick.rightTrigger().whileTrue(self.elevator.move_up_gradually())
         self._operator_joystick.leftTrigger().whileTrue(self.elevator.move_down_gradually())
         self._operator_joystick.povDown().whileTrue(self.elevator.move_to_zero())
+        self._operator_joystick.povLeft().whileTrue(self.algaemanipulator.run(lambda: self.algaemanipulator.intake()))
+        self._operator_joystick.povRight().whileTrue(self.algaemanipulator.run(lambda: self.algaemanipulator.outtake()))
 
         # driver buttons
         self._joystick.leftTrigger().whileTrue(self.cannon.loadCoral().deadlineFor(self.hopper.intake()))
