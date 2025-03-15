@@ -7,4 +7,4 @@ class LED(Subsystem):
 
     def green(self):
         self.spark.set(0.75)
-        
+        print("Accessed Green Method")        

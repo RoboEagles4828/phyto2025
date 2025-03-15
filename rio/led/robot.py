@@ -6,6 +6,8 @@ from wpilib import XboxController
 from wpilib.shuffleboard import ShuffleboardTab
 from wpilib import DriverStation
 from led2 import LED
+from commands2 import Subsystem
+from wpilib import Spark
 
 
 class Robot(TimedRobot):
@@ -37,9 +39,11 @@ class Robot(TimedRobot):
 		"""
 		# listen to joystick 
 
+		self.spark = Spark(9)
+		
 		if self.joystick.getAButtonPressed():
-			print("Red is Redding")
-			self.led.green()
+			print("Red is Greening")
+			self.spark.set(0.75)
 
 		# elif self.joystick.getXButtonPressed():
 		# 	print("Yellow is Yellowing")
