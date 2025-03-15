@@ -5,7 +5,6 @@ from wpimath.geometry import Rotation2d
 from wpilib import XboxController
 from wpilib.shuffleboard import ShuffleboardTab
 from wpilib import DriverStation
-from led2 import LED
 from commands2 import Subsystem
 from wpilib import Spark
 
@@ -13,7 +12,6 @@ from wpilib import Spark
 class Robot(TimedRobot):
 	m_autonomousCommand: Command = None
 
-	led : LED
 	joystick : XboxController
 	# joystick here too
 
@@ -21,11 +19,11 @@ class Robot(TimedRobot):
 		""" Instantiate our `RobotContainer`.  
 		This will perform all button bindings and put the auton chooser on the dashboard
 		"""
-		# wpilib.CameraServer.launch()
-		self.led = LED()
+		# wpilib.CameraServer.launch()r
 
 		# Create a joystick XboxController
 		self.joystick = XboxController(0)
+		self.spark = Spark(9)
 	
 
 		CommandScheduler.getInstance().setPeriod(0.02)
@@ -39,9 +37,10 @@ class Robot(TimedRobot):
 		"""
 		# listen to joystick 
 
-		self.spark = Spark(9)
-		
-		if self.joystick.getAButtonPressed():
+		self.spark.set(0.63)
+		print(self.spark.get())
+
+		if self.joystick.getAButton():
 			print("Red is Greening")
 			self.spark.set(0.75)
 
