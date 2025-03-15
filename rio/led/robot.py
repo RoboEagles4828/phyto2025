@@ -5,7 +5,7 @@ from wpimath.geometry import Rotation2d
 from wpilib import XboxController
 from wpilib.shuffleboard import ShuffleboardTab
 from wpilib import DriverStation
-from led import LED
+from led2 import LED
 
 
 class Robot(TimedRobot):
@@ -39,19 +39,19 @@ class Robot(TimedRobot):
 
 		if self.joystick.getAButtonPressed():
 			print("Red is Redding")
-			self.led.red()
-
-		elif self.joystick.getXButtonPressed():
-			print("Yellow is Yellowing")
-			self.led.yellow()
-
-		elif self.joystick.getBButtonPressed():
-			print("Green is Greening")
 			self.led.green()
 
-		elif self.joystick.getYButtonPressed():
-			print("Teal is Tealing")
-			self.led.teal()
+		# elif self.joystick.getXButtonPressed():
+		# 	print("Yellow is Yellowing")
+		# 	self.led.yellow()
+
+		# elif self.joystick.getBButtonPressed():
+		# 	print("Green is Greening")
+		# 	self.led.green()
+
+		# elif self.joystick.getYButtonPressed():
+		# 	print("Teal is Tealing")
+		# 	self.led.teal()
 
 	CommandScheduler.getInstance().run()
 
