@@ -93,7 +93,6 @@ class PID_Swerve(Command):
         
         
         
-        
 
         yCorrection = self.yPID.calculate(Units.metersToInches(position.Y()))
         yFeedForward = self.positionKs * math.copysign(1, yCorrection)
@@ -107,8 +106,13 @@ class PID_Swerve(Command):
         feedForward = 0.02 * math.copysign(1, corection)
         rotationVal = max(-1.0, min(corection+feedForward, 1.0))
 
-        self.s_Swerve.drive(Translation2d(xVal, yVal).__mul__(3), rotationVal*PID_Swerve.maxAngularVelociy, True)
+        self.s_Swerve.drive(Translation2d(xVal, yVal).__mul__(1.3), rotationVal*PID_Swerve.maxAngularVelociy, True)
+
+        SmartDashboard.putString("Auto Align/ Current Pose", str(position))
+        SmartDashboard.putString("Auto Align/ Target Pose", str(self.targetPose))
 
     def isFinished(self):
 
-        return self.xPID.atSetpoint() and self.yPID.atSetpoint() and self.rotationPID.atSetpoint()
+        finished = self.xPID.atSetpoint() and self.yPID.atSetpoint() and self.rotationPID.atSetpoint()
+        SmartDashboard.putBoolean("Auto Align/ isFinished", finished)
+        return finished

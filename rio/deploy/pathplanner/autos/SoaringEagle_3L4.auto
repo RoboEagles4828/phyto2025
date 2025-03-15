@@ -5,45 +5,83 @@
     "data": {
       "commands": [
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "Hopper Intake"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "P2to5L"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Elevator Stop"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Cannon L1"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "5LtoLeft_Source"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Left_Sourceto6L"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "6LtoLeft_Source"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Hopper Intake"
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "P2to5L"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Elevator to L4"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Cannon L1"
+                      }
+                    },
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "5LtoLeft_Source"
+                      }
+                    },
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 1.0
+                      }
+                    },
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "Left_Sourceto6L"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Cannon Stop"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Elevator to L4"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Cannon L1"
+                      }
+                    },
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "6LtoLeft_Source"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
           }
         },
         {

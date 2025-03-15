@@ -209,7 +209,7 @@ class Vision_Constants:
             10 * kMetersPerInch,
             10 * kMetersPerInch,
             8.25 * kMetersPerInch,
-            Rotation3d(0.0, -10 * kRadiansPerDegree, 0.0)
+            Rotation3d(0.0, -4.125 * kRadiansPerDegree, 0.0)
             ),
         )
         

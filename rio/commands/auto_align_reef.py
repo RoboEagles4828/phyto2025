@@ -10,6 +10,7 @@ from wpimath.geometry import Pose2d, Translation2d, Rotation2d
 from wpimath.trajectory import TrapezoidProfile
 from wpimath.controller import ProfiledPIDController
 from wpimath import units
+from wpilib import SmartDashboard
 
 import math
 
@@ -26,8 +27,8 @@ class AutoAlignReef(Command):
 
         self.drive = requests.FieldCentric().with_drive_request_type(requests.SwerveModule.DriveRequestType.OPEN_LOOP_VOLTAGE)
 
-        self.translationController = ProfiledPIDController(5, 0.0, 0.0, TrapezoidProfile.Constraints(5.0, 3.0))
-        self.rotationController = ProfiledPIDController(7.5, 0.0, 0.0, TrapezoidProfile.Constraints(5.0, 3.0))
+        self.translationController = ProfiledPIDController(6.0, 0.0, 0.0, TrapezoidProfile.Constraints(4.0, 5.0))
+        self.rotationController = ProfiledPIDController(7.5, 0.0, 0.0, TrapezoidProfile.Constraints(7.0, 3.0))
 
         #declare tolerance
         self.translationController.setTolerance(units.inchesToMeters(1.0))
@@ -59,19 +60,26 @@ class AutoAlignReef(Command):
         scalar = self.scalar(self.distance)
 
         self.drivePIDOutput = self.translationController.calculate(self.distance, 0)
-        self.driveSpeed =   -1 * scalar * self.translationController.getSetpoint().velocity + self.drivePIDOutput
+        self.driveSpeed =   1 * scalar * self.translationController.getSetpoint().velocity + self.drivePIDOutput
         self.direction = Rotation2d(self.currentPose.X()-self.targetPose.X(), self.currentPose.Y()-self.targetPose.Y())
 
 
         self.s_Swerve.set_control(self.drive.with_velocity_x(self.driveSpeed*self.direction.cos()).with_velocity_y(self.driveSpeed*self.direction.sin()).with_rotational_rate(self.omega))
 
+
+
         print(str(self.translationController.getGoal()))
         print("Distance" + str(self.distance))
+        SmartDashboard.putString("Auto Align/ Current Pose", str(self.position))
+        SmartDashboard.putString("Auto Align/ Target Pose", str(self.targetPose))
+
 
 
     def isFinished(self):
+        finished = self.translationController.atGoal() and self.rotationController.atGoal() or self.distance <= 0.02
 
-        return self.translationController.atGoal() and self.rotationController.atGoal()
+        SmartDashboard.putBoolean("Auto Align/ Finished", finished)
+        return finished
 
 
 

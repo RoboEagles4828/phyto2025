@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.2657604107981255,
-        "y": 5.782797489749389
+        "x": 4.330326009441067,
+        "y": 5.941831167324169
       },
       "isLocked": false,
       "linkedName": "5L"
@@ -28,20 +28,19 @@
       "linkedName": "LeftSourceRight"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.5622992264597044,
+      "rotationDegrees": -54.02581973553779
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "Cannon Stop",
-      "waypointRelativePos": 0.0,
-      "endWaypointRelativePos": null,
-      "command": null
-    },
-    {
       "name": "Elevator to Zero",
       "waypointRelativePos": 0.0,
-      "endWaypointRelativePos": 0.15469451600135004,
+      "endWaypointRelativePos": 0.6040363501868773,
       "command": null
     }
   ],
