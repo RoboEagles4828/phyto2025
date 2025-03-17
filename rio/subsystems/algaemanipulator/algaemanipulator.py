@@ -72,11 +72,11 @@ class AlgaeManipulator(Subsystem):
         return self.wheelStallDebouncer.calculate(abs(self.wheelMotor.getStatorCurrent()) > 10) # test to figure out current number
     
     def periodic(self):
-        SmartDashboard.putData("pivotStall?", self.pivotStall())
+        SmartDashboard.putData("pivotStall", self.pivotStall())
         SmartDashboard.putData("pivot stator current", self.pivotMotor.getStatorCurrent())
-        SmartDashboard.putData("Pivot Outout Percent", self.pivotMotor.getMotorOutputPercent())
-        
-        SmartDashboard.putData("wheelStall?", self.wheelStall())
+        SmartDashboard.putData("Pivot Output Percent", self.pivotMotor.getMotorOutputPercent())
+
+        SmartDashboard.putData("wheelStall", self.wheelStall())
         SmartDashboard.putData("wheel stator current", self.wheelMotor.getStatorCurrent())
         SmartDashboard.putData("Wheel Output Percent", self.wheelMotor.getMotorOutputPercent())
         pass
