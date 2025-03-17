@@ -32,6 +32,7 @@ from subsystems.elevator.elevator import Elevator
 from subsystems.cannon.cannon import Cannon
 from subsystems.hopper.hopper import Hopper
 from subsystems.vision.vision  import VisionSubsystem
+from subsystems.led.led import LED
 
 from general_constants.field_constants import ReefFace
 from subsystems.pose.pose import Pose
@@ -109,6 +110,7 @@ class RobotContainer:
 
         self.drivetrain = TunerConstants.create_drivetrain()
         self.elevator = Elevator()
+        self.led = LED()
         self.hopper = Hopper()
         self.cannon = Cannon()
         self.vision = VisionSubsystem(self.drivetrain)
