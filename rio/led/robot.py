@@ -37,10 +37,10 @@ class Robot(TimedRobot):
 		"""
 		# listen to joystick 
 
-		self.spark.set(0.63)
+		self.spark.set(0.75)
 		print(self.spark.get())
 
-		if self.joystick.getAButton():
+		if self.joystick.getAButtonPressed():
 			print("Red is Greening")
 			self.spark.set(0.75)
 
