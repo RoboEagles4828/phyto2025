@@ -1,4 +1,14 @@
 
+
+
+
+
+"""outtake not committed"""
+"""outtake needs to be called properly in robotcontainer (give option for up or down)"""
+"""sequences to be completed"""
+
+
+
 from commands2 import Command, ConditionalCommand, Subsystem, InstantCommand
 from phoenix5 import TalonSRX, TalonSRXControlMode, LimitSwitchSource, LimitSwitchNormal
 #from elevator.elevator import Elevator
@@ -47,8 +57,11 @@ class AlgaeManipulator(Subsystem):
         return self.run(lambda: self.setSpeed(self.wheelMotor, 0.1))"
     """
     
-    def outtake(self) -> Command:
-        return self.run(lambda: self.setSpeed(self.wheelMotor, -0.2))
+    def outtake(self, mode : bool = None) -> Command: # down = false/none, up = true
+        if mode is not None:
+            return self.pivotPosition(mode).andThen(lambda: self.setSpeed(self.wheelMotor, -0.2))
+        else:
+            return self.pivotPosition(False).andThen(lambda: self.setSpeed(self.wheelMotor, -0.2))
 
     def pivotPosition(self, pos : bool) -> ConditionalCommand: # down = false, up = true
         return ConditionalCommand(
