@@ -4,7 +4,6 @@
 
 from commands2 import Command, ConditionalCommand, Subsystem, InstantCommand
 from phoenix5 import TalonSRX, TalonSRXControlMode, LimitSwitchSource, LimitSwitchNormal
-#from elevator.elevator import Elevator
 from wpimath.filter import Debouncer
 from wpilib import DigitalInput
 from algaemanipulator_constants import AlgaeConstants
@@ -12,8 +11,8 @@ from algaemanipulator_constants import AlgaeConstants
 class AlgaeManipulator(Subsystem):
 
     def __init__(self):
-        self.wheelMotor = TalonSRX(AlgaeConstants.wheelMotorID)
-        self.pivotMotor = TalonSRX(AlgaeConstants.pivotMotorID)
+        self.wheelMotor = TalonSRX(AlgaeConstants.kWheelMotorID)
+        self.pivotMotor = TalonSRX(AlgaeConstants.kPivotMotorID)
         self.pivotMotor.configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen)
         self.pivotMotor.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen)
 
@@ -50,11 +49,8 @@ class AlgaeManipulator(Subsystem):
         return self.run(lambda: self.setSpeed(self.wheelMotor, 0.1))"
     """
     
-    def outtake(self, mode : bool = None) -> Command: # down = false/none, up = true
-        if mode is not None:
-            return self.pivotPosition(mode).andThen(lambda: self.setSpeed(self.wheelMotor, -0.2))
-        else:
-            return self.pivotPosition(False).andThen(lambda: self.setSpeed(self.wheelMotor, -0.2))
+    def outtake(self) -> Command: # down = false/none, up = true
+        return self.pivotPosition(False).andThen(lambda: self.setSpeed(self.wheelMotor, -0.2))
 
     def pivotPosition(self, pos : bool) -> ConditionalCommand: # down = false, up = true
         return ConditionalCommand(
@@ -68,8 +64,3 @@ class AlgaeManipulator(Subsystem):
 
     def wheelStall(self):
         return self.stallDebouncer.calculate(abs(self.wheelMotor.getStatorCurrent()) > 10) # test to figure out current number
-    
-    def periodic(self):
-
-        pass
-        
