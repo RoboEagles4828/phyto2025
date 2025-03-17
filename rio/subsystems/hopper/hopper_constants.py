@@ -5,8 +5,8 @@ class ConstantsHopper:
     beamBreakID = 0 # TODO find out what this really is
 
     # TODO: Run tests to find appropriate values for these
-    current_limit = 30
-    current_threshold= 50
+    current_limit = 120
+    current_threshold= 100
     current_threshold_time= 3.0
 
     supply_config = SupplyCurrentLimitConfiguration(True, current_limit, current_threshold, current_threshold_time)

@@ -13,6 +13,9 @@ from commands2.command import Command
 from commands2.conditionalcommand import ConditionalCommand
 from commands2.sequentialcommandgroup import SequentialCommandGroup
 from commands2.selectcommand import SelectCommand
+from commands2.button import CommandXboxController
+from commands2.waitcommand import WaitCommand
+from wpilib import XboxController
 
 from commands.pid_swerve import PID_Swerve
 from commands.auto_align_reef import AutoAlignReef
@@ -33,6 +36,7 @@ from subsystems.elevator.elevator import Elevator
 from subsystems.cannon.cannon import Cannon
 from subsystems.hopper.hopper import Hopper
 from subsystems.vision.vision  import VisionSubsystem
+from subsystems.robotstate.robotstate import RobotState
 
 from general_constants.field_constants import ReefFace
 from subsystems.pose.pose import Pose
@@ -125,13 +129,13 @@ class RobotContainer:
         
         NamedCommands.registerCommand("Elevator to L1", self.elevator.move_to_position(self.elevatorL1, 0).withTimeout(3.0))
         NamedCommands.registerCommand("Elevator to L4", self.elevator.move_to_position(3.9, 1).withTimeout(3.0))
-        NamedCommands.registerCommand("Elevator to Zero", self.elevator.move_to_zero())
+        NamedCommands.registerCommand("Elevator to Zero", self.elevator.move_to_zero().withTimeout(2.0))
         NamedCommands.registerCommand("Hopper Intake", self.hopper.intake())
         NamedCommands.registerCommand("Cannon L1", self.cannon.createPlaceCoralCommand(self.isPlaceCoralL1).withTimeout(1.0))
         NamedCommands.registerCommand("Cannon Placement", self.cannon.createPlaceCoralCommand(self.isPlaceCoralL1).withTimeout(1.0))
         NamedCommands.registerCommand("Load Coral to Cannon", self.cannon.loadCoral())
         NamedCommands.registerCommand("Elevator Stop", self.elevator.stop())
-        NamedCommands.registerCommand("Cannon Stop", self.cannon.stop())
+        NamedCommands.registerCommand("Cannon Stop", self.cannon.stop().withTimeout(2.0))
 
         # Configure the button bindings
 
@@ -143,7 +147,7 @@ class RobotContainer:
         SmartDashboard.putData("AutoChooser",self.autoChooser)
 
     def populateCommandList(self, face: ReefFace):
-        self.alignLeftCommands[face] = SequentialCommandGroup(PID_Swerve(self.drivetrain, face.alignLeft, True)).withTimeout(4.0)
+        self.alignLeftCommands[face] = SequentialCommandGroup(PID_Swerve(self.drivetrain, face.alignLeftApproach, False).andThen(PID_Swerve(self.drivetrain, face.alignLeft, True))).withTimeout(4.0)
         self.alignRightCommands[face] = SequentialCommandGroup(PID_Swerve(self.drivetrain, face.alignRightApproach, False).andThen(PID_Swerve(self.drivetrain, face.alignRight, True))).withTimeout(5.0)
 
     def isPlaceCoralL1(self) -> bool:
@@ -203,7 +207,7 @@ class RobotContainer:
         self._operator_joystick.povDown().whileTrue(self.elevator.move_to_zero())
 
         # driver buttons
-        self._joystick.leftTrigger().whileTrue(self.cannon.loadCoral().deadlineFor(self.hopper.intake()))
+        self._joystick.leftTrigger().whileTrue(self.cannon.loadCoral().deadlineFor(self.hopper.intake()).andThen(InstantCommand(lambda: self._joystick.getHID().setRumble(XboxController.RumbleType.kBothRumble, 1.0))).andThen(WaitCommand(0.5)).andThen(InstantCommand(self._joystick.setRumble(XboxController.RumbleType.kBothRumble, 0))))
         self._joystick.back().onTrue(self.drivetrain.runOnce(lambda: self.drivetrain.zeroHeading()))
         self._joystick.rightTrigger().whileTrue(self.elevator.move_to_position_execute())
         self._joystick.leftBumper().whileTrue(self.cannon.createPlaceCoralCommand(self.isPlaceCoralL1))

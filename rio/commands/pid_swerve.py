@@ -12,6 +12,7 @@ from subsystems.swerve.command_swerve_drivetrain import CommandSwerveDrivetrain
 from subsystems.pose.pose import Pose
 
 from subsystems.swerve.tuner_constants import TunerConstants
+from subsystems.robotstate.robotstate import RobotState
 
 import math
 from pathplannerlib.util import FlippingUtil
@@ -27,7 +28,7 @@ class PID_Swerve(Command):
     # xPID: PIDController = PIDController(0.02, 0.0, 0.0)
     # yPID: PIDController = PIDController(0.02, 0.0, 0.0)
     
-    presiceKP = 0.03
+    presiceKP = 0.05
     roughKP = 0.04
     positionTolerance = 1.0
     roughPositionTolerance = 2.5
@@ -86,6 +87,7 @@ class PID_Swerve(Command):
         position: Translation2d = pose.translation()
         print(self.targetPose)
         rotation: Rotation2d = pose.rotation()
+        RobotState.setAutoAligning(True)
 
         xCorrection = self.xPID.calculate(Units.metersToInches(position.X()))
         xFeedForward = self.positionKs * math.copysign(1, xCorrection)
@@ -115,4 +117,6 @@ class PID_Swerve(Command):
 
         finished = self.xPID.atSetpoint() and self.yPID.atSetpoint() and self.rotationPID.atSetpoint()
         SmartDashboard.putBoolean("Auto Align/ isFinished", finished)
+        if finished:
+            RobotState.setAutoAligning(False)
         return finished

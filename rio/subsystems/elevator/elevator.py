@@ -22,6 +22,8 @@ from wpilib.sysid import SysIdRoutineLog
 
 from subsystems.elevator.elevator_constants import Elevator_Constants
 
+from subsystems.robotstate.robotstate import RobotState
+
 
 class Elevator(Subsystem):
 
@@ -117,7 +119,7 @@ class Elevator(Subsystem):
             lambda: self.setTargetRotation(self.nextTargetPosition),
             lambda: self.rightMotorLeader.set_control(
                 self.request.with_position(self.nextTargetPosition).with_slot(self.levelingSlot).with_limit_forward_motion(not(self.topLimitSwitch.get())).with_limit_reverse_motion(self.bottomLimitSwitch.get())
-            ))
+            )).andThen(self.runOnce(lambda: RobotState.setIsReady(True)))
         # return ConditionalCommand(
         #     self.startRun(
         #     lambda: self.setTargetRotation(self.nextTargetPosition),
@@ -138,7 +140,7 @@ class Elevator(Subsystem):
             lambda: self.rightMotorLeader.set_control(
                 self.dutyCycle.with_output(-.5).with_limit_reverse_motion(self.bottomLimitSwitch.get())
             )
-        )
+        ).andThen(self.runOnce(lambda: RobotState.setIsZeroed(True)))
 
 
     def move_to_position(self, position : float, slot: int = 0) -> Command:
@@ -155,14 +157,10 @@ class Elevator(Subsystem):
     
     def stop(self) -> Command:
         """
-        Returns a new command to remove power from motors. Elevator should drift downward.
-        Designed for a button click or part of a command group. Also good for the release
-        of the button used with manual motion.
+        Simply stops the motor. The motor will default to NeutralOut which should be in breakMode.
         """
-        return self.runOnce(
-            lambda: self.rightMotorLeader.set_control(
-                DutyCycleOut(0)
-            )
+        return self.run(
+            lambda: self.rightMotorLeader.stopMotor()
         )
     
     def move_up_gradually(self) -> Command:
@@ -203,8 +201,8 @@ class Elevator(Subsystem):
         return abs(self.desiredPosition - self.getPosition()) < Elevator_Constants.kTolerance
 
     def periodic(self):
-        self.set_motor_zero()
-        
+
+        SmartDashboard.putBoolean("Elevator / Top Limit Switch", self.topLimitSwitch.get())
         
         
         

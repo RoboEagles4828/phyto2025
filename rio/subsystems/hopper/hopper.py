@@ -12,7 +12,7 @@ class Hopper(Subsystem):
         self.stallDebouncer = Debouncer(0.5, Debouncer.DebounceType.kBoth)
         # self.beamBreak = DigitalInput(ConstantsHopper.beamBreakID)
 
-        self.hopperMotor.configSupplyCurrentLimit(ConstantsHopper.supply_config)
+        # self.hopperMotor.configSupplyCurrentLimit(ConstantsHopper.supply_config)
         self.hopperMotor.setInverted(False)  #TODO: Check to see if this is correct
 
         self.coralInHopper = False
@@ -47,6 +47,7 @@ class Hopper(Subsystem):
     #     
 
     def periodic(self):
-        pass
+        SmartDashboard.putNumber("Hopper/ Supply Current", self.hopperMotor.getStatorCurrent())
+        SmartDashboard.putNumber("Hopper / Stator Current", self.hopperMotor.getSupplyCurrent())
         
         
