@@ -1,10 +1,17 @@
-
 class LED_Constants:
-    kSparkID = 8 # TODO change this to the correct port
-    kDefaultColor = -0.91 # Rainbow Forest Palette
-    kHasCoral = 0.93 # White
-    kHasAlgea = 0.81 # Aqua
-    kisReady = 0.73 # Lime
-    kisNotReady = 0.61 # Red
-    kisAligning = -0.95 # Rainbow Ocean Palette
-    kisAuto = -0.99
+    
+    # CAN ID:
+    CAN = 8
+
+    # Colors and Their Representations
+
+    RED = 0.61
+    GREEN = 0.77
+    BLUE = 0.87
+    YELLOW = 0.69
+    PURPLE = 0.91
+    WHITE = 0.93
+    RAINBOW_PATTERN = -0.99
+    FIRE_LARGE = -0.57
+    WAVES_OCEAN = -0.41
+    SCAN_GRAY = -0.33
