@@ -1,13 +1,6 @@
 
-
-
-
-
-"""outtake not committed"""
-"""outtake needs to be called properly in robotcontainer (give option for up or down)"""
-"""sequences to be completed"""
-
-
+"""robotcontainer needs to have option for up/down in outtake"""
+"""sequences not done"""
 
 from commands2 import Command, ConditionalCommand, Subsystem, InstantCommand
 from phoenix5 import TalonSRX, TalonSRXControlMode, LimitSwitchSource, LimitSwitchNormal
