@@ -45,7 +45,7 @@ class Cannon(Subsystem):
         return (
             self.run(lambda: self.setCannonSpeed(0.3))
             .until(self.stopLoading)
-            .andThen(self.runOnce(self.hasCoralOverride)).andThen(self.runOnce(lambda: RobotState.setCoralInCannon(True)))
+            .andThen(self.runOnce(lambda: self.hasCoralOverride(True))).andThen(self.runOnce(lambda: RobotState.setCoralInCannon(True)))
         )
 
     def createPlaceCoralCommand(self, isL1: Callable[[], bool]) -> Command:
@@ -79,11 +79,13 @@ class Cannon(Subsystem):
     def stopLoading(self):
         return abs(self.leftMotor.getStatorCurrent())>10
 
-     def hasCoralOverride(self):
-         """
-         This is used to override the current state of the robot
-         """
-         self.loaded = not self.loaded
+    def hasCoralOverride(self, coral : bool):
+        """
+        This is used to override the current state of the robot
+        """
+        if not coral: coral = not self.loaded
+
+        self.loaded = coral
  
     def getLoaded(self):
         """
