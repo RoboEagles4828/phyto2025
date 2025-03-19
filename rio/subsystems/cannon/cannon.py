@@ -1,12 +1,10 @@
 from commands2 import Subsystem, Command
-from commands2.conditionalcommand import ConditionalCommand
 from wpilib import DigitalInput
 from phoenix5 import TalonSRX, TalonSRXControlMode, FollowerType
+from commands2.conditionalcommand import ConditionalCommand
 from subsystems.cannon.constants_cannon import Constants_Cannon
-from wpilib import SmartDashboard
 from typing import Callable
 from subsystems.robotstate.robotstate import RobotState
-
 class Cannon(Subsystem):
     def __init__(self):
         self.leftMotor = TalonSRX(Constants_Cannon.leftMotorID)
@@ -24,9 +22,10 @@ class Cannon(Subsystem):
 
         self.leftMotor.follow(self.rightMotor, FollowerType.PercentOutput)
 
-        self.loaded = False
         self.lastRan = "None"
-
+ 
+        self.scoringL1 = False
+ 
     # def getBeamBreakState(self):
     #     return not(self.beamBreak.get())
 
@@ -52,15 +51,18 @@ class Cannon(Subsystem):
     def createPlaceCoralCommand(self, isL1: Callable[[], bool]) -> Command:
         """
         Creates a command that will run the cannon appropriately for any level.
-
         :param isL1: a Callable that returns true when the elevator is at L1 height-ish.
         :returns: the placement command
         """
+
+        RobotState.coralInCannon = False
+        self.leftMotor.follow(self.rightMotor, FollowerType.PercentOutput)
+
         return ConditionalCommand(
             self.run(lambda: self._spinForL1()).andThen(self.runOnce(lambda: RobotState.getCoralInCannon(False))),
             self.run(lambda: self.setCannonSpeed(0.6)),
             isL1,
-        )
+        ).andThen(self.runOnce(lambda: RobotState.setCoralInCannon(False)))
     
     def _spinForL1(self)-> None:
         """Exists just to make the lambda in createPlaceCoralCommand easy to write and read."""
@@ -77,18 +79,15 @@ class Cannon(Subsystem):
     def stopLoading(self):
         return abs(self.leftMotor.getStatorCurrent())>10
 
-    def hasCoralOverride(self):
-        """
-        This is used to override the current state of the robot
-        """
-        self.loaded = not self.loaded
-
+     def hasCoralOverride(self):
+         """
+         This is used to override the current state of the robot
+         """
+         self.loaded = not self.loaded
+ 
     def getLoaded(self):
         """
         Returns wether the robot thinks it has a coral in the cannon
         """
         return self.loaded
-
-    def periodic(self):
-        SmartDashboard.putNumber("Cannon/ Right Stator Current", self.rightMotor.getStatorCurrent())
-        SmartDashboard.putNumber("Cannon/ Left Stator Current", self.leftMotor.getStatorCurrent())
+ 
