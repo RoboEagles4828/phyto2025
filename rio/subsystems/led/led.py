@@ -8,7 +8,7 @@ from wpilib import DriverStation
 
 class LED(Subsystem):
     def __init__(self):
-        self.led = Spark(0)
+        self.led = Spark(LED_Constants.kSparkID)
 
     def set_color(self, value: float):
         return self.runOnce(self.led.set(value))

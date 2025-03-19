@@ -3,7 +3,6 @@ from commands2.conditionalcommand import ConditionalCommand
 from wpilib import DigitalInput
 from phoenix5 import TalonSRX, TalonSRXControlMode, FollowerType
 from subsystems.cannon.constants_cannon import Constants_Cannon
-from subsystems.led.led import LED
 from wpilib import SmartDashboard
 from typing import Callable
 from subsystems.robotstate.robotstate import RobotState
@@ -27,8 +26,6 @@ class Cannon(Subsystem):
 
         self.loaded = False
         self.lastRan = "None"
-
-        self.led = LED()
 
     # def getBeamBreakState(self):
     #     return not(self.beamBreak.get())
@@ -93,5 +90,5 @@ class Cannon(Subsystem):
         return self.loaded
 
     def periodic(self):
-        SmartDashboard.putNumber("Cannon/ Stator Current", self.rightMotor.getStatorCurrent())                                      
-        #         
+        SmartDashboard.putNumber("Cannon/ Right Stator Current", self.rightMotor.getStatorCurrent())
+        SmartDashboard.putNumber("Cannon/ Left Stator Current", self.leftMotor.getStatorCurrent())

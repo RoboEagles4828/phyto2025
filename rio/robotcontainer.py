@@ -37,6 +37,7 @@ from subsystems.cannon.cannon import Cannon
 from subsystems.hopper.hopper import Hopper
 from subsystems.vision.vision  import VisionSubsystem
 from subsystems.robotstate.robotstate import RobotState
+from subsystems.led.led import LED
 
 from general_constants.field_constants import ReefFace
 from subsystems.pose.pose import Pose
@@ -118,6 +119,7 @@ class RobotContainer:
         self.elevator = Elevator()
         self.hopper = Hopper()
         self.cannon = Cannon()
+        self.led = LED()
         self.vision = VisionSubsystem(self.drivetrain)
         self.pose = Pose(self.drivetrain)
 
@@ -207,7 +209,7 @@ class RobotContainer:
         self._operator_joystick.povDown().whileTrue(self.elevator.move_to_zero())
 
         # driver buttons
-        self._joystick.leftTrigger().whileTrue(self.cannon.loadCoral().deadlineFor(self.hopper.intake()).andThen(InstantCommand(lambda: self._joystick.getHID().setRumble(XboxController.RumbleType.kBothRumble, 1.0))).andThen(WaitCommand(0.5)).andThen(InstantCommand(self._joystick.setRumble(XboxController.RumbleType.kBothRumble, 0))))
+        self._joystick.leftTrigger().whileTrue(self.cannon.loadCoral().deadlineFor(self.hopper.intake()).andThen(InstantCommand(lambda: self._joystick.getHID().setRumble(XboxController.RumbleType.kBothRumble, 1.0))).andThen(WaitCommand(0.5)).andThen(InstantCommand(lambda: self._joystick.setRumble(XboxController.RumbleType.kBothRumble, 0))))
         self._joystick.back().onTrue(self.drivetrain.runOnce(lambda: self.drivetrain.zeroHeading()))
         self._joystick.rightTrigger().whileTrue(self.elevator.move_to_position_execute())
         self._joystick.leftBumper().whileTrue(self.cannon.createPlaceCoralCommand(self.isPlaceCoralL1))
