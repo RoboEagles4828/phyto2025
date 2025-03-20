@@ -201,9 +201,10 @@ class Elevator(Subsystem):
         return abs(self.desiredPosition - self.getPosition()) < Elevator_Constants.kTolerance
 
     def periodic(self):
-
+        self.set_motor_zero()
         SmartDashboard.putBoolean("Elevator / Top Limit Switch", self.topLimitSwitch.get())
-        
+        SmartDashboard.putBoolean("Elevator / Bottom Limit Switch", self.bottomLimitSwitch.get())
+        SmartDashboard.putNumber("Elevator / Position", self.getPosition())
         
         
         

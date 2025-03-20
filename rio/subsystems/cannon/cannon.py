@@ -57,7 +57,7 @@ class Cannon(Subsystem):
         :returns: the placement command
         """
         return ConditionalCommand(
-            self.run(lambda: self._spinForL1()).andThen(self.runOnce(lambda: RobotState.getCoralInCannon(False))),
+            self.run(lambda: self._spinForL1()),
             self.run(lambda: self.setCannonSpeed(0.6)),
             isL1,
         )

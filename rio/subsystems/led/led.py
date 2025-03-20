@@ -40,7 +40,7 @@ class LED(Subsystem):
         if DriverStation.isDisabled() or RobotState.getIsZeroed():
             self.set_default_color()
         elif DriverStation.isAutonomous():
-            self.set_is_auto
+            self.set_is_auto()
         elif RobotState.getIsReady():
             self.set_is_ready()
         elif RobotState.getAutoAligning():

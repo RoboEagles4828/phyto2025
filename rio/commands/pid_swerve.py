@@ -30,7 +30,7 @@ class PID_Swerve(Command):
     
     presiceKP = 0.05
     roughKP = 0.04
-    positionTolerance = 1.0
+    positionTolerance = 1.3
     roughPositionTolerance = 2.5
     maxSpeed = 1.0
     positionKs = 0.02
@@ -52,7 +52,7 @@ class PID_Swerve(Command):
 
         self.xPID = PIDController(PID_Swerve.presiceKP if self.presice else PID_Swerve.roughKP, 0.0, 0.0)
         self.yPID = PIDController(PID_Swerve.presiceKP if self.presice else PID_Swerve.roughKP, 0.0, 0.0)
-        self.rotationPID = PIDController(0.004, 0.0, 0.0)
+        self.rotationPID = PIDController(0.001, 0.0, 0.0)
 
         self.xPID.setIZone(PID_Swerve.positionIZone)
         self.xPID.setIntegratorRange(-PID_Swerve.positionKs * 2, PID_Swerve.positionKs * 2)
