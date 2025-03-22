@@ -159,12 +159,15 @@ class Elevator(Subsystem):
             )
         )
     
-    def stop(self) -> Command:
+    def stop(self, slot: int = 0) -> Command:
         """
-        Simply stops the motor. The motor will default to NeutralOut which should be in breakMode.
+        Uses PID to try to move to the current position (in order to counteract slippage).
         """
-        return self.run(
-            lambda: self.rightMotorLeader.stopMotor()
+        return self.startRun(
+            lambda: self.setTargetRotation(self.getPosition()),
+            lambda: self.rightMotorLeader.set_control(
+                self.request.with_position(self.desiredPosition).with_slot(slot)
+            )
         )
     
     def move_up_gradually(self) -> Command:
