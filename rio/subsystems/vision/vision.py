@@ -136,6 +136,8 @@ class VisionSubsystem(Subsystem):
         haveTarget = result.hasTargets()
 
         self.updatePoseEstimation()
+        # if self.updatePoseEstimation() == False:
+            # self.updateRightPoseEstimation()
 
         
         
