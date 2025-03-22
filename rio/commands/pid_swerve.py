@@ -45,7 +45,7 @@ class PID_Swerve(Command):
         super().__init__()
         self.s_Swerve = swerve
         self.targetPose = targetPose
-        print(self.targetPose)
+        # print(self.targetPose)
         self.presice = presice
 
         
@@ -85,7 +85,7 @@ class PID_Swerve(Command):
         
         pose: Pose2d = self.s_Swerve.get_state().pose
         position: Translation2d = pose.translation()
-        print(self.targetPose)
+        # print(self.targetPose)
         rotation: Rotation2d = pose.rotation()
         RobotState.setAutoAligning(True)
 

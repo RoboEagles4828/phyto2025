@@ -60,7 +60,7 @@ class RobotContainer:
     ElevatorEncoderL2 = 3568
     ElevatorEncoderL3 = 5842
     elevatorL3 = 2.355
-    elevatorL4 = 3.9
+    elevatorL4 = 4.05
     cannonL1Top = (elevatorL1 + elevatorL2) / 2
 
     def __init__(self) -> None:

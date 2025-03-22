@@ -56,7 +56,7 @@ class AlgaeManipulator(Subsystem):
             #self.run(lambda: self.setSpeed(self.pivotMotor, 1.0)).until(self.pivotMotor.isFwdLimitSwitchClosed()), # ontrue
             #self.run(lambda: pivotPositionself.setSpeed(self.pivotMotor, 1.0)).until(self.pivotMotor.isRevLimitSwitchClosed()), # onfalse
 
-            self.run(lambda: self.setSpeed(self.pivotMotor, 0.20)), #ontrue
+            self.run(lambda: self.setSpeed(self.pivotMotor, 0.70)), #ontrue
             self.run(lambda: self.setSpeed(self.pivotMotor, -0.20)), #onfalse
             lambda: pos #bool
             )
