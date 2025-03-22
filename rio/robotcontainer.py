@@ -57,6 +57,8 @@ class RobotContainer:
 
     elevatorL1 = 1.105
     elevatorL2 = 1.6
+    ElevatorEncoderL2 = 3568
+    ElevatorEncoderL3 = 5842
     elevatorL3 = 2.355
     elevatorL4 = 3.9
     cannonL1Top = (elevatorL1 + elevatorL2) / 2
@@ -130,7 +132,7 @@ class RobotContainer:
         if DriverStation.getAlliance() == DriverStation.Alliance.kRed:
             self.isRed = True
 
-        SmartDashboard.putBoolean("Is Red", self.isRed)
+        # SmartDashboard.putBoolean("Is Red", self.isRed)
 
         self.alignLeftCommands: dict[ReefFace, Command] = {}
         self.alignRightCommands: dict[ReefFace, Command] = {}
@@ -229,7 +231,8 @@ class RobotContainer:
         self._joystick.rightBumper().whileTrue(self.hopper.agitate())
         self._joystick.povDown().whileTrue(self.elevator.move_to_zero())
         self._joystick.povUp().whileTrue(self.algea_manipulator.outtake()) # manual debug
-        self._joystick.povRight().whileFalse(self.algea_manipulator.intake()) # manual debug
+        self._joystick.povRight().whileTrue(self.algea_manipulator.intake()) # manual debug
+        self._joystick.a().onTrue(self.algea_manipulator.wheelStop())
 
         self._joystick.povLeft().whileTrue(
             self.drivetrain.apply_request(
@@ -258,8 +261,8 @@ class RobotContainer:
 
         # Tester now for Operator Joystick buttons
         # self._operator_joystick.leftBumper().onTrue(SelectCommand(self.alignLeftCommands, lambda: self.pose.neartestFace(self.drivetrain.getPose().translation(), False)))
-        self._operator_joystick.leftBumper().onTrue(SelectCommand(self.alignLeftCommands, lambda: self.pose.neartestFace(self.drivetrain.getPose().translation(), self.isRed)))
-        self._operator_joystick.rightBumper().onTrue(SelectCommand(self.alignRightCommands, lambda: self.pose.neartestFace(self.drivetrain.getPose().translation(), self.isRed)))
+        self._operator_joystick.leftBumper().whileTrue(SelectCommand(self.alignLeftCommands, lambda: self.pose.neartestFace(self.drivetrain.getPose().translation(), self.isRed)))
+        self._operator_joystick.rightBumper().whileTrue(SelectCommand(self.alignRightCommands, lambda: self.pose.neartestFace(self.drivetrain.getPose().translation(), self.isRed)))
         # Run SysId routines when holding back/start and X/Y.
         # Note that each routine should be run exactly once in a single log.
         (self._joystick.back() & self._joystick.y()).whileTrue(

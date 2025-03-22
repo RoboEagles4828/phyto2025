@@ -2,7 +2,7 @@
 """robotcontainer needs to have option for up/down in outtake"""
 """sequences not done"""
 
-from commands2 import Command, ConditionalCommand, Subsystem, InstantCommand
+from commands2 import Command, ConditionalCommand, Subsystem, InstantCommand, WaitCommand
 from phoenix5 import TalonSRX, TalonSRXControlMode, LimitSwitchSource, LimitSwitchNormal
 from wpimath.filter import Debouncer
 from wpilib import DigitalInput
@@ -40,7 +40,7 @@ class AlgaeManipulator(Subsystem):
     def intake(self) -> Command:
         """spin wheel motor"""
         # figure out speeds and times
-        return self.run(lambda: self.setSpeed(self.wheelMotor, 0.25)).until(lambda: self.wheelStall())    
+        return self.run(lambda: self.setSpeed(self.wheelMotor, 0.60))    
     # intake sequence - pivot starts down. spins wheel until wheel stall is detected, at which point pivot moves up to grip ball
     
     """
@@ -49,30 +49,33 @@ class AlgaeManipulator(Subsystem):
     """
     
     def outtake(self) -> Command: # down = false/none, up = true
-        return self.run(lambda: self.setSpeed(self.wheelMotor, -0.2)).withTimeout(2)
+        return self.run(lambda: self.setSpeed(self.wheelMotor, -0.60)).andThen(WaitCommand(1.5)).andThen(lambda: self.setSpeed(self.wheelMotor, 0.0))
 
     def pivotPosition(self, pos : bool) -> ConditionalCommand: # down = false, up = true
         return ConditionalCommand(
             #self.run(lambda: self.setSpeed(self.pivotMotor, 1.0)).until(self.pivotMotor.isFwdLimitSwitchClosed()), # ontrue
             #self.run(lambda: pivotPositionself.setSpeed(self.pivotMotor, 1.0)).until(self.pivotMotor.isRevLimitSwitchClosed()), # onfalse
 
-            self.run(lambda: self.setSpeed(self.pivotMotor, 1.0)).until(self.pivotStall), #ontrue
-            self.run(lambda: self.setSpeed(self.pivotMotor, -1.0)).until(self.pivotStall), #onfalse
+            self.run(lambda: self.setSpeed(self.pivotMotor, 0.90)), #ontrue
+            self.run(lambda: self.setSpeed(self.pivotMotor, -0.20)), #onfalse
             lambda: pos #bool
             )
     
     def pivotStall(self):
-        return self.pivotStallDebouncer.calculate(abs(self.pivotMotor.getStatorCurrent()) > 10)
+        return self.pivotStallDebouncer.calculate(abs(self.pivotMotor.getStatorCurrent()) > 70) #TODO: test to figure out current number
 
     def wheelStall(self):
-        return self.wheelStallDebouncer.calculate(abs(self.wheelMotor.getStatorCurrent()) > 10) # test to figure out current number
+        return self.wheelStallDebouncer.calculate(abs(self.wheelMotor.getStatorCurrent()) > 70) #TODO: test to figure out current number
+    
+    def wheelStop(self):
+        return self.run(lambda: self.setSpeed(self.wheelMotor, 0.0))
     
     def periodic(self):
-        SmartDashboard.putBoolean("pivotStall", self.pivotStall())
-        SmartDashboard.putNumber("pivot stator current", self.pivotMotor.getStatorCurrent())
-        SmartDashboard.putNumber("Pivot Output Percent", self.pivotMotor.getMotorOutputPercent())
+        # SmartDashboard.putBoolean("pivotStall", self.pivotStall())
+        # SmartDashboard.putNumber("pivot stator current", self.pivotMotor.getStatorCurrent())
+        # SmartDashboard.putNumber("Pivot Output Percent", self.pivotMotor.getMotorOutputPercent())
 
-        SmartDashboard.putBoolean("wheelStall", self.wheelStall())
-        SmartDashboard.putBoolean("wheel stator current", self.wheelMotor.getStatorCurrent())
-        SmartDashboard.putBoolean("Wheel Output Percent", self.wheelMotor.getMotorOutputPercent())
+        # SmartDashboard.putBoolean("wheelStall", self.wheelStall())
+        # SmartDashboard.putBoolean("wheel stator current", self.wheelMotor.getStatorCurrent())
+        # SmartDashboard.putBoolean("Wheel Output Percent", self.wheelMotor.getMotorOutputPercent())
         pass

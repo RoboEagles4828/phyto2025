@@ -79,7 +79,7 @@ class VisionSubsystem(Subsystem):
 
     def updatePoseEstimation(self):
         listofResults = self.frontLeftCamera.getAllUnreadResults()
-        # listofResultsRight = self.frontRightCamera.getAllUnreadResults()
+        listofResultsRight = self.frontRightCamera.getAllUnreadResults()
         newResult = not(listofResults)
         updated = False
 
@@ -90,7 +90,7 @@ class VisionSubsystem(Subsystem):
             optRobotPose = self.photonEstimator.update(lastResult)
 
             if optRobotPose == None:
-                print("ignoring")
+                # print("ignoring")
                 continue
 
             lastRobotPose = optRobotPose.estimatedPose.toPose2d()
@@ -101,23 +101,29 @@ class VisionSubsystem(Subsystem):
                 updated = True
                 return updated
             
-        # for rightResults in listofResultsRight:
+        return updated
+    
+    def updateRightPoseEstimation(self):
+        listofResults = self.frontRightCamera.getAllUnreadResults()
+        newResult = not(listofResults)
+        updated = False
 
-        #     latestRightResult = rightResults
+        for result in listofResults:
+            lastResult = result
 
-        #     optRightRobotPose = self.photonEstimatorRight.update(latestRightResult)
+            rightOptRobotPose = self.photonEstimatorRight.update(lastResult)
 
-        #     if optRightRobotPose == None:
-        #         print("Ignoring Right Robot Pose")
-        #         continue
+            if rightOptRobotPose == None:
+                # print("ignoring right")
+                continue
 
-        #     lastRightRobotPose = optRightRobotPose.estimatedPose.toPose2d()
-        #     self.field.setRobotPose(lastRobotPose)
+            lastRobotRightPose = rightOptRobotPose.estimatedPose.toPose2d()
+            self.field.setRobotPose(lastRobotRightPose)
 
-        #     if self.swerve.get_state().pose != None:
-        #         self.swerve.add_vision_measurement(lastRightRobotPose, fpga_to_current_time(optRobotPose.timestampSeconds))
-        #         updated = True
-        #         return updated
+            if self.swerve.get_state().pose!= None:
+                self.swerve.add_vision_measurement(lastRobotRightPose, fpga_to_current_time(rightOptRobotPose.timestampSeconds))
+                updated = True
+                return updated
             
         return updated
 

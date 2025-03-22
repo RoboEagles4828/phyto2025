@@ -90,5 +90,6 @@ class Cannon(Subsystem):
         return self.loaded
 
     def periodic(self):
-        SmartDashboard.putNumber("Cannon/ Right Stator Current", self.rightMotor.getStatorCurrent())
-        SmartDashboard.putNumber("Cannon/ Left Stator Current", self.leftMotor.getStatorCurrent())
+        # SmartDashboard.putNumber("Cannon/ Right Stator Current", self.rightMotor.getStatorCurrent())
+        # SmartDashboard.putNumber("Cannon/ Left Stator Current", self.leftMotor.getStatorCurrent())
+        pass

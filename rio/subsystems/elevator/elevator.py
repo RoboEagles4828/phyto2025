@@ -19,6 +19,7 @@ from wpilib.shuffleboard import Shuffleboard
 from wpilib import DigitalInput
 from wpimath.filter import Debouncer
 from wpilib.sysid import SysIdRoutineLog
+from wpilib import Encoder
 
 from subsystems.elevator.elevator_constants import Elevator_Constants
 
@@ -34,6 +35,7 @@ class Elevator(Subsystem):
         self.rightMotorLeader = TalonFX(Elevator_Constants.kRightMotorID)  # CAN ID 1
         self.leftMotorFollower = TalonFX(Elevator_Constants.kLeftMotorID)  # CAN ID 2
         self.motorCfg = TalonFXConfiguration()
+        self.encoder = Encoder(1,2)
         
         # Configure values
         self.motorCfg.feedback.sensor_to_mechanism_ratio = Elevator_Constants.kGearRatio
@@ -62,6 +64,7 @@ class Elevator(Subsystem):
         self.motorCfg.motion_magic.motion_magic_jerk = Elevator_Constants.kMagicJerk
         self.motorCfg.closed_loop_ramps.voltage_closed_loop_ramp_period = 0.5
         self.motorCfg.open_loop_ramps.voltage_open_loop_ramp_period = 0.5
+        
 
         # Add motor controls (follow and motionmagic)
         self.leftMotorFollower.set_control(Follower(Elevator_Constants.kRightMotorID, True))
@@ -75,6 +78,7 @@ class Elevator(Subsystem):
         self.leftMotorFollower.configurator.apply(self.motorCfg)
 
         self.bottomLimitSwitch = DigitalInput(Elevator_Constants.kBottomLimitSwitchID)
+        self.bottomLimitTriggered = False
         self.topLimitSwitch = DigitalInput(Elevator_Constants.kTopLimitSwitchID)
 
         self.debouncer = Debouncer(0.1, Debouncer.DebounceType.kBoth)
@@ -202,9 +206,11 @@ class Elevator(Subsystem):
 
     def periodic(self):
         self.set_motor_zero()
-        SmartDashboard.putBoolean("Elevator / Top Limit Switch", self.topLimitSwitch.get())
-        SmartDashboard.putBoolean("Elevator / Bottom Limit Switch", self.bottomLimitSwitch.get())
-        SmartDashboard.putNumber("Elevator / Position", self.getPosition())
+        # SmartDashboard.putBoolean("Elevator / Top Limit Switch", self.topLimitSwitch.get())
+        # SmartDashboard.putBoolean("Elevator / Bottom Limit Switch", self.bottomLimitSwitch.get())
+        # SmartDashboard.putNumber("Elevator / Position", self.getPosition())
+        # SmartDashboard.putNumber("Elevator / Desired Position", self.desiredPosition)
+        # SmartDashboard.putNumber("Elevator / Encoder Position", self.encoder.getDistance())
         
         
         
@@ -217,7 +223,12 @@ class Elevator(Subsystem):
 
     def set_motor_zero(self):
         if self.debouncer.calculate(self.bottomLimitSwitch.get()):
-            self.rightMotorLeader.set_position(0.0)
+            if not self.bottomLimitTriggered:
+                self.rightMotorLeader.set_position(0.0)
+                self.encoder.reset()
+            self.bottomLimitTriggered = True
+        else:
+            self.bottomLimitTriggered = False
 
     def getPosition(self) -> float:
         return self.rightMotorLeader.get_position().value
