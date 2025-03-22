@@ -47,7 +47,7 @@ class Hopper(Subsystem):
     #     
 
     def periodic(self):
-        SmartDashboard.putNumber("Hopper/ Supply Current", self.hopperMotor.getStatorCurrent())
-        SmartDashboard.putNumber("Hopper / Stator Current", self.hopperMotor.getSupplyCurrent())
+        # SmartDashboard.putNumber("Hopper/ Supply Current", self.hopperMotor.getStatorCurrent())
+        # SmartDashboard.putNumber("Hopper / Stator Current", self.hopperMotor.getSupplyCurrent())
         
-        
+        pass

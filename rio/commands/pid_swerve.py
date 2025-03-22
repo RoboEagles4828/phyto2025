@@ -30,7 +30,7 @@ class PID_Swerve(Command):
     
     presiceKP = 0.05
     roughKP = 0.04
-    positionTolerance = 1.0
+    positionTolerance = 1.3
     roughPositionTolerance = 2.5
     maxSpeed = 1.0
     positionKs = 0.02
@@ -52,7 +52,7 @@ class PID_Swerve(Command):
 
         self.xPID = PIDController(PID_Swerve.presiceKP if self.presice else PID_Swerve.roughKP, 0.0, 0.0)
         self.yPID = PIDController(PID_Swerve.presiceKP if self.presice else PID_Swerve.roughKP, 0.0, 0.0)
-        self.rotationPID = PIDController(0.004, 0.0, 0.0)
+        self.rotationPID = PIDController(0.001, 0.0, 0.0)
 
         self.xPID.setIZone(PID_Swerve.positionIZone)
         self.xPID.setIntegratorRange(-PID_Swerve.positionKs * 2, PID_Swerve.positionKs * 2)
@@ -108,15 +108,15 @@ class PID_Swerve(Command):
         feedForward = 0.02 * math.copysign(1, corection)
         rotationVal = max(-1.0, min(corection+feedForward, 1.0))
 
-        self.s_Swerve.drive(Translation2d(xVal, yVal).__mul__(1.3), rotationVal*PID_Swerve.maxAngularVelociy, True)
+        self.s_Swerve.drive(Translation2d(xVal, yVal).__mul__(1.75), rotationVal*PID_Swerve.maxAngularVelociy, True)
 
-        SmartDashboard.putString("Auto Align/ Current Pose", str(position))
-        SmartDashboard.putString("Auto Align/ Target Pose", str(self.targetPose))
+        # SmartDashboard.putString("Auto Align/ Current Pose", str(position))
+        # SmartDashboard.putString("Auto Align/ Target Pose", str(self.targetPose))
 
     def isFinished(self):
 
         finished = self.xPID.atSetpoint() and self.yPID.atSetpoint() and self.rotationPID.atSetpoint()
-        SmartDashboard.putBoolean("Auto Align/ isFinished", finished)
+        # SmartDashboard.putBoolean("Auto Align/ isFinished", finished)
         if finished:
             RobotState.setAutoAligning(False)
         return finished
