@@ -141,7 +141,7 @@ class RobotContainer:
             self.populateCommandList(face)
         
         NamedCommands.registerCommand("Elevator to L1", self.elevator.move_to_position(self.elevatorL1, 0).withTimeout(3.0))
-        NamedCommands.registerCommand("Elevator to L4", self.elevator.move_to_position(3.9, 1).withTimeout(3.0))
+        NamedCommands.registerCommand("Elevator to L4", self.elevator.move_to_position(4.05, 1).withTimeout(3.0))
         NamedCommands.registerCommand("Elevator to Zero", self.elevator.move_to_zero().withTimeout(2.0))
         NamedCommands.registerCommand("Hopper Intake", self.hopper.intake())
         NamedCommands.registerCommand("Cannon L1", self.cannon.createPlaceCoralCommand(self.isPlaceCoralL1).withTimeout(1.0))

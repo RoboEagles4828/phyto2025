@@ -56,23 +56,23 @@ class AlgaeManipulator(Subsystem):
             #self.run(lambda: self.setSpeed(self.pivotMotor, 1.0)).until(self.pivotMotor.isFwdLimitSwitchClosed()), # ontrue
             #self.run(lambda: pivotPositionself.setSpeed(self.pivotMotor, 1.0)).until(self.pivotMotor.isRevLimitSwitchClosed()), # onfalse
 
-            self.run(lambda: self.setSpeed(self.pivotMotor, 0.70)), #ontrue
-            self.run(lambda: self.setSpeed(self.pivotMotor, -0.20)), #onfalse
+            self.run(lambda: self.setSpeed(self.pivotMotor, 0.70)).until(self.pivotStall), #ontrue
+            self.run(lambda: self.setSpeed(self.pivotMotor, -0.70)).until(self.pivotStall), #onfalse
             lambda: pos #bool
             )
     
     def pivotStall(self):
-        return self.pivotStallDebouncer.calculate(abs(self.pivotMotor.getStatorCurrent()) > 70) #TODO: test to figure out current number
+        return self.pivotStallDebouncer.calculate(abs(self.pivotMotor.getStatorCurrent()) > 20) #TODO: test to figure out current number
 
     def wheelStall(self):
-        return self.wheelStallDebouncer.calculate(abs(self.wheelMotor.getStatorCurrent()) > 70) #TODO: test to figure out current number
+        return self.wheelStallDebouncer.calculate(abs(self.wheelMotor.getStatorCurrent()) > 20) #TODO: test to figure out current number
     
     def wheelStop(self):
         return self.run(lambda: self.setSpeed(self.wheelMotor, 0.0))
     
     def periodic(self):
         # SmartDashboard.putBoolean("pivotStall", self.pivotStall())
-        # SmartDashboard.putNumber("pivot stator current", self.pivotMotor.getStatorCurrent())
+        SmartDashboard.putNumber("pivot stator current", self.pivotMotor.getStatorCurrent())
         # SmartDashboard.putNumber("Pivot Output Percent", self.pivotMotor.getMotorOutputPercent())
 
         # SmartDashboard.putBoolean("wheelStall", self.wheelStall())
