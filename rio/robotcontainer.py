@@ -221,7 +221,7 @@ class RobotContainer:
         self._operator_joystick.povDown().whileTrue(self.elevator.move_to_zero())
         self._operator_joystick.povLeft().onTrue(self.algea_manipulator.pivotPosition(True)) # manual debug
         self._operator_joystick.povRight().onTrue(self.algea_manipulator.pivotPosition(False)) # manual debug
-
+        # make controls better
 
         # driver buttons
         self._joystick.leftTrigger().whileTrue(self.cannon.loadCoral().deadlineFor(self.hopper.intake()).andThen(InstantCommand(lambda: self._joystick.getHID().setRumble(XboxController.RumbleType.kBothRumble, 1.0))).andThen(WaitCommand(0.5)).andThen(InstantCommand(lambda: self._joystick.setRumble(XboxController.RumbleType.kBothRumble, 0))))
