@@ -72,8 +72,8 @@ class AlgaeManipulator(Subsystem):
     
     def periodic(self):
         # SmartDashboard.putBoolean("pivotStall", self.pivotStall())
-        SmartDashboard.putNumber("pivot stator current", self.pivotMotor.getStatorCurrent())
-        SmartDashboard.putNumber("pivot output current", self.pivotMotor.getOutputCurrent())
+        # SmartDashboard.putNumber("pivot stator current", self.pivotMotor.getStatorCurrent())
+        # SmartDashboard.putNumber("pivot output current" , self.pivotMotor.getOutputCurrent())
 
         # SmartDashboard.putNumber("Pivot Output Percent", self.pivotMotor.getMotorOutputPercent())
 

@@ -52,21 +52,21 @@ class PID_Swerve(Command):
 
         self.xPID = PIDController(PID_Swerve.presiceKP if self.presice else PID_Swerve.roughKP, 0.0, 0.0)
         self.yPID = PIDController(PID_Swerve.presiceKP if self.presice else PID_Swerve.roughKP, 0.0, 0.0)
-        self.rotationPID = PIDController(0.001, 0.0, 0.0)
+        self.rotationPID = PIDController(0.009, 0.0, 0.0)
 
-        self.xPID.setIZone(PID_Swerve.positionIZone)
-        self.xPID.setIntegratorRange(-PID_Swerve.positionKs * 2, PID_Swerve.positionKs * 2)
+        # self.xPID.setIZone(PID_Swerve.positionIZone)
+        # self.xPID.setIntegratorRange(-PID_Swerve.positionKs * 2, PID_Swerve.positionKs * 2)
         self.xPID.setSetpoint(Units.metersToInches(targetPose.X()))
         self.xPID.setTolerance(PID_Swerve.positionTolerance if self.presice else PID_Swerve.roughPositionTolerance)
 
-        self.yPID.setIZone(PID_Swerve.positionIZone)
-        self.yPID.setIntegratorRange(-PID_Swerve.positionKs * 2, PID_Swerve.positionKs * 2)
+        # self.yPID.setIZone(PID_Swerve.positionIZone)
+        # self.yPID.setIntegratorRange(-PID_Swerve.positionKs * 2, PID_Swerve.positionKs * 2)
         self.yPID.setSetpoint(Units.metersToInches(targetPose.Y()))
         self.yPID.setTolerance(PID_Swerve.positionTolerance if self.presice else PID_Swerve.roughPositionTolerance)
 
-        self.rotationPID.enableContinuousInput(-180, 180)
-        self.rotationPID.setIZone(2.0)
-        self.rotationPID.setIntegratorRange(-PID_Swerve.positionKs * 2, PID_Swerve.positionKs * 2)
+        # self.rotationPID.enableContinuousInput(-180, 180)
+        # self.rotationPID.setIZone(2.0)
+        # self.rotationPID.setIntegratorRange(-PID_Swerve.positionKs * 2, PID_Swerve.positionKs * 2)
         self.rotationPID.setSetpoint(targetPose.rotation().degrees())
         self.rotationPID.setTolerance(PID_Swerve.angleTolerance if self.presice else PID_Swerve.roughAngleTolerance)
 
