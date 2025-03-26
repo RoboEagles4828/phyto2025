@@ -312,7 +312,7 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
                 )
                 self._has_applied_operator_perspective = True
 
-        SmartDashboard.putNumber("Swerve/Forward Direction", self.get_operator_forward_direction().degrees())
+        # SmartDashboard.putNumber("Swerve/Forward Direction", self.get_operator_forward_direction().degrees())
         # self.update_Odom()
 
     def _start_sim_thread(self):

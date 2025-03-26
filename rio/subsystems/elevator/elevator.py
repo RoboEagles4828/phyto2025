@@ -19,6 +19,7 @@ from wpilib.shuffleboard import Shuffleboard
 from wpilib import DigitalInput
 from wpimath.filter import Debouncer
 from wpilib.sysid import SysIdRoutineLog
+from wpilib import Encoder
 
 from subsystems.elevator.elevator_constants import Elevator_Constants
 
@@ -34,6 +35,7 @@ class Elevator(Subsystem):
         self.rightMotorLeader = TalonFX(Elevator_Constants.kRightMotorID)  # CAN ID 1
         self.leftMotorFollower = TalonFX(Elevator_Constants.kLeftMotorID)  # CAN ID 2
         self.motorCfg = TalonFXConfiguration()
+        self.encoder = Encoder(1,2)
         
         # Configure values
         self.motorCfg.feedback.sensor_to_mechanism_ratio = Elevator_Constants.kGearRatio
@@ -62,6 +64,7 @@ class Elevator(Subsystem):
         self.motorCfg.motion_magic.motion_magic_jerk = Elevator_Constants.kMagicJerk
         self.motorCfg.closed_loop_ramps.voltage_closed_loop_ramp_period = 0.5
         self.motorCfg.open_loop_ramps.voltage_open_loop_ramp_period = 0.5
+        
 
         # Add motor controls (follow and motionmagic)
         self.leftMotorFollower.set_control(Follower(Elevator_Constants.kRightMotorID, True))
@@ -75,6 +78,7 @@ class Elevator(Subsystem):
         self.leftMotorFollower.configurator.apply(self.motorCfg)
 
         self.bottomLimitSwitch = DigitalInput(Elevator_Constants.kBottomLimitSwitchID)
+        self.bottomLimitTriggered = False
         self.topLimitSwitch = DigitalInput(Elevator_Constants.kTopLimitSwitchID)
 
         self.debouncer = Debouncer(0.1, Debouncer.DebounceType.kBoth)
@@ -155,12 +159,15 @@ class Elevator(Subsystem):
             )
         )
     
-    def stop(self) -> Command:
+    def stop(self, slot: int = 0) -> Command:
         """
-        Simply stops the motor. The motor will default to NeutralOut which should be in breakMode.
+        Uses PID to try to move to the current position (in order to counteract slippage).
         """
-        return self.run(
-            lambda: self.rightMotorLeader.stopMotor()
+        return self.startRun(
+            lambda: self.setTargetRotation(self.getPosition()),
+            lambda: self.rightMotorLeader.set_control(
+                self.request.with_position(self.desiredPosition).with_slot(slot)
+            )
         )
     
     def move_up_gradually(self) -> Command:
@@ -201,9 +208,12 @@ class Elevator(Subsystem):
         return abs(self.desiredPosition - self.getPosition()) < Elevator_Constants.kTolerance
 
     def periodic(self):
-
-        SmartDashboard.putBoolean("Elevator / Top Limit Switch", self.topLimitSwitch.get())
-        
+        self.set_motor_zero()
+        # SmartDashboard.putBoolean("Elevator / Top Limit Switch", self.topLimitSwitch.get())
+        # SmartDashboard.putBoolean("Elevator / Bottom Limit Switch", self.bottomLimitSwitch.get())
+        # SmartDashboard.putNumber("Elevator / Position", self.getPosition())
+        # SmartDashboard.putNumber("Elevator / Desired Position", self.desiredPosition)
+        # SmartDashboard.putNumber("Elevator / Encoder Position", self.encoder.getDistance())
         
         
         
@@ -216,7 +226,12 @@ class Elevator(Subsystem):
 
     def set_motor_zero(self):
         if self.debouncer.calculate(self.bottomLimitSwitch.get()):
-            self.rightMotorLeader.set_position(0.0)
+            if not self.bottomLimitTriggered:
+                self.rightMotorLeader.set_position(0.0)
+                self.encoder.reset()
+            self.bottomLimitTriggered = True
+        else:
+            self.bottomLimitTriggered = False
 
     def getPosition(self) -> float:
         return self.rightMotorLeader.get_position().value

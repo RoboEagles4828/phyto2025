@@ -59,7 +59,7 @@ class Cannon(Subsystem):
         self.leftMotor.follow(self.rightMotor, FollowerType.PercentOutput)
 
         return ConditionalCommand(
-            self.run(lambda: self._spinForL1()).andThen(self.runOnce(lambda: RobotState.getCoralInCannon(False))),
+            self.run(lambda: self._spinForL1()),
             self.run(lambda: self.setCannonSpeed(0.6)),
             isL1,
         ).andThen(self.runOnce(lambda: RobotState.setCoralInCannon(False)))
@@ -92,4 +92,8 @@ class Cannon(Subsystem):
         Returns wether the robot thinks it has a coral in the cannon
         """
         return self.loaded
- 
+
+    def periodic(self):
+        # SmartDashboard.putNumber("Cannon/ Right Stator Current", self.rightMotor.getStatorCurrent())
+        # SmartDashboard.putNumber("Cannon/ Left Stator Current", self.leftMotor.getStatorCurrent())
+        pass

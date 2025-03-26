@@ -68,17 +68,17 @@ class AutoAlignReef(Command):
 
 
 
-        print(str(self.translationController.getGoal()))
-        print("Distance" + str(self.distance))
-        SmartDashboard.putString("Auto Align/ Current Pose", str(self.position))
-        SmartDashboard.putString("Auto Align/ Target Pose", str(self.targetPose))
+        # print(str(self.translationController.getGoal()))
+        # print("Distance" + str(self.distance))
+        # SmartDashboard.putString("Auto Align/ Current Pose", str(self.position))
+        # SmartDashboard.putString("Auto Align/ Target Pose", str(self.targetPose))
 
 
 
     def isFinished(self):
         finished = self.translationController.atGoal() and self.rotationController.atGoal() or self.distance <= 0.02
 
-        SmartDashboard.putBoolean("Auto Align/ Finished", finished)
+        # SmartDashboard.putBoolean("Auto Align/ Finished", finished)
         return finished
 
 

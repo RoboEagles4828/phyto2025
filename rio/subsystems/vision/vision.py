@@ -34,7 +34,7 @@ class VisionSubsystem(Subsystem):
 
     def __init__(self, swerve: CommandSwerveDrivetrain):
         self.frontLeftCamera = PhotonCamera("frontLeft")
-        self.frontRightCamera = PhotonCamera("frontRight")
+        # self.frontRightCamera = PhotonCamera("frontRight")
         self.lastEstimatedTimestamp = 0.0
         self.lastPose = Pose2d()
         self.swerve = swerve
@@ -43,7 +43,7 @@ class VisionSubsystem(Subsystem):
         kTagLayout = AprilTagFieldLayout.loadField(AprilTagField.k2025ReefscapeAndyMark)
 
         self.photonEstimator = PhotonPoseEstimator(kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, self.frontLeftCamera, constants.kRobotToFrontLeftCameraTransform)
-        self.photonEstimatorRight = PhotonPoseEstimator(kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, self.frontRightCamera, constants.kRobotToFrontRightCameraTransform)
+        # self.photonEstimatorRight = PhotonPoseEstimator(kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, self.frontRightCamera, constants.kRobotToFrontRightCameraTransform)
         self.photonEstimator.multiTagFallbackStrategy = PoseStrategy.LOWEST_AMBIGUITY
         self.photonEstimator.multiTagFallbackStrategy = PoseStrategy.LOWEST_AMBIGUITY
 
@@ -90,7 +90,7 @@ class VisionSubsystem(Subsystem):
             optRobotPose = self.photonEstimator.update(lastResult)
 
             if optRobotPose == None:
-                print("ignoring")
+                # print("ignoring")
                 continue
 
             lastRobotPose = optRobotPose.estimatedPose.toPose2d()
@@ -101,25 +101,31 @@ class VisionSubsystem(Subsystem):
                 updated = True
                 return updated
             
-        # for rightResults in listofResultsRight:
-
-        #     latestRightResult = rightResults
-
-        #     optRightRobotPose = self.photonEstimatorRight.update(latestRightResult)
-
-        #     if optRightRobotPose == None:
-        #         print("Ignoring Right Robot Pose")
-        #         continue
-
-        #     lastRightRobotPose = optRightRobotPose.estimatedPose.toPose2d()
-        #     self.field.setRobotPose(lastRobotPose)
-
-        #     if self.swerve.get_state().pose != None:
-        #         self.swerve.add_vision_measurement(lastRightRobotPose, fpga_to_current_time(optRobotPose.timestampSeconds))
-        #         updated = True
-        #         return updated
-            
         return updated
+    
+    # def updateRightPoseEstimation(self):
+    #     listofResults = self.frontRightCamera.getAllUnreadResults()
+    #     newResult = not(listofResults)
+    #     updated = False
+
+    #     for result in listofResults:
+    #         lastResult = result
+
+    #         rightOptRobotPose = self.photonEstimatorRight.update(lastResult)
+
+    #         if rightOptRobotPose == None:
+    #             # print("ignoring right")
+    #             continue
+
+    #         lastRobotRightPose = rightOptRobotPose.estimatedPose.toPose2d()
+    #         self.field.setRobotPose(lastRobotRightPose)
+
+    #         if self.swerve.get_state().pose!= None:
+    #             self.swerve.add_vision_measurement(lastRobotRightPose, fpga_to_current_time(rightOptRobotPose.timestampSeconds))
+    #             updated = True
+    #             return updated
+            
+    #     return updated
 
     
     def getLastPose(self):
@@ -130,6 +136,8 @@ class VisionSubsystem(Subsystem):
         haveTarget = result.hasTargets()
 
         self.updatePoseEstimation()
+        # if self.updatePoseEstimation() == False:
+            # self.updateRightPoseEstimation()
 
         
         

@@ -23,6 +23,18 @@ class RobotState:
     def setIsZeroed(newIsZeroed : bool):
         RobotState.isZeroed = newIsZeroed
 
+    def isReadyToIntake():
+        RobotState.isReady = False
+        RobotState.isZeroed = True
+        RobotState.coralInCannon = False
+        RobotState.isautoAligning = False
+    
+    def isReadyToShoot():
+        RobotState.isReady = True
+        RobotState.isZeroed = False
+        RobotState.coralInCannon = True
+        RobotState.isautoAligning = False
+
     def getCoralInCannon():
         return RobotState.coralInCannon
     
