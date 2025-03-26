@@ -209,17 +209,17 @@ class Vision_Constants:
             10 * kMetersPerInch,
             10 * kMetersPerInch,
             8.25 * kMetersPerInch,
-            Rotation3d(0.0, -10 * kRadiansPerDegree, 0.0)
+            Rotation3d(0.0, -4.125 * kRadiansPerDegree, 0.0)
             ),
         )
         
     kRobotToFrontRightCameraTransform = Transform3d(
         Pose3d(),
         Pose3d(
-            0.25048 * kMetersPerInch,
-            -0.21 * kMetersPerInch,
-            0.145 * kMetersPerInch,
-            Rotation3d(0.0, -30 * kRadiansPerDegree, 0.0),
+            10 * kMetersPerInch,
+            -10 * kMetersPerInch,
+            8.25 * kMetersPerInch,
+            Rotation3d(0.0, -4.125 * kRadiansPerDegree, 0.0),
         ),
     )
     kRobotToBackLeftCameraTransform = Transform3d(

@@ -312,7 +312,7 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
                 )
                 self._has_applied_operator_perspective = True
 
-        SmartDashboard.putNumber("Swerve/Forward Direction", self.get_operator_forward_direction().degrees())
+        # SmartDashboard.putNumber("Swerve/Forward Direction", self.get_operator_forward_direction().degrees())
         # self.update_Odom()
 
     def _start_sim_thread(self):
@@ -382,14 +382,13 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
         """
         Zeros the heading of the robot
         """
-        return self.set_operator_perspective_forward(Rotation2d(self.get_state().pose.rotation().radians()))
+        return self.seed_field_centric()
     
     
     def getPose(self):
         """
         Gets the pose of the robot
         """
-        # print(self.get_state().pose)
         return self.get_state().pose
     
     def drive(self, translation: Translation2d, rotation: float, isOpenLoop: bool):
