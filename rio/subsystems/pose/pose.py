@@ -7,8 +7,10 @@ from general_constants.field_constants import FieldConstants, ReefFace
 from wpimath.geometry import Pose2d, Rotation2d, Translation2d
 from lib.util.units import Units
 from lib.util.convenientmath import inputModulus
+from pathplannerlib.util import FlippingUtil
 
 from wpilib import SmartDashboard
+from wpilib import DriverStation
 class Pose(Subsystem):
 
     def __init__(self, swerve: CommandSwerveDrivetrain):
@@ -17,13 +19,28 @@ class Pose(Subsystem):
         self.bearingAngle = 0
         self.closestFace = ReefFace.AB
 
+        self.colorStatus = True
+        """
+        Indicates the color status of the robot. True means its on the Red alliance and False means it on the Blue Alliance.
+        """
+
+    def isRobotRed(self):
+        if DriverStation.getAlliance() == DriverStation.Alliance.kBlue:
+            self.colorStatus = False
+        else:
+            self.colorStatus = True
+        
+        return self.colorStatus
+
     def otherAlliance(self, position: Translation2d)-> Translation2d:
         """
-        Converts a blue alliance pose2d to a red alliance pose2d
+        Converts a blue alliance translation to a red alliance translation
         """
-        return Translation2d(FieldConstants.fieldWidth - position.X(), FieldConstants.fieldWidth - position.Y())
 
-    def flipIfRed(self, position: Translation2d, allianceColor: bool)->Translation2d:
+        return FlippingUtil.flipFieldPosition(position)
+        # return Translation2d(FieldConstants.fieldWidth - position.X(), FieldConstants.fieldWidth - position.Y())
+
+    def flipIfRedTranslation(self, position: Translation2d, allianceColor: bool)->Translation2d:
         """
         Checks to see if the position needs to be flip based on the robot alliance.
         If robot is red, set the allianceColor parameter to true.
@@ -35,14 +52,14 @@ class Pose(Subsystem):
         """
         Finds the bearing angle of the robot relative to the reef center.
         """
-        reefCenter = self.flipIfRed(FieldConstants.reefCenter, allianceColor)
+        reefCenter = self.flipIfRedTranslation(FieldConstants.reefCenter, allianceColor)
         relativePosition =  reefCenter-robotTranslation
 
         return relativePosition.angle()
 
     def neartestFace(self, position: Translation2d, allianceColor: bool):
 
-        print("Running Command")
+        
         reefBearing = self.reefBearing(position, allianceColor)
 
         if(allianceColor):
@@ -50,28 +67,28 @@ class Pose(Subsystem):
         
         bearingAngle = inputModulus(reefBearing.degrees(), -180, 180)
 
-        print("reefBearing"+str(reefBearing))
-        print("bearingAngle"+str(bearingAngle))
+        
+        
 
         # self.bearingAngle = bearingAngle
 
         if bearingAngle>150 or bearingAngle< -150:
-            print("GH")
+            
             return ReefFace.GH
         elif bearingAngle>90:
-            print("EF")
+            
             return ReefFace.EF
         elif bearingAngle>30:
-            print("CD")
+            
             return ReefFace.CD
         elif bearingAngle>-30:
-            print("AB")
+            
             return ReefFace.AB
         elif bearingAngle>-90:
-            print("KL")
+            
             return ReefFace.KL
         else:
-            print("IJ")
+            
             return ReefFace.IJ
     
     def getPose(self):
@@ -85,13 +102,14 @@ class Pose(Subsystem):
         return self.closestFace
         
     def periodic(self):
-        # print(self.pose)
+        # 
         self.pose = self.swerve.getPose()
         self.getPose()
         self.bearingAngle = self.reefBearing(self.getTranslation(), False)
         self.closestFace = self.neartestFace(self.getTranslation(), False)
+        self.colorStatus = self.isRobotRed()
 
-        SmartDashboard.putNumber("Pose/Heading", self.swerve.get_state().raw_heading.degrees())
-        SmartDashboard.putNumber("Pose/Operator Forward", self.swerve.get_operator_forward_direction().degrees())
-        SmartDashboard.putNumber("Pose/bearingAngle", self.reefBearing(self.swerve.get_state().pose.translation(), True).degrees())
+        
+        
+        
         

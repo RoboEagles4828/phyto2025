@@ -3,48 +3,35 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.196340569934329,
-        "y": 5.350353833791371
+        "x": 7.573515229611783,
+        "y": 2.284
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.8094690934611117,
-        "y": 5.670482824570341
+        "x": 7.340078811674062,
+        "y": 2.373484293484419
       },
       "isLocked": false,
-      "linkedName": "6L"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 1.728975934595675,
-        "y": 7.292363984520371
+        "x": 5.222473765708305,
+        "y": 2.951257321641251
       },
       "prevControl": {
-        "x": 2.0446174604381,
-        "y": 7.0325112094311475
+        "x": 5.45581517423569,
+        "y": 2.861525571037266
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "LeftSourceRight"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [
-    {
-      "name": "Elevator to Zero",
-      "waypointRelativePos": 0.0,
-      "endWaypointRelativePos": 0.20711114319456006,
-      "command": null
-    },
-    {
-      "name": "Cannon Stop",
-      "waypointRelativePos": 0,
-      "endWaypointRelativePos": null,
-      "command": null
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 2.5,
     "maxAcceleration": 3.0,
@@ -55,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -55.0
+    "rotation": 121.24900000000001
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -59.99999999999999
+    "rotation": 135.0
   },
   "useDefaultConstraints": true
 }
