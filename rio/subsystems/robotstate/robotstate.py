@@ -26,18 +26,6 @@ class RobotState:
     def setAlignLeft(self, newAlignLeft : bool):
         RobotState.isAlignLeft = newAlignLeft
         print(RobotState.isAlignLeft)
-
-    def isReadyToIntake(self):
-        RobotState.isReady = False
-        RobotState.isZeroed = True
-        RobotState.coralInCannon = False
-        RobotState.isautoAligning = False
-    
-    def isReadyToShoot(self):
-        RobotState.isReady = True
-        RobotState.isZeroed = False
-        RobotState.coralInCannon = True
-        RobotState.isautoAligning = False
     
     def getAlignLeft(self):
         return RobotState.isAlignLeft

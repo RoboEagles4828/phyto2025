@@ -19,7 +19,7 @@ class Pose(Subsystem):
         self.bearingAngle = 0
         self.closestFace = ReefFace.AB
 
-        self.colorStatus = True
+        self.isRobotRed()
         """
         Indicates the color status of the robot. True means its on the Red alliance and False means it on the Blue Alliance.
         """
@@ -107,7 +107,7 @@ class Pose(Subsystem):
         self.getPose()
         self.bearingAngle = self.reefBearing(self.getTranslation(), False)
         self.closestFace = self.neartestFace(self.getTranslation(), False)
-        self.isRobotRed()
+        # self.isRobotRed()
         SmartDashboard.putBoolean("Pose/ Robot Color", self.colorStatus)
 
 

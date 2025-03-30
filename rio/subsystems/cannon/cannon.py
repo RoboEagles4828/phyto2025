@@ -77,7 +77,7 @@ class Cannon(Subsystem):
         return self.run(lambda: self.setCannonSpeed(0))
 
     def stopLoading(self):
-        return abs(self.leftMotor.getStatorCurrent())>10
+        return abs(self.leftMotor.getStatorCurrent())>10  #TODO: understand why this isnt stopping the cannon correctly
 
     def hasCoralOverride(self, coral : bool):
         """

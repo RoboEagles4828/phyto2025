@@ -122,12 +122,11 @@ class RobotContainer:
         self.elevator = Elevator()
         self.hopper = Hopper()
         self.cannon = Cannon()
-        self.led = LED()
+        self.stateManager = RobotState()
+        self.led = LED(self.stateManager)
         self.vision = VisionSubsystem(self.drivetrain)
         self.pose = Pose(self.drivetrain)
         self.algea_manipulator = AlgaeManipulator()
-        self.stateManager = RobotState()
-
         self.isRed = False
 
         if DriverStation.getAlliance() == DriverStation.Alliance.kRed:
@@ -145,7 +144,7 @@ class RobotContainer:
         NamedCommands.registerCommand("Elevator to L4", self.elevator.move_to_position(4.05, 1).withTimeout(3.0))
         NamedCommands.registerCommand("Elevator to Zero", self.elevator.move_to_zero().withTimeout(2.0))
         NamedCommands.registerCommand("Hopper Intake", self.hopper.intake())
-        NamedCommands.registerCommand("Cannon L1", self.cannon.createPlaceCoralCommand(self.isPlaceCoralL1).withTimeout(1.0))
+        NamedCommands.registerCommand("Cannon L1", self.cannon.createPlaceCoralCommand(self.isPlaceCoralL1).alongWith(InstantCommand(lambda: self.stateManager.coralInCannon(False))).withTimeout(1.0))
         NamedCommands.registerCommand("Cannon Placement", self.cannon.createPlaceCoralCommand(self.isPlaceCoralL1).withTimeout(1.0))
         NamedCommands.registerCommand("Load Coral to Cannon", self.cannon.loadCoral())
         NamedCommands.registerCommand("Elevator Stop", self.elevator.stop())
@@ -161,8 +160,8 @@ class RobotContainer:
         SmartDashboard.putData("AutoChooser",self.autoChooser)
 
     def populateCommandList(self, face: ReefFace):
-        self.alignLeftCommands[face] = SequentialCommandGroup(PID_Swerve(self.drivetrain, face.alignLeftApproach, False).andThen(PID_Swerve(self.drivetrain, face.alignLeft, True))).withTimeout(4.0)
-        self.alignRightCommands[face] = SequentialCommandGroup(PID_Swerve(self.drivetrain, face.alignRightApproach, False).andThen(PID_Swerve(self.drivetrain, face.alignRight, True))).withTimeout(5.0)
+        self.alignLeftCommands[face] = SequentialCommandGroup(PID_Swerve(self.drivetrain, FlippingUtil.flipFieldPose(face.alignLeftApproach) if self.pose.colorStatus else face.alignLeftApproach, False).andThen(PID_Swerve(self.drivetrain, FlippingUtil.flipFieldPose(face.alignLeft) if self.pose.colorStatus else face.alignLeft, True))).withTimeout(4.0)
+        self.alignRightCommands[face] = SequentialCommandGroup(PID_Swerve(self.drivetrain, FlippingUtil.flipFieldPose(face.alignRightApproach) if self.pose.colorStatus else face.alignRightApproach, False).andThen(PID_Swerve(self.drivetrain, FlippingUtil.flipFieldPose(face.alignRight) if self.pose.colorStatus else face.alignRight, True))).withTimeout(4.0)
 
     def isPlaceCoralL1(self) -> bool:
         """Returns true if the elevator height is proper for an L1 placement."""
@@ -227,13 +226,13 @@ class RobotContainer:
         # make controls better
 
         # driver buttons
-        self._joystick.leftTrigger().whileTrue(self.cannon.loadCoral().deadlineFor(self.hopper.intake()).andThen(InstantCommand(lambda: self._joystick.getHID().setRumble(XboxController.RumbleType.kBothRumble, 1.0))).andThen(WaitCommand(0.5)).andThen(InstantCommand(lambda: self._joystick.setRumble(XboxController.RumbleType.kBothRumble, 0))))
+        self._joystick.leftTrigger().whileTrue(self.cannon.loadCoral().deadlineFor(self.hopper.intake()).andThen(InstantCommand(lambda: self.stateManager.setCoralInCannon(True))).andThen(InstantCommand(lambda: self._joystick.getHID().setRumble(XboxController.RumbleType.kBothRumble, 1.0))).andThen(WaitCommand(0.5)).andThen(InstantCommand(lambda: self._joystick.setRumble(XboxController.RumbleType.kBothRumble, 0))))
         self._joystick.back().onTrue(self.drivetrain.runOnce(lambda: self.drivetrain.zeroHeading()))
         # self._joystick.rightTrigger().whileTrue(self.elevator.move_to_position_execute())
         self._joystick.rightTrigger().whileTrue(ConditionalCommand(SelectCommand(self.alignLeftCommands, lambda: self.pose.neartestFace(self.drivetrain.getPose().translation(), self.pose.colorStatus)), 
                                                                    SelectCommand(self.alignRightCommands, lambda: self.pose.neartestFace(self.drivetrain.getPose().translation(), self.pose.colorStatus)), 
                                                                    lambda: self.stateManager.getAlignLeft()).andThen(self.elevator.move_to_position_execute().until(lambda: self.elevator.tolerablePosition())))
-        self._joystick.leftBumper().whileTrue(self.cannon.createPlaceCoralCommand(self.isPlaceCoralL1))
+        self._joystick.leftBumper().whileTrue(self.cannon.createPlaceCoralCommand(self.isPlaceCoralL1).andThen(InstantCommand(lambda: self.stateManager.setCoralInCannon(False))))
         self._joystick.rightBumper().whileTrue(self.hopper.agitate())
         self._joystick.povDown().whileTrue(self.elevator.move_to_zero())
         self._joystick.povUp().whileTrue(self.algea_manipulator.outtake()) # manual debug

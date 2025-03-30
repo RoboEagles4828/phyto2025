@@ -7,9 +7,10 @@ from subsystems.robotstate.robotstate import RobotState
 from wpilib import DriverStation
 
 class LED(Subsystem):
-    def __init__(self):
+    def __init__(self, robotStateManager: RobotState):
         self.led = Spark(LED_Constants.kSparkID)
         self.lastSet = None
+        self.robotState = robotStateManager
 
     def set_color(self, value: float):
         self.lastSet = value
@@ -37,17 +38,15 @@ class LED(Subsystem):
         return self.set_color(LED_Constants.kisAuto)
 
     def periodic(self):
-        # SmartDashboard.putNumber("LED/LED Value", self.led.get())
+        SmartDashboard.putNumber("LED/LED Value", self.led.get())
 
-        if (DriverStation.isDisabled() or RobotState.getIsZeroed(RobotState)) and self.lastSet != LED_Constants.kDefaultColor:
-            self.set_default_color()
-        elif DriverStation.isAutonomous() and self.lastSet != LED_Constants.kDefaultColor:
+        if DriverStation.isAutonomous() == True:
             self.set_is_auto()
-        elif RobotState.getIsReady(RobotState) and self.lastSet != LED_Constants.kDefaultColor:
+        elif self.robotState.getIsReady():
             self.set_is_ready()
-        elif RobotState.getAutoAligning(RobotState) and self.lastSet != LED_Constants.kDefaultColor:
+        elif self.robotState.getAutoAligning():
             self.set_is_aligning()
-        elif RobotState.getCoralInCannon(RobotState) and self.lastSet != LED_Constants.kDefaultColor:
+        elif self.robotState.getCoralInCannon():
             self.set_has_coral()
-        elif self.lastSet != LED_Constants.kDefaultColor:
+        else:
             self.set_default_color()    
