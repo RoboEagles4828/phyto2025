@@ -60,7 +60,7 @@ class RobotContainer:
     ElevatorEncoderL2 = 3568
     ElevatorEncoderL3 = 5842
     elevatorL3 = 2.355
-    elevatorL4 = 4.05
+    elevatorL4 = 3.75
     cannonL1Top = (elevatorL1 + elevatorL2) / 2
 
     def __init__(self) -> None:
@@ -126,6 +126,7 @@ class RobotContainer:
         self.vision = VisionSubsystem(self.drivetrain)
         self.pose = Pose(self.drivetrain)
         self.algea_manipulator = AlgaeManipulator()
+        self.stateManager = RobotState()
 
         self.isRed = False
 
@@ -216,6 +217,8 @@ class RobotContainer:
         self._operator_joystick.x().onTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(RobotContainer.elevatorL2)))
         self._operator_joystick.b().onTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(RobotContainer.elevatorL3)))
         self._operator_joystick.y().onTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(RobotContainer.elevatorL4)))
+        self._operator_joystick.leftBumper().onTrue(InstantCommand(lambda: self.stateManager.setAlignLeft(True)))
+        self._operator_joystick.rightBumper().onTrue(InstantCommand(lambda: self.stateManager.setAlignLeft(False)))
         self._operator_joystick.rightTrigger().whileTrue(self.elevator.move_up_gradually())
         self._operator_joystick.leftTrigger().whileTrue(self.elevator.move_down_gradually())
         self._operator_joystick.povDown().whileTrue(self.elevator.move_to_zero())
@@ -226,13 +229,17 @@ class RobotContainer:
         # driver buttons
         self._joystick.leftTrigger().whileTrue(self.cannon.loadCoral().deadlineFor(self.hopper.intake()).andThen(InstantCommand(lambda: self._joystick.getHID().setRumble(XboxController.RumbleType.kBothRumble, 1.0))).andThen(WaitCommand(0.5)).andThen(InstantCommand(lambda: self._joystick.setRumble(XboxController.RumbleType.kBothRumble, 0))))
         self._joystick.back().onTrue(self.drivetrain.runOnce(lambda: self.drivetrain.zeroHeading()))
-        self._joystick.rightTrigger().whileTrue(self.elevator.move_to_position_execute())
+        # self._joystick.rightTrigger().whileTrue(self.elevator.move_to_position_execute())
+        self._joystick.rightTrigger().whileTrue(ConditionalCommand(SelectCommand(self.alignLeftCommands, lambda: self.pose.neartestFace(self.drivetrain.getPose().translation(), self.isRed)), SelectCommand(self.alignRightCommands, lambda: self.pose.neartestFace(self.drivetrain.getPose().translation(), self.isRed)), lambda: self.stateManager.getAlignLeft()).andThen(self.elevator.move_to_position_execute().until(lambda: self.elevator.tolerablePosition())))
         self._joystick.leftBumper().whileTrue(self.cannon.createPlaceCoralCommand(self.isPlaceCoralL1))
         self._joystick.rightBumper().whileTrue(self.hopper.agitate())
         self._joystick.povDown().whileTrue(self.elevator.move_to_zero())
         self._joystick.povUp().whileTrue(self.algea_manipulator.outtake()) # manual debug
         self._joystick.povRight().whileTrue(self.algea_manipulator.intake()) # manual debug
         self._joystick.a().onTrue(self.algea_manipulator.wheelStop())
+
+        #test buttons
+        self._test_joystick.a(self.elevator.move_to_position_with_encoder(100, 0))
 
         self._joystick.povLeft().whileTrue(
             self.drivetrain.apply_request(
@@ -261,9 +268,9 @@ class RobotContainer:
 
         # Tester now for Operator Joystick buttons
         # self._operator_joystick.leftBumper().onTrue(SelectCommand(self.alignLeftCommands, lambda: self.pose.neartestFace(self.drivetrain.getPose().translation(), False)))
-        self._operator_joystick.leftBumper().whileTrue(SelectCommand(self.alignLeftCommands, lambda: self.pose.neartestFace(self.drivetrain.getPose().translation(), self.isRed)))
-        self._operator_joystick.rightBumper().whileTrue(SelectCommand(self.alignRightCommands, lambda: self.pose.neartestFace(self.drivetrain.getPose().translation(), self.isRed)))
-        # Run SysId routines when holding back/start and X/Y.
+        # self._operator_joystick.leftBumper().whileTrue(SelectCommand(self.alignLeftCommands, lambda: self.pose.neartestFace(self.drivetrain.getPose().translation(), self.isRed)))
+        # self._operator_joystick.rightBumper().whileTrue(SelectCommand(self.alignRightCommands, lambda: self.pose.neartestFace(self.drivetrain.getPose().translation(), self.isRed)))
+        # # Run SysId routines when holding back/start and X/Y.
         # Note that each routine should be run exactly once in a single log.
         (self._joystick.back() & self._joystick.y()).whileTrue(
             self.drivetrain.sys_id_dynamic(SysIdRoutine.Direction.kForward)

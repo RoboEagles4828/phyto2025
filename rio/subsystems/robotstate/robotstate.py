@@ -4,46 +4,53 @@ class RobotState:
     isautoAligning = False
     isReady = False
     isZeroed = True
+    isAlignLeft = True # True if the robot is aligning to the right, False if aligning to the left
 
 
     def __new__(cls):
         if not hasattr(cls, "instance"):
             cls.instance = super(RobotState, cls).__new__(cls)
         return cls.instance
-    
-    def setCoralInCannon(newCoralInCannon : bool):
+    def setCoralInCannon(self, newCoralInCannon : bool):
         RobotState.coralInCannon = newCoralInCannon
     
-    def setAutoAligning(newAutoAligning : bool):
+    def setAutoAligning(self, newAutoAligning : bool):
         RobotState.isautoAligning = newAutoAligning
     
-    def setIsReady(newIsReady : bool):
+    def setIsReady(self, newIsReady : bool):
         RobotState.isReady = newIsReady
     
-    def setIsZeroed(newIsZeroed : bool):
+    def setIsZeroed(self, newIsZeroed : bool):
         RobotState.isZeroed = newIsZeroed
 
-    def isReadyToIntake():
+    def setAlignLeft(self, newAlignLeft : bool):
+        RobotState.isAlignLeft = newAlignLeft
+        print(RobotState.isAlignLeft)
+
+    def isReadyToIntake(self):
         RobotState.isReady = False
         RobotState.isZeroed = True
         RobotState.coralInCannon = False
         RobotState.isautoAligning = False
     
-    def isReadyToShoot():
+    def isReadyToShoot(self):
         RobotState.isReady = True
         RobotState.isZeroed = False
         RobotState.coralInCannon = True
         RobotState.isautoAligning = False
+    
+    def getAlignLeft(self):
+        return RobotState.isAlignLeft
 
-    def getCoralInCannon():
+    def getCoralInCannon(self):
         return RobotState.coralInCannon
     
-    def getAutoAligning():
+    def getAutoAligning(self):
         return RobotState.isautoAligning
     
-    def getIsReady():
+    def getIsReady(self):
         return RobotState.isReady
     
-    def getIsZeroed():
+    def getIsZeroed(self):
         return RobotState.isZeroed
     

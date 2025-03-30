@@ -16,7 +16,7 @@ from lib.util.units import Units
 from phoenix6.controls import StrictFollower, MotionMagicVoltage, Follower, PositionVoltage
 from phoenix6 import SignalLogger, ampere, StatusSignal
 from wpilib.shuffleboard import Shuffleboard
-from wpilib import DigitalInput
+from wpilib import DigitalInput, Encoder
 from wpimath.filter import Debouncer
 from wpilib.sysid import SysIdRoutineLog
 from wpilib import Encoder
@@ -35,7 +35,7 @@ class Elevator(Subsystem):
         self.rightMotorLeader = TalonFX(Elevator_Constants.kRightMotorID)  # CAN ID 1
         self.leftMotorFollower = TalonFX(Elevator_Constants.kLeftMotorID)  # CAN ID 2
         self.motorCfg = TalonFXConfiguration()
-        self.encoder = Encoder(1,2)
+        self.encoder = Encoder(1,2, encodingType=Encoder.EncodingType.k4X)
         
         # Configure values
         self.motorCfg.feedback.sensor_to_mechanism_ratio = Elevator_Constants.kGearRatio
@@ -78,7 +78,6 @@ class Elevator(Subsystem):
         self.leftMotorFollower.configurator.apply(self.motorCfg)
 
         self.bottomLimitSwitch = DigitalInput(Elevator_Constants.kBottomLimitSwitchID)
-        self.bottomLimitTriggered = False
         self.topLimitSwitch = DigitalInput(Elevator_Constants.kTopLimitSwitchID)
 
         self.debouncer = Debouncer(0.1, Debouncer.DebounceType.kBoth)
@@ -159,6 +158,18 @@ class Elevator(Subsystem):
             )
         )
     
+    def move_to_position_with_encoder(self, position : float, slot: int = 0) -> Command:
+        """
+        Returns a new command to sets the target rotations to the given position.
+        Designed for button click or as part of a command group.
+        """
+        return self.startRun(
+            lambda: self.setTargetRotation(position),
+            lambda: self.rightMotorLeader.set_control(
+                self.request.with_position(4.0).with_slot(slot)
+            )
+        ).until(lambda: self.encoder.getDistance()==position)
+    
     def stop(self, slot: int = 0) -> Command:
         """
         Uses PID to try to move to the current position (in order to counteract slippage).
@@ -210,10 +221,10 @@ class Elevator(Subsystem):
     def periodic(self):
         self.set_motor_zero()
         # SmartDashboard.putBoolean("Elevator / Top Limit Switch", self.topLimitSwitch.get())
-        # SmartDashboard.putBoolean("Elevator / Bottom Limit Switch", self.bottomLimitSwitch.get())
-        # SmartDashboard.putNumber("Elevator / Position", self.getPosition())
+        SmartDashboard.putBoolean("Elevator / Bottom Limit Switch", self.bottomLimitSwitch.get())
+        SmartDashboard.putNumber("Elevator / Position", self.getPosition())
         # SmartDashboard.putNumber("Elevator / Desired Position", self.desiredPosition)
-        # SmartDashboard.putNumber("Elevator / Encoder Position", self.encoder.getDistance())
+        SmartDashboard.putNumber("Elevator / Encoder Position", self.encoder.getDistance())
         
         
         
@@ -226,12 +237,8 @@ class Elevator(Subsystem):
 
     def set_motor_zero(self):
         if self.debouncer.calculate(self.bottomLimitSwitch.get()):
-            if not self.bottomLimitTriggered:
-                self.rightMotorLeader.set_position(0.0)
-                self.encoder.reset()
-            self.bottomLimitTriggered = True
-        else:
-            self.bottomLimitTriggered = False
+            self.rightMotorLeader.set_position(0.0)
+            self.encoder.reset()
 
     def getPosition(self) -> float:
         return self.rightMotorLeader.get_position().value

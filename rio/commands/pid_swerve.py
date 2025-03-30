@@ -37,8 +37,8 @@ class PID_Swerve(Command):
     positionIZone = 4.0
 
     # rotationPID = PIDController(0.003, 0.0, 0.0)
-    angleTolerance = 1.0
-    roughAngleTolerance = 2.5
+    angleTolerance = 0.6
+    roughAngleTolerance = 1.5
     maxAngularVelociy = 5.21 / 0.5
 
     def __init__(self, swerve: CommandSwerveDrivetrain, targetPose: Pose2d, presice: bool):
@@ -52,7 +52,7 @@ class PID_Swerve(Command):
 
         self.xPID = PIDController(PID_Swerve.presiceKP if self.presice else PID_Swerve.roughKP, 0.0, 0.0)
         self.yPID = PIDController(PID_Swerve.presiceKP if self.presice else PID_Swerve.roughKP, 0.0, 0.0)
-        self.rotationPID = PIDController(0.009, 0.0, 0.0)
+        self.rotationPID = PIDController(0.004, 0.0, 0.0)
 
         # self.xPID.setIZone(PID_Swerve.positionIZone)
         # self.xPID.setIntegratorRange(-PID_Swerve.positionKs * 2, PID_Swerve.positionKs * 2)
@@ -87,7 +87,7 @@ class PID_Swerve(Command):
         position: Translation2d = pose.translation()
         # print(self.targetPose)
         rotation: Rotation2d = pose.rotation()
-        RobotState.setAutoAligning(True)
+        # RobotState.setAutoAligning(True)
 
         xCorrection = self.xPID.calculate(Units.metersToInches(position.X()))
         xFeedForward = self.positionKs * math.copysign(1, xCorrection)
@@ -117,6 +117,4 @@ class PID_Swerve(Command):
 
         finished = self.xPID.atSetpoint() and self.yPID.atSetpoint() and self.rotationPID.atSetpoint()
         # SmartDashboard.putBoolean("Auto Align/ isFinished", finished)
-        if finished:
-            RobotState.setAutoAligning(False)
         return finished

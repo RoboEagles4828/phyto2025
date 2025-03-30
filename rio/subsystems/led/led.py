@@ -39,15 +39,15 @@ class LED(Subsystem):
     def periodic(self):
         # SmartDashboard.putNumber("LED/LED Value", self.led.get())
 
-        if (DriverStation.isDisabled() or RobotState.getIsZeroed()) and self.lastSet != LED_Constants.kDefaultColor:
+        if (DriverStation.isDisabled() or RobotState.getIsZeroed(RobotState)) and self.lastSet != LED_Constants.kDefaultColor:
             self.set_default_color()
         elif DriverStation.isAutonomous() and self.lastSet != LED_Constants.kDefaultColor:
             self.set_is_auto()
-        elif RobotState.getIsReady() and self.lastSet != LED_Constants.kDefaultColor:
+        elif RobotState.getIsReady(RobotState) and self.lastSet != LED_Constants.kDefaultColor:
             self.set_is_ready()
-        elif RobotState.getAutoAligning() and self.lastSet != LED_Constants.kDefaultColor:
+        elif RobotState.getAutoAligning(RobotState) and self.lastSet != LED_Constants.kDefaultColor:
             self.set_is_aligning()
-        elif RobotState.getCoralInCannon() and self.lastSet != LED_Constants.kDefaultColor:
+        elif RobotState.getCoralInCannon(RobotState) and self.lastSet != LED_Constants.kDefaultColor:
             self.set_has_coral()
         elif self.lastSet != LED_Constants.kDefaultColor:
             self.set_default_color()    
