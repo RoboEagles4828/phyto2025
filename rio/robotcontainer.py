@@ -230,7 +230,9 @@ class RobotContainer:
         self._joystick.leftTrigger().whileTrue(self.cannon.loadCoral().deadlineFor(self.hopper.intake()).andThen(InstantCommand(lambda: self._joystick.getHID().setRumble(XboxController.RumbleType.kBothRumble, 1.0))).andThen(WaitCommand(0.5)).andThen(InstantCommand(lambda: self._joystick.setRumble(XboxController.RumbleType.kBothRumble, 0))))
         self._joystick.back().onTrue(self.drivetrain.runOnce(lambda: self.drivetrain.zeroHeading()))
         # self._joystick.rightTrigger().whileTrue(self.elevator.move_to_position_execute())
-        self._joystick.rightTrigger().whileTrue(ConditionalCommand(SelectCommand(self.alignLeftCommands, lambda: self.pose.neartestFace(self.drivetrain.getPose().translation(), self.isRed)), SelectCommand(self.alignRightCommands, lambda: self.pose.neartestFace(self.drivetrain.getPose().translation(), self.isRed)), lambda: self.stateManager.getAlignLeft()).andThen(self.elevator.move_to_position_execute().until(lambda: self.elevator.tolerablePosition())))
+        self._joystick.rightTrigger().whileTrue(ConditionalCommand(SelectCommand(self.alignLeftCommands, lambda: self.pose.neartestFace(self.drivetrain.getPose().translation(), self.pose.colorStatus)), 
+                                                                   SelectCommand(self.alignRightCommands, lambda: self.pose.neartestFace(self.drivetrain.getPose().translation(), self.pose.colorStatus)), 
+                                                                   lambda: self.stateManager.getAlignLeft()).andThen(self.elevator.move_to_position_execute().until(lambda: self.elevator.tolerablePosition())))
         self._joystick.leftBumper().whileTrue(self.cannon.createPlaceCoralCommand(self.isPlaceCoralL1))
         self._joystick.rightBumper().whileTrue(self.hopper.agitate())
         self._joystick.povDown().whileTrue(self.elevator.move_to_zero())

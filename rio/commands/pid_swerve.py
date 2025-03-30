@@ -64,7 +64,7 @@ class PID_Swerve(Command):
         self.yPID.setSetpoint(Units.metersToInches(targetPose.Y()))
         self.yPID.setTolerance(PID_Swerve.positionTolerance if self.presice else PID_Swerve.roughPositionTolerance)
 
-        # self.rotationPID.enableContinuousInput(-180, 180)
+        self.rotationPID.enableContinuousInput(-180, 180)
         # self.rotationPID.setIZone(2.0)
         # self.rotationPID.setIntegratorRange(-PID_Swerve.positionKs * 2, PID_Swerve.positionKs * 2)
         self.rotationPID.setSetpoint(targetPose.rotation().degrees())
@@ -105,7 +105,7 @@ class PID_Swerve(Command):
         
 
         corection = self.rotationPID.calculate(rotation.degrees())
-        feedForward = 0.02 * math.copysign(1, corection)
+        feedForward = 0 #0.02 * math.copysign(1, corection)
         rotationVal = max(-1.0, min(corection+feedForward, 1.0))
 
         self.s_Swerve.drive(Translation2d(xVal, yVal).__mul__(1.75), rotationVal*PID_Swerve.maxAngularVelociy, True)

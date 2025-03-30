@@ -25,12 +25,12 @@ class Pose(Subsystem):
         """
 
     def isRobotRed(self):
-        if DriverStation.getAlliance() == DriverStation.Alliance.kBlue:
+        ally = DriverStation.getAlliance()
+
+        if ally == DriverStation.Alliance.kBlue:
             self.colorStatus = False
         else:
             self.colorStatus = True
-        
-        return self.colorStatus
 
     def otherAlliance(self, position: Translation2d)-> Translation2d:
         """
@@ -60,9 +60,9 @@ class Pose(Subsystem):
     def neartestFace(self, position: Translation2d, allianceColor: bool):
 
         
-        reefBearing = self.reefBearing(position, allianceColor)
+        reefBearing = self.reefBearing(position, self.colorStatus)
 
-        if(allianceColor):
+        if(self.colorStatus):
             reefBearing = reefBearing.__add__(Rotation2d.fromDegrees(180))
         
         bearingAngle = inputModulus(reefBearing.degrees(), -180, 180)
@@ -107,7 +107,9 @@ class Pose(Subsystem):
         self.getPose()
         self.bearingAngle = self.reefBearing(self.getTranslation(), False)
         self.closestFace = self.neartestFace(self.getTranslation(), False)
-        self.colorStatus = self.isRobotRed()
+        self.isRobotRed()
+        SmartDashboard.putBoolean("Pose/ Robot Color", self.colorStatus)
+
 
         
         
