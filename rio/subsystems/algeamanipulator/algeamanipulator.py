@@ -2,7 +2,7 @@
 """robotcontainer needs to have option for up/down in outtake"""
 """sequences not done"""
 
-from commands2 import Command, ConditionalCommand, Subsystem, InstantCommand, WaitCommand
+from commands2 import Command, ConditionalCommand, Subsystem, InstantCommand, WaitCommand, SequentialCommandGroup
 from phoenix5 import TalonSRX, TalonSRXControlMode, LimitSwitchSource, LimitSwitchNormal
 from wpimath.filter import Debouncer
 from wpilib import DigitalInput
@@ -57,7 +57,7 @@ class AlgaeManipulator(Subsystem):
             #self.run(lambda: pivotPositionself.setSpeed(self.pivotMotor, 1.0)).until(self.pivotMotor.isRevLimitSwitchClosed()), # onfalse
 
             self.run(lambda: self.setSpeed(self.pivotMotor, 0.70)).until(self.pivotStall), #ontrue
-            self.run(lambda: self.setSpeed(self.pivotMotor, -0.70)).until(self.pivotStall), #onfalse
+            self.run(lambda: self.setSpeed(self.pivotMotor, -0.90)).until(self.pivotStall), #onfalse
             lambda: pos #bool
             )
     
@@ -68,8 +68,13 @@ class AlgaeManipulator(Subsystem):
         return self.wheelStallDebouncer.calculate(abs(self.wheelMotor.getStatorCurrent()) > 20) #TODO: test to figure out current number
     
     def wheelStop(self):
-        return self.run(lambda: self.setSpeed(self.wheelMotor, 0.0))
+        return self.run(lambda: self.setSpeed(self.wheelMotor, 0.0)).withTimeout(0.2)
     
+    def AlgeaGrabberSequence(self):
+        return SequentialCommandGroup(self.pivotPosition(True).withTimeout(1).andThen(self.intake()))
+    
+    def AlgeaScoringSequence(self):
+        return SequentialCommandGroup(self.outtake().withTimeout(1.75).andThen(self.wheelStop().andThen(self.pivotPosition(False))))
     def periodic(self):
         # SmartDashboard.putBoolean("pivotStall", self.pivotStall())
         # SmartDashboard.putNumber("pivot stator current", self.pivotMotor.getStatorCurrent())

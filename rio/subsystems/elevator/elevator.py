@@ -154,7 +154,7 @@ class Elevator(Subsystem):
         return self.startRun(
             lambda: self.setTargetRotation(position),
             lambda: self.rightMotorLeader.set_control(
-                self.request.with_position(position).with_slot(slot)
+                self.request.with_position(position).with_slot(slot).with_limit_forward_motion(not(self.topLimitSwitch.get())).with_limit_reverse_motion(self.bottomLimitSwitch.get())
             )
         )
     

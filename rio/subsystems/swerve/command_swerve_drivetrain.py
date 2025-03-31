@@ -312,7 +312,7 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
                 )
                 self._has_applied_operator_perspective = True
 
-        SmartDashboard.putNumber("Swerve/OdomFrequency", self.get_odometry_frequency())
+        # SmartDashboard.putNumber("Swerve/OdomFrequency", self.get_odometry_frequency())
         # self.update_Odom()
 
     def _start_sim_thread(self):

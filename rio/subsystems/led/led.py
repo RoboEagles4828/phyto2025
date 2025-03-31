@@ -39,7 +39,8 @@ class LED(Subsystem):
 
     def periodic(self):
         SmartDashboard.putNumber("LED/LED Value", self.led.get())
-
+        SmartDashboard.putBoolean("RobotState/AlgeaScoringMode", self.robotState.getAlgaeScoringMode())
+        SmartDashboard.putBoolean("RobotState/DeAlgefyingMode", self.robotState.getDeAlgaefyingMode())
         if DriverStation.isAutonomous() == True:
             self.set_is_auto()
         elif self.robotState.getIsReady():

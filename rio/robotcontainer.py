@@ -61,6 +61,8 @@ class RobotContainer:
     ElevatorEncoderL3 = 5842
     elevatorL3 = 2.355
     elevatorL4 = 3.75
+    elevatorHighAlgae = 3.0
+    elevatorLowAlgae = 2.0
     cannonL1Top = (elevatorL1 + elevatorL2) / 2
 
     def __init__(self) -> None:
@@ -136,6 +138,8 @@ class RobotContainer:
 
         self.alignLeftCommands: dict[ReefFace, Command] = {}
         self.alignRightCommands: dict[ReefFace, Command] = {}
+        self.alignApproachAlgaeCommands: dict[ReefFace, Command] = {}
+        self.alignAlgaeCommands: dict[ReefFace, Command] = {}
 
         for face in ReefFace:
             self.populateCommandList(face)
@@ -162,6 +166,67 @@ class RobotContainer:
     def populateCommandList(self, face: ReefFace):
         self.alignLeftCommands[face] = SequentialCommandGroup(PID_Swerve(self.drivetrain, FlippingUtil.flipFieldPose(face.alignLeftApproach) if self.pose.colorStatus else face.alignLeftApproach, False).andThen(PID_Swerve(self.drivetrain, FlippingUtil.flipFieldPose(face.alignLeft) if self.pose.colorStatus else face.alignLeft, True))).withTimeout(4.0)
         self.alignRightCommands[face] = SequentialCommandGroup(PID_Swerve(self.drivetrain, FlippingUtil.flipFieldPose(face.alignRightApproach) if self.pose.colorStatus else face.alignRightApproach, False).andThen(PID_Swerve(self.drivetrain, FlippingUtil.flipFieldPose(face.alignRight) if self.pose.colorStatus else face.alignRight, True))).withTimeout(4.0)
+        self.alignApproachAlgaeCommands[face] = SequentialCommandGroup(PID_Swerve(self.drivetrain, FlippingUtil.flipFieldPose(face.alginAlgaeApproach) if self.pose.colorStatus else face.alginAlgaeApproach, False)).withTimeout(2.0)
+        self.alignAlgaeCommands[face] = SequentialCommandGroup(PID_Swerve(self.drivetrain, FlippingUtil.flipFieldPose(face.alignAlgae) if self.pose.colorStatus else face.alignAlgae, True)).withTimeout(2.0)
+
+    def coralScoringCommand(self):
+        return SequentialCommandGroup(
+            ConditionalCommand(
+                SelectCommand(
+                    self.alignLeftCommands,
+                    lambda: self.pose.neartestFace(
+                        self.drivetrain.getPose().translation(),
+                        self.pose.colorStatus
+                    )
+                ),
+                SelectCommand(
+                    self.alignRightCommands,
+                    lambda: self.pose.neartestFace(
+                        self.drivetrain.getPose().translation(),
+                        self.pose.colorStatus
+                    )
+                ),
+                lambda: self.stateManager.getAlignLeft()
+            ).andThen(
+                self.elevator.move_to_position_execute().until(
+                    lambda: self.elevator.tolerablePosition() #TODO: we may not need this line anymore?
+                )
+            )
+        )
+    
+    def deAlgaefyingCommand(self):
+        return SequentialCommandGroup(
+            SelectCommand(
+                self.alignApproachAlgaeCommands,
+                lambda: self.pose.neartestFace(
+                    self.drivetrain.getPose().translation(),
+                    self.pose.colorStatus
+                )
+            ).andThen(
+                ConditionalCommand(
+                    self.elevator.move_to_position(RobotContainer.elevatorHighAlgae).until(lambda: self.elevator.tolerablePosition()), #TODO: We need to find these values
+                    self.elevator.move_to_position(RobotContainer.elevatorLowAlgae).until(lambda: self.elevator.tolerablePosition()),
+                    lambda: self.pose.isHighAlgae()
+                ).alongWith(self.algea_manipulator.AlgeaGrabberSequence()).withTimeout(.5)
+            ).andThen(
+                SelectCommand(
+                    self.alignAlgaeCommands,
+                    lambda: self.pose.neartestFace(
+                        self.drivetrain.getPose().translation(),
+                        self.pose.colorStatus
+                    )
+                )
+            )
+        )
+    
+    def algaeScoringCommand(self):
+        return SequentialCommandGroup(
+            self.elevator.move_to_position(RobotContainer.elevatorL4).andThen(
+                self.algea_manipulator.AlgeaScoringSequence()
+            )
+        )
+    
+
 
     def isPlaceCoralL1(self) -> bool:
         """Returns true if the elevator height is proper for an L1 placement."""
@@ -216,22 +281,32 @@ class RobotContainer:
         self._operator_joystick.x().onTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(RobotContainer.elevatorL2)))
         self._operator_joystick.b().onTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(RobotContainer.elevatorL3)))
         self._operator_joystick.y().onTrue(self.elevator.runOnce(lambda: self.elevator.setNextTargetRotation(RobotContainer.elevatorL4)))
-        self._operator_joystick.leftBumper().onTrue(InstantCommand(lambda: self.stateManager.setAlignLeft(True)))
-        self._operator_joystick.rightBumper().onTrue(InstantCommand(lambda: self.stateManager.setAlignLeft(False)))
+        self._operator_joystick.leftBumper().onTrue(InstantCommand(lambda: self.stateManager.setAlignLeft(True)).alongWith(InstantCommand(lambda: self.stateManager.setCoralScoringMode())))
+        self._operator_joystick.rightBumper().onTrue(InstantCommand(lambda: self.stateManager.setAlignLeft(False)).alongWith(InstantCommand(lambda: self.stateManager.setCoralScoringMode())))
         self._operator_joystick.rightTrigger().whileTrue(self.elevator.move_up_gradually())
         self._operator_joystick.leftTrigger().whileTrue(self.elevator.move_down_gradually())
-        self._operator_joystick.povDown().whileTrue(self.elevator.move_to_zero())
-        self._operator_joystick.povLeft().onTrue(self.algea_manipulator.pivotPosition(True)) # manual debug
-        self._operator_joystick.povRight().onTrue(self.algea_manipulator.pivotPosition(False)) # manual debug
+        self._operator_joystick.povDown().onTrue(self.elevator.move_to_zero().withTimeout(3.0)) #TODO: Adjust Timeout
+        # self._operator_joystick.povLeft().onTrue(self.algea_manipulator.pivotPosition(True)) # manual debug
+        # self._operator_joystick.povRight().onTrue(self.algea_manipulator.pivotPosition(False)) # manual debug
+        self._operator_joystick.povLeft().onTrue(InstantCommand(lambda: self.stateManager.setDeAlgaefyingMode()))
+        self._operator_joystick.povRight().onTrue(InstantCommand(lambda: self.stateManager.setAlgaeScoringMode()))
         # make controls better
 
         # driver buttons
         self._joystick.leftTrigger().whileTrue(self.cannon.loadCoral().deadlineFor(self.hopper.intake()).andThen(InstantCommand(lambda: self.stateManager.setCoralInCannon(True))).andThen(InstantCommand(lambda: self._joystick.getHID().setRumble(XboxController.RumbleType.kBothRumble, 1.0))).andThen(WaitCommand(0.5)).andThen(InstantCommand(lambda: self._joystick.setRumble(XboxController.RumbleType.kBothRumble, 0))))
         self._joystick.back().onTrue(self.drivetrain.runOnce(lambda: self.drivetrain.zeroHeading()))
         # self._joystick.rightTrigger().whileTrue(self.elevator.move_to_position_execute())
-        self._joystick.rightTrigger().whileTrue(ConditionalCommand(SelectCommand(self.alignLeftCommands, lambda: self.pose.neartestFace(self.drivetrain.getPose().translation(), self.pose.colorStatus)), 
-                                                                   SelectCommand(self.alignRightCommands, lambda: self.pose.neartestFace(self.drivetrain.getPose().translation(), self.pose.colorStatus)), 
-                                                                   lambda: self.stateManager.getAlignLeft()).andThen(self.elevator.move_to_position_execute().until(lambda: self.elevator.tolerablePosition())))
+        self._joystick.rightTrigger().whileTrue(
+            ConditionalCommand(
+                self.algaeScoringCommand(),
+                ConditionalCommand(
+                    self.deAlgaefyingCommand(),
+                    self.coralScoringCommand(),
+                    lambda: self.stateManager.getDeAlgaefyingMode()
+                ),
+                lambda: self.stateManager.getAlgaeScoringMode()
+            )
+        )
         self._joystick.leftBumper().whileTrue(self.cannon.createPlaceCoralCommand(self.isPlaceCoralL1).andThen(InstantCommand(lambda: self.stateManager.setCoralInCannon(False))))
         self._joystick.rightBumper().whileTrue(self.hopper.agitate())
         self._joystick.povDown().whileTrue(self.elevator.move_to_zero())

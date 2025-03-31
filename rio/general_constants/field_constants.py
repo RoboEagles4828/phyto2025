@@ -39,11 +39,13 @@ class FieldConstants:
     centerOffset = Translation2d(reefToFaceDistance + reefOffSet, 0.0)
     leftOffset = Translation2d(reefToFaceDistance + reefOffSet, (-branchSeperation/2.0)-0.102)
     rightOffset = Translation2d(reefToFaceDistance + reefOffSet, (branchSeperation/2.0)-0.102)
+    algaeOffset = Translation2d(reefToFaceDistance + reefOffSet, (-branchSeperation/2.0))
     extraOffset  = Translation2d(reefExtraOffSet, 0.0)
 
     centerApproachOffset = centerOffset.__add__(extraOffset)
     leftApproachOffset = leftOffset.__add__(extraOffset)
     rightApproachOffset = rightOffset.__add__(extraOffset)
+    algaeApproachOffset = algaeOffset.__add__(extraOffset)
 
 class ReefFace(Enum):
     AB = (-180)
@@ -65,6 +67,9 @@ class ReefFace(Enum):
         self.alignRight = Pose2d(FieldConstants.reefCenter.__add__(FieldConstants.rightOffset).rotateAround(
             FieldConstants.reefCenter, self.directionFromCenter), self.directionFromCenter.__add__(
                 Rotation2d.fromDegrees(180)))
+        self.alignAlgae = Pose2d(FieldConstants.reefCenter.__add__(FieldConstants.algaeOffset).rotateAround(
+            FieldConstants.reefCenter, self.directionFromCenter), self.directionFromCenter.__add__(
+                Rotation2d.fromDegrees(180)))
         self.alignCenterApproach = Pose2d(FieldConstants.reefCenter.__add__(FieldConstants.centerApproachOffset).rotateAround(
             FieldConstants.reefCenter, self.directionFromCenter), self.directionFromCenter.__add__(
                 Rotation2d.fromDegrees(180)))
@@ -72,5 +77,8 @@ class ReefFace(Enum):
             FieldConstants.reefCenter, self.directionFromCenter), self.directionFromCenter.__add__(
                 Rotation2d.fromDegrees(180)))
         self.alignRightApproach = Pose2d(FieldConstants.reefCenter.__add__(FieldConstants.rightApproachOffset).rotateAround(
+            FieldConstants.reefCenter, self.directionFromCenter), self.directionFromCenter.__add__(
+                Rotation2d.fromDegrees(180)))
+        self.alginAlgaeApproach = Pose2d(FieldConstants.reefCenter.__add__(FieldConstants.algaeApproachOffset).rotateAround(
             FieldConstants.reefCenter, self.directionFromCenter), self.directionFromCenter.__add__(
                 Rotation2d.fromDegrees(180)))

@@ -1,6 +1,8 @@
 class RobotState:
 
     coralInCannon = True
+    deAlgaefying = False
+    algaeScoring = False
     isautoAligning = False
     isReady = False
     isZeroed = True
@@ -26,6 +28,18 @@ class RobotState:
     def setAlignLeft(self, newAlignLeft : bool):
         RobotState.isAlignLeft = newAlignLeft
         print(RobotState.isAlignLeft)
+
+    def setDeAlgaefyingMode(self):
+        RobotState.deAlgaefying = True
+        RobotState.algaeScoring = False
+    
+    def setAlgaeScoringMode(self):
+        RobotState.algaeScoring = True
+        RobotState.deAlgaefying = False
+    
+    def setCoralScoringMode(self):
+        RobotState.algaeScoring = False
+        RobotState.deAlgaefying = False
     
     def getAlignLeft(self):
         return RobotState.isAlignLeft
@@ -41,4 +55,12 @@ class RobotState:
     
     def getIsZeroed(self):
         return RobotState.isZeroed
+    
+    def getDeAlgaefyingMode(self):
+        return RobotState.deAlgaefying
+    
+    def getAlgaeScoringMode(self):
+        return RobotState.algaeScoring
+    
+
     

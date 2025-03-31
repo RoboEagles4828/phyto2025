@@ -93,6 +93,12 @@ class Pose(Subsystem):
     
     def getPose(self):
         return self.swerve.get_state().pose
+    
+    def isHighAlgae(self):
+        if self.closestFace == ReefFace.AB or self.closestFace == ReefFace.CD or self.closestFace == ReefFace.EF:
+            return True
+        else:
+            return False
 
     
     def getTranslation(self):
