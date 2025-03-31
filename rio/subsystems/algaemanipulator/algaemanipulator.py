@@ -6,7 +6,7 @@ from commands2 import Command, ConditionalCommand, Subsystem, InstantCommand, Wa
 from phoenix5 import TalonSRX, TalonSRXControlMode, LimitSwitchSource, LimitSwitchNormal
 from wpimath.filter import Debouncer
 from wpilib import DigitalInput
-from subsystems.algeamanipulator.algeamanipulator_constants import AlgaeConstants
+from subsystems.algaemanipulator.algaemanipulator_constants import AlgaeConstants
 from wpilib import SmartDashboard
 
 class AlgaeManipulator(Subsystem):
@@ -70,11 +70,12 @@ class AlgaeManipulator(Subsystem):
     def wheelStop(self):
         return self.run(lambda: self.setSpeed(self.wheelMotor, 0.0)).withTimeout(0.2)
     
-    def AlgeaGrabberSequence(self):
+    def AlgaeGrabberSequence(self):
         return SequentialCommandGroup(self.pivotPosition(True).withTimeout(1).andThen(self.intake()))
     
-    def AlgeaScoringSequence(self):
+    def AlgaeScoringSequence(self):
         return SequentialCommandGroup(self.outtake().withTimeout(1.75).andThen(self.wheelStop().andThen(self.pivotPosition(False))))
+    
     def periodic(self):
         # SmartDashboard.putBoolean("pivotStall", self.pivotStall())
         # SmartDashboard.putNumber("pivot stator current", self.pivotMotor.getStatorCurrent())

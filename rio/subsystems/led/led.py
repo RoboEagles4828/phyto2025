@@ -22,8 +22,8 @@ class LED(Subsystem):
     def set_has_coral(self):
         return self.set_color(LED_Constants.kHasCoral)
     
-    def set_has_algea(self):
-        return self.set_color(LED_Constants.kHasAlgea)
+    def set_has_algae(self):
+        return self.set_color(LED_Constants.kHasAlgae)
     
     def set_is_ready(self):
         return self.set_color(LED_Constants.kisReady)
@@ -39,7 +39,7 @@ class LED(Subsystem):
 
     def periodic(self):
         SmartDashboard.putNumber("LED/LED Value", self.led.get())
-        SmartDashboard.putBoolean("RobotState/AlgeaScoringMode", self.robotState.getAlgaeScoringMode())
+        SmartDashboard.putBoolean("RobotState/AlgaeScoringMode", self.robotState.getAlgaeScoringMode())
         SmartDashboard.putBoolean("RobotState/DeAlgefyingMode", self.robotState.getDeAlgaefyingMode())
         if DriverStation.isAutonomous() == True:
             self.set_is_auto()

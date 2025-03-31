@@ -38,7 +38,7 @@ from subsystems.hopper.hopper import Hopper
 from subsystems.vision.vision  import VisionSubsystem
 from subsystems.robotstate.robotstate import RobotState
 from subsystems.led.led import LED
-from subsystems.algeamanipulator.algeamanipulator import AlgaeManipulator
+from subsystems.algaemanipulator.algaemanipulator import AlgaeManipulator
 
 from general_constants.field_constants import ReefFace
 from subsystems.pose.pose import Pose
@@ -128,7 +128,7 @@ class RobotContainer:
         self.led = LED(self.stateManager)
         self.vision = VisionSubsystem(self.drivetrain)
         self.pose = Pose(self.drivetrain)
-        self.algea_manipulator = AlgaeManipulator()
+        self.algae_manipulator = AlgaeManipulator()
         self.isRed = False
 
         if DriverStation.getAlliance() == DriverStation.Alliance.kRed:
@@ -207,7 +207,7 @@ class RobotContainer:
                     self.elevator.move_to_position(RobotContainer.elevatorHighAlgae).until(lambda: self.elevator.tolerablePosition()), #TODO: We need to find these values
                     self.elevator.move_to_position(RobotContainer.elevatorLowAlgae).until(lambda: self.elevator.tolerablePosition()),
                     lambda: self.pose.isHighAlgae()
-                ).alongWith(self.algea_manipulator.AlgeaGrabberSequence()).withTimeout(.5)
+                ).alongWith(self.algae_manipulator.AlgaeGrabberSequence()).withTimeout(.5)
             ).andThen(
                 SelectCommand(
                     self.alignAlgaeCommands,
@@ -222,7 +222,7 @@ class RobotContainer:
     def algaeScoringCommand(self):
         return SequentialCommandGroup(
             self.elevator.move_to_position(RobotContainer.elevatorL4).andThen(
-                self.algea_manipulator.AlgeaScoringSequence()
+                self.algae_manipulator.AlgaeScoringSequence()
             )
         )
     
@@ -265,7 +265,7 @@ class RobotContainer:
         self.hopper.setDefaultCommand(self.hopper.stop())
         self.cannon.setDefaultCommand(self.cannon.stop())
         self.elevator.setDefaultCommand(self.elevator.stop())
-        self.algea_manipulator.setDefaultCommand(self.algea_manipulator.stop())
+        self.algae_manipulator.setDefaultCommand(self.algae_manipulator.stop())
 
         # self._joystick.a().whileTrue(self.drivetrain.apply_request(lambda: self._brake))
         # self._joystick.b().whileTrue(
@@ -286,8 +286,8 @@ class RobotContainer:
         self._operator_joystick.rightTrigger().whileTrue(self.elevator.move_up_gradually())
         self._operator_joystick.leftTrigger().whileTrue(self.elevator.move_down_gradually())
         self._operator_joystick.povDown().onTrue(self.elevator.move_to_zero().withTimeout(3.0)) #TODO: Adjust Timeout
-        # self._operator_joystick.povLeft().onTrue(self.algea_manipulator.pivotPosition(True)) # manual debug
-        # self._operator_joystick.povRight().onTrue(self.algea_manipulator.pivotPosition(False)) # manual debug
+        # self._operator_joystick.povLeft().onTrue(self.algae_manipulator.pivotPosition(True)) # manual debug
+        # self._operator_joystick.povRight().onTrue(self.algae_manipulator.pivotPosition(False)) # manual debug
         self._operator_joystick.povLeft().onTrue(InstantCommand(lambda: self.stateManager.setDeAlgaefyingMode()))
         self._operator_joystick.povRight().onTrue(InstantCommand(lambda: self.stateManager.setAlgaeScoringMode()))
         # make controls better
@@ -310,9 +310,9 @@ class RobotContainer:
         self._joystick.leftBumper().whileTrue(self.cannon.createPlaceCoralCommand(self.isPlaceCoralL1).andThen(InstantCommand(lambda: self.stateManager.setCoralInCannon(False))))
         self._joystick.rightBumper().whileTrue(self.hopper.agitate())
         self._joystick.povDown().whileTrue(self.elevator.move_to_zero())
-        self._joystick.povUp().whileTrue(self.algea_manipulator.outtake()) # manual debug
-        self._joystick.povRight().whileTrue(self.algea_manipulator.intake()) # manual debug
-        self._joystick.a().onTrue(self.algea_manipulator.wheelStop())
+        self._joystick.povUp().whileTrue(self.algae_manipulator.outtake()) # manual debug
+        self._joystick.povRight().whileTrue(self.algae_manipulator.intake()) # manual debug
+        self._joystick.a().onTrue(self.algae_manipulator.wheelStop())
 
         #test buttons
         self._test_joystick.a(self.elevator.move_to_position_with_encoder(100, 0))
