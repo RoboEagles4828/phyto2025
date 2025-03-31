@@ -60,7 +60,7 @@ class RobotContainer:
     ElevatorEncoderL2 = 3568
     ElevatorEncoderL3 = 5842
     elevatorL3 = 2.355
-    elevatorL4 = 3.75
+    elevatorL4 = 3.9
     elevatorHighAlgae = 3.0
     elevatorLowAlgae = 2.0
     cannonL1Top = (elevatorL1 + elevatorL2) / 2
@@ -145,7 +145,7 @@ class RobotContainer:
             self.populateCommandList(face)
         
         NamedCommands.registerCommand("Elevator to L1", self.elevator.move_to_position(self.elevatorL1, 0).withTimeout(3.0))
-        NamedCommands.registerCommand("Elevator to L4", self.elevator.move_to_position(4.05, 1).withTimeout(3.0))
+        NamedCommands.registerCommand("Elevator to L4", self.elevator.move_to_position(RobotContainer.elevatorL4, 1).withTimeout(3.0))
         NamedCommands.registerCommand("Elevator to Zero", self.elevator.move_to_zero().withTimeout(2.0))
         NamedCommands.registerCommand("Hopper Intake", self.hopper.intake())
         NamedCommands.registerCommand("Cannon L1", self.cannon.createPlaceCoralCommand(self.isPlaceCoralL1).alongWith(InstantCommand(lambda: self.stateManager.coralInCannon(False))).withTimeout(1.0))
@@ -153,6 +153,10 @@ class RobotContainer:
         NamedCommands.registerCommand("Load Coral to Cannon", self.cannon.loadCoral())
         NamedCommands.registerCommand("Elevator Stop", self.elevator.stop())
         NamedCommands.registerCommand("Cannon Stop", self.cannon.stop().withTimeout(2.0))
+        NamedCommands.registerCommand("Auto Align Right IJ", self.alignRightCommands[ReefFace.IJ])
+        NamedCommands.registerCommand("Auto Align Right KL", self.alignRightCommands[ReefFace.KL])
+        NamedCommands.registerCommand("Auto Align Left KL", self.alignLeftCommands[ReefFace.KL])
+
 
         # Configure the button bindings
 
@@ -164,8 +168,8 @@ class RobotContainer:
         SmartDashboard.putData("AutoChooser",self.autoChooser)
 
     def populateCommandList(self, face: ReefFace):
-        self.alignLeftCommands[face] = SequentialCommandGroup(PID_Swerve(self.drivetrain, FlippingUtil.flipFieldPose(face.alignLeftApproach) if self.pose.colorStatus else face.alignLeftApproach, False).andThen(PID_Swerve(self.drivetrain, FlippingUtil.flipFieldPose(face.alignLeft) if self.pose.colorStatus else face.alignLeft, True))).withTimeout(4.0)
-        self.alignRightCommands[face] = SequentialCommandGroup(PID_Swerve(self.drivetrain, FlippingUtil.flipFieldPose(face.alignRightApproach) if self.pose.colorStatus else face.alignRightApproach, False).andThen(PID_Swerve(self.drivetrain, FlippingUtil.flipFieldPose(face.alignRight) if self.pose.colorStatus else face.alignRight, True))).withTimeout(4.0)
+        self.alignLeftCommands[face] = SequentialCommandGroup(PID_Swerve(self.drivetrain, FlippingUtil.flipFieldPose(face.alignLeftApproach) if self.pose.colorStatus else face.alignLeftApproach, False).withTimeout(3).andThen(PID_Swerve(self.drivetrain, FlippingUtil.flipFieldPose(face.alignLeft) if self.pose.colorStatus else face.alignLeft, True))).withTimeout(6.0)
+        self.alignRightCommands[face] = SequentialCommandGroup(PID_Swerve(self.drivetrain, FlippingUtil.flipFieldPose(face.alignRight) if self.pose.colorStatus else face.alignRight, True)).withTimeout(6.0)
         self.alignApproachAlgaeCommands[face] = SequentialCommandGroup(PID_Swerve(self.drivetrain, FlippingUtil.flipFieldPose(face.alginAlgaeApproach) if self.pose.colorStatus else face.alginAlgaeApproach, False)).withTimeout(2.0)
         self.alignAlgaeCommands[face] = SequentialCommandGroup(PID_Swerve(self.drivetrain, FlippingUtil.flipFieldPose(face.alignAlgae) if self.pose.colorStatus else face.alignAlgae, True)).withTimeout(2.0)
 
@@ -187,7 +191,7 @@ class RobotContainer:
                     )
                 ),
                 lambda: self.stateManager.getAlignLeft()
-            ).andThen(
+            ).withTimeout(3.0).andThen(
                 self.elevator.move_to_position_execute().until(
                     lambda: self.elevator.tolerablePosition() #TODO: we may not need this line anymore?
                 )

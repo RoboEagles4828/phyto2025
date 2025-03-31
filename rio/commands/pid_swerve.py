@@ -29,15 +29,15 @@ class PID_Swerve(Command):
     # yPID: PIDController = PIDController(0.02, 0.0, 0.0)
     
     presiceKP = 0.05
-    roughKP = 0.04
-    positionTolerance = 1.3
+    roughKP = 0.07
+    positionTolerance = 0.5
     roughPositionTolerance = 2.5
     maxSpeed = 1.0
     positionKs = 0.02
     positionIZone = 4.0
 
     # rotationPID = PIDController(0.003, 0.0, 0.0)
-    angleTolerance = 0.6
+    angleTolerance = 1
     roughAngleTolerance = 1.5
     maxAngularVelociy = 5.21 / 0.5
 
@@ -52,7 +52,7 @@ class PID_Swerve(Command):
 
         self.xPID = PIDController(PID_Swerve.presiceKP if self.presice else PID_Swerve.roughKP, 0.0, 0.0)
         self.yPID = PIDController(PID_Swerve.presiceKP if self.presice else PID_Swerve.roughKP, 0.0, 0.0)
-        self.rotationPID = PIDController(0.004, 0.0, 0.0)
+        self.rotationPID = PIDController(0.002, 0.0, 0.0)
 
         # self.xPID.setIZone(PID_Swerve.positionIZone)
         # self.xPID.setIntegratorRange(-PID_Swerve.positionKs * 2, PID_Swerve.positionKs * 2)
@@ -86,18 +86,19 @@ class PID_Swerve(Command):
         pose: Pose2d = self.s_Swerve.get_state().pose
         position: Translation2d = pose.translation()
         # print(self.targetPose)
+        print(str(self.presice))
         rotation: Rotation2d = pose.rotation()
         # RobotState.setAutoAligning(True)
 
         xCorrection = self.xPID.calculate(Units.metersToInches(position.X()))
-        xFeedForward = self.positionKs * math.copysign(1, xCorrection)
+        xFeedForward = 0 #self.positionKs * math.copysign(1, xCorrection)
         xVal = max(-1, min(xCorrection+xFeedForward, 1))
         
         
         
 
         yCorrection = self.yPID.calculate(Units.metersToInches(position.Y()))
-        yFeedForward = self.positionKs * math.copysign(1, yCorrection)
+        yFeedForward = 0 #self.positionKs * math.copysign(1, yCorrection)
         yVal = max(-1, min(yCorrection+yFeedForward, 1))
         
         
@@ -105,7 +106,7 @@ class PID_Swerve(Command):
         
 
         corection = self.rotationPID.calculate(rotation.degrees())
-        feedForward = 0 #0.02 * math.copysign(1, corection)
+        feedForward = 0 # 0.02 * math.copysign(1, corection)
         rotationVal = max(-1.0, min(corection+feedForward, 1.0))
 
         self.s_Swerve.drive(Translation2d(xVal, yVal).__mul__(1.75), rotationVal*PID_Swerve.maxAngularVelociy, True)
