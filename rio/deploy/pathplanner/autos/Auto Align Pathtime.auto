@@ -1,0 +1,73 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LeftStart_to_Face5"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Auto Align Right IJ"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "J_to_LeftCS"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LeftCS_toFace 6"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Auto Align Right KL"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "K_to_LeftCS"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LeftCS_toFace 6"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Auto Align Left KL"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "Auto Align Autos",
+  "choreoAuto": false
+}

@@ -141,7 +141,7 @@ class Elevator(Subsystem):
         return self.startRun(
             lambda: self.setTargetRotation(self.nextTargetPosition),
             lambda: self.rightMotorLeader.set_control(
-                self.dutyCycle.with_output(-.5).with_limit_reverse_motion(self.bottomLimitSwitch.get())
+                self.dutyCycle.with_output(-.7).with_limit_reverse_motion(self.bottomLimitSwitch.get())
             )
         ).andThen(self.runOnce(lambda: RobotState.setIsZeroed(True)))
 
