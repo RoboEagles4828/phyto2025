@@ -3,6 +3,7 @@ from commands2 import Command
 from phoenix6.swerve import requests
 
 from subsystems.swerve.command_swerve_drivetrain import CommandSwerveDrivetrain
+from subsystems.pose.pose import Pose
 
 from pathplannerlib.auto import AutoBuilder, PathConstraints, PathPlannerPath
 
@@ -10,7 +11,7 @@ from wpimath.geometry import Pose2d, Translation2d, Rotation2d
 from wpimath.trajectory import TrapezoidProfile
 from wpimath.controller import ProfiledPIDController
 from wpimath import units
-from wpilib import SmartDashboard
+from wpilib import SmartDashboard, DriverStation
 
 import math
 
@@ -19,8 +20,11 @@ import numpy as np
 
 class AutoAlignReef(Command):
 
-    def __init__(self, swerve: CommandSwerveDrivetrain, targetPose: Pose2d, presice: bool):
+    def __init__(self, swerve: CommandSwerveDrivetrain, targetPose: Pose2d, presice: bool, colorStatus: bool):
 
+        self.factor = 1.0
+        if colorStatus:
+            self.factor = -1.0
         self.s_Swerve = swerve
         self.targetPose = targetPose
         self.presice = presice
@@ -60,7 +64,7 @@ class AutoAlignReef(Command):
         scalar = self.scalar(self.distance)
 
         self.drivePIDOutput = self.translationController.calculate(self.distance, 0)
-        self.driveSpeed =   1 * scalar * self.translationController.getSetpoint().velocity + self.drivePIDOutput
+        self.driveSpeed =   self.factor * scalar * self.translationController.getSetpoint().velocity + self.drivePIDOutput
         self.direction = Rotation2d(self.currentPose.X()-self.targetPose.X(), self.currentPose.Y()-self.targetPose.Y())
 
 
@@ -76,10 +80,15 @@ class AutoAlignReef(Command):
 
 
     def isFinished(self):
-        finished = self.translationController.atGoal() and self.rotationController.atGoal() or self.distance <= 0.02
+        finished = self.translationController.atGoal() and self.rotationController.atGoal() or self.distance <= 0.0508
 
         # SmartDashboard.putBoolean("Auto Align/ Finished", finished)
         return finished
+    
+    def end(self, interrupted):
+        self.s_Swerve.set_control(
+            self.drive.with_velocity_x(0.0).with_velocity_y(0.0).with_rotational_rate(0.0)
+        )
 
 
 

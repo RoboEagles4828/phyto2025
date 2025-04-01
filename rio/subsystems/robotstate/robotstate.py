@@ -7,6 +7,7 @@ class RobotState:
     isReady = False
     isZeroed = True
     isAlignLeft = True # True if the robot is aligning to the right, False if aligning to the left
+    automationMode = True
 
 
     def __new__(cls):
@@ -40,6 +41,9 @@ class RobotState:
     def setCoralScoringMode(self):
         RobotState.algaeScoring = False
         RobotState.deAlgaefying = False
+
+    def setAutomationMode(self, newAutomationMode : bool):
+        RobotState.automationMode = newAutomationMode
     
     def getAlignLeft(self):
         return RobotState.isAlignLeft
@@ -61,6 +65,9 @@ class RobotState:
     
     def getAlgaeScoringMode(self):
         return RobotState.algaeScoring
+    
+    def getAutomationMode(self):
+        return RobotState.automationMode
     
 
     

@@ -29,9 +29,9 @@ class PID_Swerve(Command):
     # yPID: PIDController = PIDController(0.02, 0.0, 0.0)
     
     presiceKP = 0.05
-    roughKP = 0.07
+    roughKP = 0.1
     positionTolerance = 0.5
-    roughPositionTolerance = 2.5
+    roughPositionTolerance = 4
     maxSpeed = 1.0
     positionKs = 0.02
     positionIZone = 4.0
@@ -52,7 +52,7 @@ class PID_Swerve(Command):
 
         self.xPID = PIDController(PID_Swerve.presiceKP if self.presice else PID_Swerve.roughKP, 0.0, 0.0)
         self.yPID = PIDController(PID_Swerve.presiceKP if self.presice else PID_Swerve.roughKP, 0.0, 0.0)
-        self.rotationPID = PIDController(0.002, 0.0, 0.0)
+        self.rotationPID = PIDController(0.005, 0.0, 0.0)
 
         # self.xPID.setIZone(PID_Swerve.positionIZone)
         # self.xPID.setIntegratorRange(-PID_Swerve.positionKs * 2, PID_Swerve.positionKs * 2)
@@ -91,14 +91,14 @@ class PID_Swerve(Command):
         # RobotState.setAutoAligning(True)
 
         xCorrection = self.xPID.calculate(Units.metersToInches(position.X()))
-        xFeedForward = 0 #self.positionKs * math.copysign(1, xCorrection)
+        xFeedForward = self.positionKs * math.copysign(1, xCorrection)
         xVal = max(-1, min(xCorrection+xFeedForward, 1))
         
         
         
 
         yCorrection = self.yPID.calculate(Units.metersToInches(position.Y()))
-        yFeedForward = 0 #self.positionKs * math.copysign(1, yCorrection)
+        yFeedForward = self.positionKs * math.copysign(1, yCorrection)
         yVal = max(-1, min(yCorrection+yFeedForward, 1))
         
         

@@ -30,7 +30,7 @@ class FieldConstants:
     bumperWidth = Units.inchesToMeters(3.4)
     reefStandOff = Units.inchesToMeters(0.0)
     reefOffSet = Units.inchesToMeters(28 / 2.0) + bumperWidth + reefStandOff - Units.inchesToMeters(2)
-    reefExtraOffSet = Units.inchesToMeters(15.0)
+    reefExtraOffSet = Units.inchesToMeters(40.0)
 
     fieldWidth = Units.inchesToMeters(26*12+3)
     reefCenter = Translation2d(Units.inchesToMeters(176.75), fieldWidth/2)
