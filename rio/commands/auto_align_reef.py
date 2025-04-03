@@ -13,6 +13,8 @@ from wpimath.controller import ProfiledPIDController
 from wpimath import units
 from wpilib import SmartDashboard, DriverStation
 
+from lib.util.convenientmath import clamp
+
 import math
 
 
@@ -31,12 +33,12 @@ class AutoAlignReef(Command):
 
         self.drive = requests.FieldCentric().with_drive_request_type(requests.SwerveModule.DriveRequestType.OPEN_LOOP_VOLTAGE)
 
-        self.translationController = ProfiledPIDController(6.0, 0.0, 0.0, TrapezoidProfile.Constraints(4.0, 5.0))
-        self.rotationController = ProfiledPIDController(7.5, 0.0, 0.0, TrapezoidProfile.Constraints(7.0, 3.0))
+        self.translationController = ProfiledPIDController(4.0, 0.0, 0.015, TrapezoidProfile.Constraints(4.0, 7.0))
+        self.rotationController = ProfiledPIDController(7.0, 0.0, 0.0, TrapezoidProfile.Constraints(7.0, 4.0))
 
         #declare tolerance
-        self.translationController.setTolerance(units.inchesToMeters(1.0))
-        self.rotationController.setTolerance(units.degreesToRadians(1.0))
+        self.translationController.setTolerance(1e-2)
+        self.rotationController.setTolerance(units.degreesToRadians(0.5))
 
         self.addRequirements(self.s_Swerve)
 
@@ -73,14 +75,14 @@ class AutoAlignReef(Command):
 
 
         # print(str(self.translationController.getGoal()))
-        # print("Distance" + str(self.distance))
+        SmartDashboard.putString("Distance", str(self.distance))
         # SmartDashboard.putString("Auto Align/ Current Pose", str(self.position))
-        # SmartDashboard.putString("Auto Align/ Target Pose", str(self.targetPose))
+        SmartDashboard.putString("Auto Align/ Target Pose", str(self.targetPose))
 
 
 
     def isFinished(self):
-        finished = self.translationController.atGoal() and self.rotationController.atGoal() or self.distance <= 0.0508
+        finished = self.translationController.atGoal() and self.rotationController.atGoal()# or self.distance <= 0.0508
 
         # SmartDashboard.putBoolean("Auto Align/ Finished", finished)
         return finished
@@ -113,10 +115,11 @@ class AutoAlignReef(Command):
             return mod_angle - 360
         return mod_angle
     
-    def scalar(self, distance, min_distance=-0.1, max_distance=0.1):
+    def scalar(self, distance, min_distance=-0.1, max_distance=0.3):
         if distance > max_distance:
             return 1.0
         elif min_distance < distance < max_distance:
+            #return clamp((1 / (max_distance - min_distance)) * (distance - min_distance), 0.0, 1.0)
             return np.clip((1 / (max_distance - min_distance)) * (distance - min_distance), 0, 1)
         else:
             return 0.0

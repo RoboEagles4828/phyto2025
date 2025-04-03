@@ -42,6 +42,7 @@ class LED(Subsystem):
         SmartDashboard.putBoolean("RobotState/AlgaeScoring Mode", self.robotState.getAlgaeScoringMode())
         SmartDashboard.putBoolean("RobotState/DeAlgefying Mode", self.robotState.getDeAlgaefyingMode())
         SmartDashboard.putBoolean("RobotState/Automation Mode", self.robotState.getAutomationMode())
+        SmartDashboard.putBoolean("RobotState/Align Left", self.robotState.getAlignLeft())
         if DriverStation.isAutonomous() == True:
             self.set_is_auto()
         elif self.robotState.getIsReady():

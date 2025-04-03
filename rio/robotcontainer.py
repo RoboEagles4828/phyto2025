@@ -29,7 +29,7 @@ from wpimath.units import rotationsToRadians
 from wpilib import Joystick, RobotBase, SmartDashboard
 from wpilib.shuffleboard import Shuffleboard
 
-from pathplannerlib.auto import AutoBuilder, PathPlannerPath
+from pathplannerlib.auto import AutoBuilder, PathPlannerPath, PathConstraints
 
 from subsystems.swerve.command_swerve_drivetrain import CommandSwerveDrivetrain
 from subsystems.elevator.elevator import Elevator
@@ -57,11 +57,11 @@ class RobotContainer:
     """
 
     elevatorL1 = 1.105
-    elevatorL2 = 1.6
+    elevatorL2 = 1.69
     ElevatorEncoderL2 = 3568
     ElevatorEncoderL3 = 5842
-    elevatorL3 = 2.355
-    elevatorL4 = 3.9
+    elevatorL3 = 2.57
+    elevatorL4 = 4.05
     elevatorHighAlgae = 3.0
     elevatorLowAlgae = 2.0
     cannonL1Top = (elevatorL1 + elevatorL2) / 2
@@ -128,7 +128,7 @@ class RobotContainer:
         self.cannon = Cannon()
         self.stateManager = RobotState()
         self.led = LED(self.stateManager)
-        self.vision = VisionSubsystem(self.drivetrain)
+        self.vision = VisionSubsystem(self.drivetrain, self.stateManager)
         self.pose = Pose(self.drivetrain)
         self.algae_manipulator = AlgaeManipulator()
         self.isRed = False
@@ -142,6 +142,7 @@ class RobotContainer:
         self.alignRightCommands: dict[ReefFace, Command] = {}
         self.alignApproachAlgaeCommands: dict[ReefFace, Command] = {}
         self.alignAlgaeCommands: dict[ReefFace, Command] = {}
+        self.pathPlannerAlignCommands: dict[ReefFace, Command] = {}
 
         for face in ReefFace:
             self.populateCommandList(face)
@@ -186,6 +187,9 @@ class RobotContainer:
         NamedCommands.registerCommand(
             "Auto Align Left KL", self.alignLeftCommands[ReefFace.KL]
         )
+        NamedCommands.registerCommand(
+            "Auto Align Left GH", self.alignLeftCommands[ReefFace.GH]
+        )
 
         # Configure the button bindings
 
@@ -198,53 +202,58 @@ class RobotContainer:
 
     def populateCommandList(self, face: ReefFace):
         self.alignLeftCommands[face] = SequentialCommandGroup(
-            PID_Swerve(
-                self.drivetrain,
-                (
-                    FlippingUtil.flipFieldPose(face.alignLeftApproach)
-                    if self.pose.colorStatus
-                    else face.alignLeftApproach
-                ),
-                False,
-            ).andThen(
                 PID_Swerve(
                     self.drivetrain,
                     (
-                        FlippingUtil.flipFieldPose(face.alignLeft)
+                        FlippingUtil.flipFieldPose(face.alignLeftApproach)
                         if self.pose.colorStatus
-                        else face.alignLeft
+                        else face.alignLeftApproach
                     ),
-                    True,
+                    False
+                ).andThen(
+                    PID_Swerve(
+                        self.drivetrain,
+                        (
+                            FlippingUtil.flipFieldPose(face.alignLeft)
+                            if self.pose.colorStatus
+                            else face.alignLeft
+                        ),
+                        True
+                    )
                 )
-            )
-        ).withTimeout(3.0)
+        ).withTimeout(5.0)
         # self.alignRightCommands[face] = SequentialCommandGroup(PID_Swerve(self.drivetrain, FlippingUtil.flipFieldPose(face.alignRight) if self.pose.colorStatus else face.alignRight, True)).withTimeout(6.0)
         self.alignRightCommands[face] = (
-            SequentialCommandGroup(
-                AutoAlignReef(
+                PID_Swerve(
                     self.drivetrain,
                     (
                         FlippingUtil.flipFieldPose(face.alignRightApproach)
                         if self.pose.colorStatus
                         else face.alignRightApproach
                     ),
-                    False,
-                    self.pose.colorStatus,
-                )
-            )
-            .andThen(
-                AutoAlignReef(
+                    False
+                ).andThen(
+                    PID_Swerve(
                     self.drivetrain,
                     (
                         FlippingUtil.flipFieldPose(face.alignRight)
                         if self.pose.colorStatus
                         else face.alignRight
                     ),
-                    True,
-                    self.pose.colorStatus,
+                    True
+                    )
+                )
+            .withTimeout(5.0)
+        )
+        self.pathPlannerAlignCommands[face] = (
+            AutoBuilder.pathfindToPose(
+                FlippingUtil.flipFieldPose(face.alignRight)
+                if self.pose.colorStatus
+                else face.alignRight,
+                PathConstraints(
+                    2, 4, 540, 720
                 )
             )
-            .withTimeout(3.0)
         )
         self.alignApproachAlgaeCommands[face] = SequentialCommandGroup(
             PID_Swerve(
@@ -289,13 +298,9 @@ class RobotContainer:
                     ),
                     lambda: self.stateManager.getAlignLeft(),
                 ).andThen(
-                    self.elevator.move_to_position_execute().until(
-                        lambda: self.elevator.tolerablePosition()  # TODO: we may not need this line anymore?
-                    )
+                    self.elevator.move_to_position_execute()
                 ),
-                self.elevator.move_to_position_execute().until(
-                    lambda: self.elevator.tolerablePosition()  # TODO: we may not need this line anymore?
-                ),
+                self.elevator.move_to_position_execute(),
                 lambda: self.stateManager.getAutomationMode(),
             )
         )
@@ -430,14 +435,14 @@ class RobotContainer:
         self._operator_joystick.povDown().onTrue(
             self.elevator.move_to_zero().withTimeout(3.0)
         )  # TODO: Adjust Timeout
-        # self._operator_joystick.povLeft().onTrue(self.algae_manipulator.pivotPosition(True)) # manual debug
-        # self._operator_joystick.povRight().onTrue(self.algae_manipulator.pivotPosition(False)) # manual debug
-        self._operator_joystick.povLeft().onTrue(
-            InstantCommand(lambda: self.stateManager.setDeAlgaefyingMode())
-        )
-        self._operator_joystick.povRight().onTrue(
-            InstantCommand(lambda: self.stateManager.setAlgaeScoringMode())
-        )
+        self._operator_joystick.povLeft().onTrue(self.algae_manipulator.pivotPosition(True)) # manual debug
+        self._operator_joystick.povRight().onTrue(self.algae_manipulator.pivotPosition(False)) # manual debug
+        # self._operator_joystick.povLeft().onTrue(
+        #     InstantCommand(lambda: self.stateManager.setDeAlgaefyingMode())
+        # )
+        # self._operator_joystick.povRight().onTrue(
+        #     InstantCommand(lambda: self.stateManager.setAlgaeScoringMode())
+        # )
         self._operator_joystick.back().onTrue(
             InstantCommand(
                 lambda: self.stateManager.setAutomationMode(

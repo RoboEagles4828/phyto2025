@@ -9,6 +9,7 @@ from photonlibpy.photonPoseEstimator import PhotonPoseEstimator, PoseStrategy
 from photonlibpy.targeting import PhotonTrackedTarget, PhotonPipelineResult
 from photonlibpy.estimatedRobotPose import EstimatedRobotPose
 from phoenix6.utils import fpga_to_current_time
+from subsystems.robotstate.robotstate import RobotState
 from robotpy_apriltag import AprilTagFieldLayout, AprilTagField
 from wpilib import SmartDashboard
 from wpilib import RobotBase, Timer, Field2d
@@ -32,20 +33,21 @@ from typing import Optional
 
 class VisionSubsystem(Subsystem):
 
-    def __init__(self, swerve: CommandSwerveDrivetrain):
+    def __init__(self, swerve: CommandSwerveDrivetrain, robotState: RobotState):
         self.frontLeftCamera = PhotonCamera("frontLeft")
-        # self.frontRightCamera = PhotonCamera("frontRight")
+        self.frontRightCamera = PhotonCamera("frontRight")
         self.lastEstimatedTimestamp = 0.0
         self.lastPose = Pose2d()
         self.swerve = swerve
+        self.robotState = robotState
         self.updateDashboard = True
         self.field = Field2d()
         kTagLayout = AprilTagFieldLayout.loadField(AprilTagField.k2025ReefscapeAndyMark)
 
         self.photonEstimator = PhotonPoseEstimator(kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, self.frontLeftCamera, constants.kRobotToFrontLeftCameraTransform)
-        # self.photonEstimatorRight = PhotonPoseEstimator(kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, self.frontRightCamera, constants.kRobotToFrontRightCameraTransform)
+        self.photonEstimatorRight = PhotonPoseEstimator(kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, self.frontRightCamera, constants.kRobotToFrontRightCameraTransform)
         self.photonEstimator.multiTagFallbackStrategy = PoseStrategy.LOWEST_AMBIGUITY
-        self.photonEstimator.multiTagFallbackStrategy = PoseStrategy.LOWEST_AMBIGUITY
+        self.photonEstimatorRight.multiTagFallbackStrategy = PoseStrategy.LOWEST_AMBIGUITY
 
         
 
@@ -103,39 +105,41 @@ class VisionSubsystem(Subsystem):
             
         return updated
     
-    # def updateRightPoseEstimation(self):
-    #     listofResults = self.frontRightCamera.getAllUnreadResults()
-    #     newResult = not(listofResults)
-    #     updated = False
+    def updateRightPoseEstimation(self):
+        listofResults = self.frontRightCamera.getAllUnreadResults()
+        newResult = not(listofResults)
+        updated = False
 
-    #     for result in listofResults:
-    #         lastResult = result
+        for result in listofResults:
+            lastResult = result
 
-    #         rightOptRobotPose = self.photonEstimatorRight.update(lastResult)
+            rightOptRobotPose = self.photonEstimatorRight.update(lastResult)
 
-    #         if rightOptRobotPose == None:
-    #             # print("ignoring right")
-    #             continue
+            if rightOptRobotPose == None:
+                # print("ignoring right")
+                continue
 
-    #         lastRobotRightPose = rightOptRobotPose.estimatedPose.toPose2d()
-    #         self.field.setRobotPose(lastRobotRightPose)
+            lastRobotRightPose = rightOptRobotPose.estimatedPose.toPose2d()
+            self.field.setRobotPose(lastRobotRightPose)
 
-    #         if self.swerve.get_state().pose!= None:
-    #             self.swerve.add_vision_measurement(lastRobotRightPose, fpga_to_current_time(rightOptRobotPose.timestampSeconds))
-    #             updated = True
-    #             return updated
+            if self.swerve.get_state().pose!= None:
+                self.swerve.add_vision_measurement(lastRobotRightPose, fpga_to_current_time(rightOptRobotPose.timestampSeconds))
+                updated = True
+                return updated
             
-    #     return updated
+        return updated
 
     
     def getLastPose(self):
         return self.lastPose
     
     def periodic(self):
-        result = self.frontLeftCamera.getLatestResult()
-        haveTarget = result.hasTargets()
-
-        self.updatePoseEstimation()
+        # result = self.frontLeftCamera.getLatestResult()
+        # haveTarget = result.hasTargets()
+        if self.robotState.isAlignLeft:
+         self.updateRightPoseEstimation()
+        else:
+            self.updatePoseEstimation()
         # if self.updatePoseEstimation() == False:
             # self.updateRightPoseEstimation()
 

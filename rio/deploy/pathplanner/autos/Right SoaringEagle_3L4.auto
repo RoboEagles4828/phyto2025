@@ -1,0 +1,141 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Hopper Intake"
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "L4 Dumper Path Right"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Elevator to L4"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Cannon L1"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Elevator to Zero"
+                      }
+                    },
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "J to RightCS"
+                      }
+                    },
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 1.0
+                      }
+                    },
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "RightCS to D"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Cannon Stop"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Elevator to L4"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Cannon L1"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Elevator to Zero"
+                      }
+                    },
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "D to RightCS"
+                      }
+                    },
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 1.0
+                      }
+                    },
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "RightCS to C"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Cannon Stop"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Elevator to L4"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Cannon L1"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Elevator to Zero"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

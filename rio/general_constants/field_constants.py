@@ -28,17 +28,17 @@ class FieldConstants:
     reefFaceSixRed = Pose2d(Units.inchesToMeters(530.49), Units.inchesToMeters(130.17), Rotation2d(300))
  
     bumperWidth = Units.inchesToMeters(3.4)
-    reefStandOff = Units.inchesToMeters(0.0)
-    reefOffSet = Units.inchesToMeters(28 / 2.0) + bumperWidth + reefStandOff - Units.inchesToMeters(2)
-    reefExtraOffSet = Units.inchesToMeters(40.0)
+    reefStandOff = Units.inchesToMeters(0.01)
+    reefOffSet = Units.inchesToMeters(28 / 2.0) + bumperWidth + reefStandOff
+    reefExtraOffSet = Units.inchesToMeters(14.0)
 
     fieldWidth = Units.inchesToMeters(26*12+3)
     reefCenter = Translation2d(Units.inchesToMeters(176.75), fieldWidth/2)
     reefToFaceDistance = reefCenter.X() - Units.inchesToMeters(144.0)
     branchSeperation = Units.inchesToMeters(12.0 + 15.0 / 16.0)
     centerOffset = Translation2d(reefToFaceDistance + reefOffSet, 0.0)
-    leftOffset = Translation2d(reefToFaceDistance + reefOffSet, (-branchSeperation/2.0)-0.102)
-    rightOffset = Translation2d(reefToFaceDistance + reefOffSet, (branchSeperation/2.0)-0.102)
+    leftOffset = Translation2d(reefToFaceDistance + reefOffSet, (-branchSeperation/2.0))
+    rightOffset = Translation2d(reefToFaceDistance + reefOffSet, (branchSeperation/2.0))
     algaeOffset = Translation2d(reefToFaceDistance + reefOffSet, (-branchSeperation/2.0))
     extraOffset  = Translation2d(reefExtraOffSet, 0.0)
 
@@ -57,6 +57,20 @@ class ReefFace(Enum):
 
     def __init__(self, directionDegrees):
         self.directionFromCenter = Rotation2d.fromDegrees(directionDegrees)
+        trueLeftOffset = FieldConstants.leftOffset
+        trueRightOffset = FieldConstants.rightOffset
+        trueLeftOffsetApproach = FieldConstants.leftApproachOffset
+        trueRightOffsetApproach = FieldConstants.rightApproachOffset
+
+        if directionDegrees ==  -180:
+            FieldConstants.leftOffset = Translation2d(trueLeftOffset.X(), trueLeftOffset.Y()-0.0508)
+            FieldConstants.rightOffset = Translation2d(trueRightOffset.X(), trueRightOffset.Y()-0.0508)
+            FieldConstants.leftApproachOffset = Translation2d(trueLeftOffsetApproach.X(), trueLeftOffsetApproach.Y()-0.0508)
+            FieldConstants.rightApproachOffset = Translation2d(trueRightOffsetApproach.X(), trueRightOffsetApproach.Y()-0.0508)
+        else:
+            FieldConstants.leftOffset = trueLeftOffset
+            FieldConstants.rightOffset = trueRightOffset
+
         self.alignMiddle = Pose2d(FieldConstants.reefCenter.__add__(
             FieldConstants.centerOffset).rotateAround(
                 FieldConstants.reefCenter, self.directionFromCenter), self.directionFromCenter.__add__(

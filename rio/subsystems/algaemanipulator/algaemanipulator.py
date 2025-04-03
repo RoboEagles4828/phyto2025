@@ -67,10 +67,10 @@ class AlgaeManipulator(Subsystem):
         return ConditionalCommand(
             # self.run(lambda: self.setSpeed(self.pivotMotor, 1.0)).until(self.pivotMotor.isFwdLimitSwitchClosed()), # ontrue
             # self.run(lambda: pivotPositionself.setSpeed(self.pivotMotor, 1.0)).until(self.pivotMotor.isRevLimitSwitchClosed()), # onfalse
-            self.run(lambda: self.setSpeed(self.pivotMotor, 0.30)).until(
+            self.run(lambda: self.setSpeed(self.pivotMotor, 0.20)).until(
                 self.pivotStall
             ),  # ontrue
-            self.run(lambda: self.setSpeed(self.pivotMotor, -0.30)).until(
+            self.run(lambda: self.setSpeed(self.pivotMotor, -0.20)).until(
                 self.pivotStall
             ),  # onfalse
             lambda: pos,  # bool

@@ -29,16 +29,16 @@ class PID_Swerve(Command):
     # yPID: PIDController = PIDController(0.02, 0.0, 0.0)
     
     presiceKP = 0.05
-    roughKP = 0.1
-    positionTolerance = 0.5
-    roughPositionTolerance = 4
+    roughKP = 0.05
+    positionTolerance = Units.metersToInches(0.5e-2)
+    roughPositionTolerance = Units.metersToInches(1)
     maxSpeed = 1.0
     positionKs = 0.02
-    positionIZone = 4.0
+    positionIZone = 1.0
 
     # rotationPID = PIDController(0.003, 0.0, 0.0)
     angleTolerance = 1
-    roughAngleTolerance = 1.5
+    roughAngleTolerance = 1.0
     maxAngularVelociy = 5.21 / 0.5
 
     def __init__(self, swerve: CommandSwerveDrivetrain, targetPose: Pose2d, presice: bool):
@@ -50,7 +50,7 @@ class PID_Swerve(Command):
 
         
 
-        self.xPID = PIDController(PID_Swerve.presiceKP if self.presice else PID_Swerve.roughKP, 0.0, 0.0)
+        self.xPID = PIDController(0.18 if self.presice else PID_Swerve.roughKP, 0.0, 0.001)
         self.yPID = PIDController(PID_Swerve.presiceKP if self.presice else PID_Swerve.roughKP, 0.0, 0.0)
         self.rotationPID = PIDController(0.005, 0.0, 0.0)
 
@@ -91,15 +91,16 @@ class PID_Swerve(Command):
         # RobotState.setAutoAligning(True)
 
         xCorrection = self.xPID.calculate(Units.metersToInches(position.X()))
-        xFeedForward = self.positionKs * math.copysign(1, xCorrection)
+        xFeedForward = 0 #self.positionKs * math.copysign(1, xCorrection)
         xVal = max(-1, min(xCorrection+xFeedForward, 1))
-        
+        SmartDashboard.putString("Auto Align/ XErr", str(self.xPID.getError()))
         
         
 
         yCorrection = self.yPID.calculate(Units.metersToInches(position.Y()))
-        yFeedForward = self.positionKs * math.copysign(1, yCorrection)
+        yFeedForward = 0 #self.positionKs * math.copysign(1, yCorrection)
         yVal = max(-1, min(yCorrection+yFeedForward, 1))
+        SmartDashboard.putString("Auto Align/ YErr", str(self.yPID.getError()))
         
         
         
@@ -108,8 +109,9 @@ class PID_Swerve(Command):
         corection = self.rotationPID.calculate(rotation.degrees())
         feedForward = 0 # 0.02 * math.copysign(1, corection)
         rotationVal = max(-1.0, min(corection+feedForward, 1.0))
+        SmartDashboard.putString("Auto Align/ rotErr", str(self.rotationPID.getError()))
 
-        self.s_Swerve.drive(Translation2d(xVal, yVal).__mul__(1.75), rotationVal*PID_Swerve.maxAngularVelociy, True)
+        self.s_Swerve.drive(Translation2d(xVal, yVal).__mul__(1.4), rotationVal*PID_Swerve.maxAngularVelociy, True)
 
         # SmartDashboard.putString("Auto Align/ Current Pose", str(position))
         # SmartDashboard.putString("Auto Align/ Target Pose", str(self.targetPose))

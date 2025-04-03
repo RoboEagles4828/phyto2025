@@ -206,20 +206,20 @@ class Vision_Constants:
     kRobotToFrontLeftCameraTransform = Transform3d(
         Pose3d(),
         Pose3d(
-            10 * kMetersPerInch,
-            10 * kMetersPerInch,
+            (14-2.0751170) * kMetersPerInch,
+            (14-5.054041) * kMetersPerInch,
             8.25 * kMetersPerInch,
-            Rotation3d(0.0, -4.125 * kRadiansPerDegree, 0.0)
+            Rotation3d(0.0, math.radians(0), math.radians(-14))
             ),
         )
         
     kRobotToFrontRightCameraTransform = Transform3d(
         Pose3d(),
         Pose3d(
-            10 * kMetersPerInch,
-            -10 * kMetersPerInch,
+            (12.5) * kMetersPerInch,
+            (-14+5.054041) * kMetersPerInch,
             8.25 * kMetersPerInch,
-            Rotation3d(0.0, -4.125 * kRadiansPerDegree, 0.0),
+            Rotation3d(0.0, 0 * kRadiansPerDegree, math.radians(14)),
         ),
     )
     kRobotToBackLeftCameraTransform = Transform3d(

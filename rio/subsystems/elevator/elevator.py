@@ -82,6 +82,8 @@ class Elevator(Subsystem):
 
         self.debouncer = Debouncer(0.1, Debouncer.DebounceType.kBoth)
 
+        self.bottomLimitSwitchTriggered = self.bottomLimitSwitch.get()
+
         self.desiredPosition = 0.0
         self.nextTargetPosition = 0.0
         self.levelingSlot = 0
@@ -122,7 +124,7 @@ class Elevator(Subsystem):
             lambda: self.setTargetRotation(self.nextTargetPosition),
             lambda: self.rightMotorLeader.set_control(
                 self.request.with_position(self.nextTargetPosition).with_slot(self.levelingSlot).with_limit_forward_motion(not(self.topLimitSwitch.get())).with_limit_reverse_motion(self.bottomLimitSwitch.get())
-            )).andThen(self.runOnce(lambda: RobotState.setIsReady(True)))
+            )).until(lambda: self.tolerablePosition())
         # return ConditionalCommand(
         #     self.startRun(
         #     lambda: self.setTargetRotation(self.nextTargetPosition),
@@ -223,7 +225,7 @@ class Elevator(Subsystem):
         # SmartDashboard.putBoolean("Elevator / Top Limit Switch", self.topLimitSwitch.get())
         SmartDashboard.putBoolean("Elevator / Bottom Limit Switch", self.bottomLimitSwitch.get())
         SmartDashboard.putNumber("Elevator / Position", self.getPosition())
-        # SmartDashboard.putNumber("Elevator / Desired Position", self.desiredPosition)
+        SmartDashboard.putNumber("Elevator / Desired Position", self.desiredPosition)
         SmartDashboard.putNumber("Elevator / Encoder Position", self.encoder.getDistance())
         
         
@@ -237,8 +239,13 @@ class Elevator(Subsystem):
 
     def set_motor_zero(self):
         if self.debouncer.calculate(self.bottomLimitSwitch.get()):
-            self.rightMotorLeader.set_position(0.0)
-            self.encoder.reset()
+            if not self.bottomLimitSwitchTriggered:
+                self.rightMotorLeader.set_position(0.0)
+                self.encoder.reset()
+
+            self.bottomLimitSwitchTriggered = True
+        else:
+            self.bottomLimitSwitchTriggered = False
 
     def getPosition(self) -> float:
         return self.rightMotorLeader.get_position().value
