@@ -221,7 +221,7 @@ class RobotContainer:
                         True
                     )
                 )
-        ).withTimeout(5.0)
+        ).withTimeout(3.0)
         # self.alignRightCommands[face] = SequentialCommandGroup(PID_Swerve(self.drivetrain, FlippingUtil.flipFieldPose(face.alignRight) if self.pose.colorStatus else face.alignRight, True)).withTimeout(6.0)
         self.alignRightCommands[face] = (
                 PID_Swerve(
@@ -243,7 +243,7 @@ class RobotContainer:
                     True
                     )
                 )
-            .withTimeout(5.0)
+            .withTimeout(3.0)
         )
         self.pathPlannerAlignCommands[face] = (
             AutoBuilder.pathfindToPose(
@@ -448,6 +448,13 @@ class RobotContainer:
                 lambda: self.stateManager.setAutomationMode(
                     not (self.stateManager.automationMode)
                 )
+            )
+        )
+
+        import time;
+        self._operator_joystick.povUp().onTrue(
+            InstantCommand(
+                lambda: print(f"The time recieved POVUP is {time.time()}")
             )
         )
         # make controls better
