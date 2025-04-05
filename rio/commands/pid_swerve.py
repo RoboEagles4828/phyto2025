@@ -28,7 +28,7 @@ class PID_Swerve(Command):
     # xPID: PIDController = PIDController(0.02, 0.0, 0.0)
     # yPID: PIDController = PIDController(0.02, 0.0, 0.0)
     
-    presiceKP = 0.05
+    presiceKP = 0.09*1.4
     roughKP = 0.05
     positionTolerance = Units.metersToInches(0.5e-2)
     roughPositionTolerance = Units.metersToInches(1)
@@ -50,8 +50,8 @@ class PID_Swerve(Command):
 
         
 
-        self.xPID = PIDController(0.09 if self.presice else PID_Swerve.roughKP, 0.0, 0.001)
-        self.yPID = PIDController(PID_Swerve.presiceKP if self.presice else PID_Swerve.roughKP, 0.0, 0.0)
+        self.xPID = PIDController(PID_Swerve.presiceKP if self.presice else PID_Swerve.roughKP, 0.0, 0.001)
+        self.yPID = PIDController(PID_Swerve.presiceKP if self.presice else PID_Swerve.roughKP, 0.0, 0.001)
         self.rotationPID = PIDController(0.005, 0.0, 0.0)
 
         # self.xPID.setIZone(PID_Swerve.positionIZone)
@@ -111,7 +111,7 @@ class PID_Swerve(Command):
         rotationVal = max(-1.0, min(corection+feedForward, 1.0))
         SmartDashboard.putString("Auto Align/ rotErr", str(self.rotationPID.getError()))
 
-        self.s_Swerve.drive(Translation2d(xVal, yVal).__mul__(1.4), rotationVal*PID_Swerve.maxAngularVelociy, True)
+        self.s_Swerve.drive(Translation2d(xVal, yVal), rotationVal*PID_Swerve.maxAngularVelociy, True)
 
         # SmartDashboard.putString("Auto Align/ Current Pose", str(position))
         # SmartDashboard.putString("Auto Align/ Target Pose", str(self.targetPose))

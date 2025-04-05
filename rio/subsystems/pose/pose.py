@@ -110,7 +110,7 @@ class Pose(Subsystem):
     def periodic(self):
         # 
         self.pose = self.swerve.getPose()
-        self.getPose()
+        # self.getPose()
         self.bearingAngle = self.reefBearing(self.getTranslation(), False)
         self.closestFace = self.neartestFace(self.getTranslation(), False)
         # self.isRobotRed()

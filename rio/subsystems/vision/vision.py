@@ -82,7 +82,7 @@ class VisionSubsystem(Subsystem):
     def updatePoseEstimation(self):
         listofResults = self.frontLeftCamera.getAllUnreadResults()
         # listofResultsRight = self.frontRightCamera.getAllUnreadResults()
-        newResult = not(listofResults)
+        # newResult = not(listofResults)
         updated = False
 
 
@@ -107,7 +107,7 @@ class VisionSubsystem(Subsystem):
     
     def updateRightPoseEstimation(self):
         listofResults = self.frontRightCamera.getAllUnreadResults()
-        newResult = not(listofResults)
+        # newResult = not(listofResults)
         updated = False
 
         for result in listofResults:
@@ -136,10 +136,8 @@ class VisionSubsystem(Subsystem):
     def periodic(self):
         # result = self.frontLeftCamera.getLatestResult()
         # haveTarget = result.hasTargets()
-        if self.robotState.isAlignLeft:
-         self.updateRightPoseEstimation()
-        else:
-            self.updatePoseEstimation()
+        self.updateRightPoseEstimation()
+        self.updatePoseEstimation()
         # if self.updatePoseEstimation() == False:
             # self.updateRightPoseEstimation()
 

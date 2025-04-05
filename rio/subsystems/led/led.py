@@ -38,18 +38,19 @@ class LED(Subsystem):
         return self.set_color(LED_Constants.kisAuto)
 
     def periodic(self):
-        SmartDashboard.putNumber("LED/LED Value", self.led.get())
-        SmartDashboard.putBoolean("RobotState/AlgaeScoring Mode", self.robotState.getAlgaeScoringMode())
-        SmartDashboard.putBoolean("RobotState/DeAlgefying Mode", self.robotState.getDeAlgaefyingMode())
-        SmartDashboard.putBoolean("RobotState/Automation Mode", self.robotState.getAutomationMode())
-        SmartDashboard.putBoolean("RobotState/Align Left", self.robotState.getAlignLeft())
-        if DriverStation.isAutonomous() == True:
-            self.set_is_auto()
-        elif self.robotState.getIsReady():
-            self.set_is_ready()
-        elif self.robotState.getAutoAligning():
-            self.set_is_aligning()
-        elif self.robotState.getCoralInCannon():
-            self.set_has_coral()
-        else:
-            self.set_default_color()    
+        # SmartDashboard.putNumber("LED/LED Value", self.led.get())
+        # SmartDashboard.putBoolean("RobotState/AlgaeScoring Mode", self.robotState.getAlgaeScoringMode())
+        # SmartDashboard.putBoolean("RobotState/DeAlgefying Mode", self.robotState.getDeAlgaefyingMode())
+        # SmartDashboard.putBoolean("RobotState/Automation Mode", self.robotState.getAutomationMode())
+        # SmartDashboard.putBoolean("RobotState/Align Left", self.robotState.getAlignLeft())
+        # if DriverStation.isAutonomous() == True:
+        #     self.set_is_auto()
+        # elif self.robotState.getIsReady():
+        #     self.set_is_ready()
+        # elif self.robotState.getAutoAligning():
+        #     self.set_is_aligning()
+        # elif self.robotState.getCoralInCannon():
+        #     self.set_has_coral()
+        # else:
+        #     self.set_default_color()
+        pass    

@@ -223,7 +223,7 @@ class RobotContainer:
                 )
         ).withTimeout(3.0)
         # self.alignRightCommands[face] = SequentialCommandGroup(PID_Swerve(self.drivetrain, FlippingUtil.flipFieldPose(face.alignRight) if self.pose.colorStatus else face.alignRight, True)).withTimeout(6.0)
-        self.alignRightCommands[face] = (
+        self.alignRightCommands[face] = SequentialCommandGroup(
                 PID_Swerve(
                     self.drivetrain,
                     (
@@ -243,9 +243,9 @@ class RobotContainer:
                     True
                     )
                 )
-            .withTimeout(3.0)
-        )
-        self.pathPlannerAlignCommands[face] = (
+            
+        ).withTimeout(3.0)
+        self.pathPlannerAlignCommands[face] = SequentialCommandGroup(
             AutoBuilder.pathfindToPose(
                 FlippingUtil.flipFieldPose(face.alignRight)
                 if self.pose.colorStatus

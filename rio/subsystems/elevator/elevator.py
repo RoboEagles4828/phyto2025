@@ -124,7 +124,7 @@ class Elevator(Subsystem):
             lambda: self.setTargetRotation(self.nextTargetPosition),
             lambda: self.rightMotorLeader.set_control(
                 self.request.with_position(self.nextTargetPosition).with_slot(self.levelingSlot).with_limit_forward_motion(not(self.topLimitSwitch.get())).with_limit_reverse_motion(self.bottomLimitSwitch.get())
-            )).until(lambda: self.tolerablePosition())
+            )).until(lambda: self.tolerablePosition()).withTimeout(3.0)
         # return ConditionalCommand(
         #     self.startRun(
         #     lambda: self.setTargetRotation(self.nextTargetPosition),
