@@ -57,11 +57,11 @@ class RobotContainer:
     """
 
     elevatorL1 = 1.105
-    elevatorL2 = 1.69
+    elevatorL2 = 1.9
     ElevatorEncoderL2 = 3568
     ElevatorEncoderL3 = 5842
-    elevatorL3 = 2.57
-    elevatorL4 = 4.05
+    elevatorL3 = 2.84
+    elevatorL4 = 4.102
     elevatorHighAlgae = 3.0
     elevatorLowAlgae = 2.0
     cannonL1Top = (elevatorL1 + elevatorL2) / 2
@@ -448,13 +448,6 @@ class RobotContainer:
                 lambda: self.stateManager.setAutomationMode(
                     not (self.stateManager.automationMode)
                 )
-            )
-        )
-
-        import time;
-        self._operator_joystick.povUp().onTrue(
-            InstantCommand(
-                lambda: print(f"The time recieved POVUP is {time.time()}")
             )
         )
         # make controls better

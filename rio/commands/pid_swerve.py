@@ -50,7 +50,7 @@ class PID_Swerve(Command):
 
         
 
-        self.xPID = PIDController(0.18 if self.presice else PID_Swerve.roughKP, 0.0, 0.001)
+        self.xPID = PIDController(0.09 if self.presice else PID_Swerve.roughKP, 0.0, 0.001)
         self.yPID = PIDController(PID_Swerve.presiceKP if self.presice else PID_Swerve.roughKP, 0.0, 0.0)
         self.rotationPID = PIDController(0.005, 0.0, 0.0)
 
